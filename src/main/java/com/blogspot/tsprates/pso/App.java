@@ -5,10 +5,25 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.util.Properties;
 
+/**
+ * Programa.
+ * 
+ * @author thiago
+ *
+ */
 public class App {
+    
+    /**
+     * Main.
+     * 
+     * @param args
+     */
     public static void main(String[] args) {
-	System.out.println("Projeto de Dissertação Mestrado");
-	System.out.println("Implementação PSO");
+	System.out.println("------------------------------------");
+	System.out.println(" Projeto de Dissertação Mestrado	");
+	System.out.println(" Implementação PSO			");
+	System.out.println("------------------------------------");
+	System.out.println();
 
 	Connection conexaoDb = new DbFactory().conecta();
 	Properties config = getConfigProperties();	
