@@ -1,0 +1,3 @@
+saida=classificacao
+id=cod
+npop=30
