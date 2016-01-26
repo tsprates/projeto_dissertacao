@@ -45,7 +45,7 @@ public class Pso {
 
     private int numPop;
 
-    private final Random rand = new Random();
+    private final Random sorteio = new Random();
 
     private final static String TABELA = "wine_class";
 
@@ -129,14 +129,14 @@ public class Pso {
 		}
 	    }
 
-//	    System.out.println(Arrays.toString(colunas));
+	    // System.out.println(Arrays.toString(colunas));
 
 	    ps.close();
 	    rs.close();
 	} catch (SQLException e) {
 	    throw new RuntimeException("Erro ao recuperar nome das colunas.", e);
 	} finally {
-	    
+
 	}
     }
 
@@ -197,28 +197,40 @@ public class Pso {
 
     private void geraPopulacaoInicial() {
 	for (int i = 0; i < numPop; i++) {
-	    List<String> listaWhere = criaListaWhere();
-	    
+	    List<String> vel = criaListaWhere();
+	    List<String> pos = criaListaWhere();
+
 	    int size = tipoSaidas.size();
 	    String classe = tipoSaidas.get(i % size);
-	    particulas.add(new Particula(listaWhere, classe));
+	    Particula particula = new Particula(vel, pos, classe);
+	    
+	    particulas.add(particula);
 	}
     }
 
     private List<String> criaListaWhere() {
 	int numCol = colunas.length;
 	int numOper = OPERADORES.length;
-	int maxWhere = rand.nextInt(numCol) + 1;
+	int maxWhere = sorteio.nextInt(numCol) + 1;
 
 	List<String> listaWhere = new ArrayList<>();
 
 	for (int i = 0; i < maxWhere; i++) {
-	    int col = rand.nextInt(numCol);
-	    int oper = rand.nextInt(numOper);
+	    int col = sorteio.nextInt(numCol);
+	    int oper = sorteio.nextInt(numOper);
+
+	    String cond2;
+
+	    if (sorteio.nextDouble() > 0.5) {
+		cond2 = String.valueOf(RandomUtils.nextDouble(min[col],
+			max[col]));
+	    } else {
+		int index = sorteio.nextInt(numCol);
+		cond2 = colunas[index];
+	    }
 
 	    String whereSql = String.format("%s %s %s", colunas[col],
-		    OPERADORES[oper],
-		    RandomUtils.nextDouble(min[col], max[col]));
+		    OPERADORES[oper], cond2);
 
 	    listaWhere.add(whereSql);
 	}
@@ -230,9 +242,9 @@ public class Pso {
      * 
      */
     public void mostraPopulacao() {
-	// for (Particula p : particulas) {
-	// System.out.println(p.getWhereSql());
-	// }
+	for (Particula p : particulas) {
+	    System.out.println(p.getVelocidadeSql());
+	}
 
 	System.out.println("Classes");
 
