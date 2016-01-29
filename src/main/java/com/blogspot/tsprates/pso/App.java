@@ -19,14 +19,14 @@ public class App {
      * @param args
      */
     public static void main(String[] args) {
-	System.out.println("------------------------------------");
-	System.out.println(" Projeto de Dissertação Mestrado	");
-	System.out.println(" Implementação PSO			");
-	System.out.println("------------------------------------");
+	System.out.println("----------------------------------------");
+	System.out.println("    Projeto de Dissertação Mestrado     ");
+	System.out.println("    Implementação PSO                   ");
+	System.out.println("----------------------------------------");
 	System.out.println();
 
 	Connection conexaoDb = new DbFactory().conecta();
-	Properties config = getConfigProperties();	
+	Properties config = getConfigs();	
 	Pso pso = new Pso(conexaoDb, config);
 	pso.carrega();
 	pso.mostraPopulacao();
@@ -38,7 +38,7 @@ public class App {
      * 
      * @return Properties
      */
-    private static Properties getConfigProperties() {
+    private static Properties getConfigs() {
 	try {
 	    FileInputStream fis = new FileInputStream("configs.txt");
 	    Properties prop = new Properties();
@@ -46,8 +46,7 @@ public class App {
 	    fis.close();
 	    return prop;
 	} catch (IOException e) {
-	    throw new RuntimeException(
-		    "Arquivo de configurações não encontrado.", e);
+	    throw new RuntimeException("Arquivo de configurações não encontrado.", e);
 	}
     }
 }

@@ -1,3 +1,4 @@
 saida=classificacao
 id=cod
 npop=30
+tabela=wine_class
