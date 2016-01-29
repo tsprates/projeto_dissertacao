@@ -13,7 +13,7 @@ import java.util.Set;
  *
  * @author thiago
  */
-public class Fitness implements InterfaceFitness<Double[]> {
+public class Fitness implements InterfaceFitness {
 
     private final Connection conexao;
 
@@ -32,8 +32,8 @@ public class Fitness implements InterfaceFitness<Double[]> {
         this.classeSaidas = classeSaidas;
     }
 
-    public Double[] calc(Particula p) {
-        Double[] result = new Double[2];
+    public double[] calc(Particula p) {
+        double[] result = new double[2];
         result[0] = calcEfetividade(p);
         result[1] = (double) p.getSize();
         return result;
