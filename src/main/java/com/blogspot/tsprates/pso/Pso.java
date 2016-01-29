@@ -17,8 +17,8 @@ import java.util.Set;
 import org.apache.commons.lang3.RandomUtils;
 
 /**
- * Particles Swarm Optimization
- * 
+ * Particles Swarm Optimization (PSO).
+ *
  * @author thiago
  *
  */
@@ -26,28 +26,25 @@ public class Pso {
 
     private final Connection conexao;
 
-    private final static String[] OPERADORES = { "=", "!=", ">", ">=", "<",
-	    ">=" };
+    private final static String[] LISTA_OPERADORES = {"=", "!=", ">", ">=", "<", ">="};
 
     private final List<Particula> particulas = new ArrayList<Particula>();
 
     private final List<String> tipoSaidas = new ArrayList<String>();
 
-    private final Map<String, Set<Integer>> mapaSaidas = new HashMap<String, Set<Integer>>();
+    private final Map<String, Set<Integer>> classeSaidas = new HashMap<String, Set<Integer>>();
+
+    private final String tabela;
+
+    private final String colSaida, colCod;
+
+    private final int numPop;
 
     private String[] colunas;
 
-    private double[] max;
-
-    private double[] min;
-
-    private String colSaida, colCod;
-
-    private int numPop;
+    private double[] max, min;
 
     private final Random sorteio = new Random();
-
-    private final static String TABELA = "wine_class";
 
     /**
      * Construtor.
@@ -56,202 +53,196 @@ public class Pso {
      * @param p
      */
     public Pso(Connection c, Properties p) {
-	this.conexao = c;
-	// this.props = p;
+        this.conexao = c;
+        // this.props = p;
 
-	this.colSaida = (String) p.get("saida");
-	this.colCod = (String) p.get("id");
-	this.numPop = Integer.valueOf((String) p.get("npop"));
+        this.tabela = (String) p.get("tabela");
+        this.colSaida = (String) p.get("saida");
+        this.colCod = (String) p.get("id");
+        this.numPop = Integer.valueOf((String) p.get("npop"));
 
-	recuperaColunas();
-
-	recuperaClassesSaida();
-	controiMapaSaidas();
-
-	recuperaMaxMinDasEntradas();
-    }
-
-    private void controiMapaSaidas() {
-	for (String saida : tipoSaidas) {
-	    mapaSaidas.put(saida, new HashSet<Integer>());
-	}
-
-	String sql = "select " + colSaida + ", " + colCod + " as cod from "
-		+ TABELA;
-	try {
-	    PreparedStatement ps = conexao.prepareStatement(sql);
-	    ResultSet rs = ps.executeQuery();
-
-	    while (rs.next()) {
-		String col = rs.getString(colSaida);
-		mapaSaidas.get(col).add(rs.getInt("cod"));
-	    }
-
-	    ps.close();
-	    rs.close();
-	} catch (SQLException e) {
-	    throw new RuntimeException(
-		    "Erro ao mapear nome das colunas com seu código(id).", e);
-	}
+        recuperaColunas();
+        recuperaClassesSaida();
+        recuperaClasseSaidas();
+        recuperaMaxMinDasEntradas();
     }
 
     /**
-     * 
+     *
+     */
+    private void recuperaClasseSaidas() {
+        for (String saida : tipoSaidas) {
+            classeSaidas.put(saida, new HashSet<Integer>());
+        }
+
+        String sql = "SELECT " + colSaida + ", " + colCod + " AS cod FROM " + tabela;
+        try {
+            PreparedStatement ps = conexao.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String col = rs.getString(colSaida);
+                classeSaidas.get(col).add(rs.getInt("cod"));
+            }
+
+            ps.close();
+            rs.close();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao mapear nome das colunas com seu código(id).", e);
+        }
+    }
+
+    /**
+     *
      */
     public void carrega() {
-
-	geraPopulacaoInicial();
+        geraPopulacaoInicial();
     }
 
     /**
      *
      */
     private void recuperaColunas() {
-	String sql = "select * from " + TABELA + " limit 1";
+        String sql = "SELECT * FROM " + tabela + " LIMIT 1";
 
-	try {
-	    PreparedStatement ps = conexao.prepareStatement(sql);
-	    ResultSet rs = ps.executeQuery();
-	    ResultSetMetaData metadata = rs.getMetaData();
+        try {
+            PreparedStatement ps = conexao.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            ResultSetMetaData metadata = rs.getMetaData();
 
-	    int numCol = metadata.getColumnCount();
-	    colunas = new String[numCol - 2];
-	    max = new double[numCol - 2];
-	    min = new double[numCol - 2];
+            int numCol = metadata.getColumnCount();
 
-	    for (int i = 0, j = 0; i < numCol; i++) {
-		String coluna = metadata.getColumnName(i + 1);
+            colunas = new String[numCol - 2];
+            max = new double[numCol - 2];
+            min = new double[numCol - 2];
 
-		if (!colSaida.equalsIgnoreCase(coluna)
-			&& !colCod.equalsIgnoreCase(coluna)) {
-		    colunas[j] = coluna;
-		    j++;
-		}
-	    }
+            for (int i = 0, j = 0; i < numCol; i++) {
+                String coluna = metadata.getColumnName(i + 1);
 
-	    // System.out.println(Arrays.toString(colunas));
+                if (!colSaida.equalsIgnoreCase(coluna)
+                        && !colCod.equalsIgnoreCase(coluna)) {
+                    colunas[j] = coluna;
+                    j++;
+                }
+            }
 
-	    ps.close();
-	    rs.close();
-	} catch (SQLException e) {
-	    throw new RuntimeException("Erro ao recuperar nome das colunas.", e);
-	} finally {
+            // System.out.println(Arrays.toString(colunas));
+            ps.close();
+            rs.close();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao recuperar nome das colunas.", e);
+        } finally {
 
-	}
+        }
     }
 
     /**
-     * 
+     *
      */
     private void recuperaClassesSaida() {
-	String sql = "select distinct " + colSaida + " from " + TABELA;
+        String sql = "SELECT DISTINCT " + colSaida + " FROM " + tabela;
 
-	try {
-	    PreparedStatement ps = conexao.prepareStatement(sql);
-	    ResultSet rs = ps.executeQuery();
+        try {
+            PreparedStatement ps = conexao.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
 
-	    while (rs.next()) {
-		tipoSaidas.add(rs.getString(colSaida));
-	    }
+            while (rs.next()) {
+                tipoSaidas.add(rs.getString(colSaida));
+            }
 
-	    ps.close();
-	    rs.close();
-	} catch (SQLException e) {
-	    throw new RuntimeException(
-		    "Erro ao classe saída no banco de dados.", e);
-	}
+            ps.close();
+            rs.close();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao classe saída no banco de dados.", e);
+        }
     }
 
     /**
-     * 
+     *
      */
     private void recuperaMaxMinDasEntradas() {
+        // faixa de valores de cada coluna
+        StringBuilder sb = new StringBuilder();
+        for (String entrada : colunas) {
+            sb.append(", ").append("max(").append(entrada).append(")")
+                    .append(", ").append("min(").append(entrada).append(")");
+        }
+        String sql = "SELECT " + sb.toString().substring(1) + " FROM " + tabela;
 
-	// faixa de valores de cada coluna
-	StringBuilder sb = new StringBuilder();
-	for (String entrada : colunas) {
-	    sb.append(", ").append("max(").append(entrada).append(")")
-		    .append(", ").append("min(").append(entrada).append(")");
-	}
-	String sql = "select " + sb.toString().substring(1) + " from " + TABELA;
+        try {
+            PreparedStatement ps = conexao.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
 
-	try {
-	    PreparedStatement ps = conexao.prepareStatement(sql);
-	    ResultSet rs = ps.executeQuery();
+            int numCol = colunas.length * 2;
+            while (rs.next()) {
+                for (int i = 0, j = 0; i < numCol; i += 2, j++) {
+                    max[j] = rs.getDouble(i + 1);
+                    min[j] = rs.getDouble(i + 2);
+                }
+            }
 
-	    int numCol = colunas.length * 2;
-	    while (rs.next()) {
-		for (int i = 0, j = 0; i < numCol; i += 2, j++) {
-		    max[j] = rs.getDouble(i + 1);
-		    min[j] = rs.getDouble(i + 2);
-		}
-	    }
-
-	    ps.close();
-	    rs.close();
-	} catch (SQLException e) {
-	    throw new RuntimeException(
-		    "Erro ao buscar (min, max) no banco de dados.", e);
-	}
+            ps.close();
+            rs.close();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar (min, max) no banco de dados.", e);
+        }
     }
 
     private void geraPopulacaoInicial() {
-	for (int i = 0; i < numPop; i++) {
-	    List<String> vel = criaListaWhere();
-	    List<String> pos = criaListaWhere();
+        for (int i = 0; i < numPop; i++) {
+            List<String> vel = criaListaWhere();
+            List<String> pos = criaListaWhere();
 
-	    int size = tipoSaidas.size();
-	    String classe = tipoSaidas.get(i % size);
-	    Particula particula = new Particula(vel, pos, classe);
-	    
-	    particulas.add(particula);
-	}
+            int size = tipoSaidas.size();
+            String classe = tipoSaidas.get(i % size);
+            Particula particula = new Particula(vel, pos, classe);
+
+            particulas.add(particula);
+        }
     }
 
     private List<String> criaListaWhere() {
-	int numCol = colunas.length;
-	int numOper = OPERADORES.length;
-	int maxWhere = sorteio.nextInt(numCol) + 1;
+        int numCol = colunas.length;
+        int numOper = LISTA_OPERADORES.length;
 
-	List<String> listaWhere = new ArrayList<>();
+        int maxWhere = sorteio.nextInt(numCol) + 1;
 
-	for (int i = 0; i < maxWhere; i++) {
-	    int col = sorteio.nextInt(numCol);
-	    int oper = sorteio.nextInt(numOper);
+        List<String> listaWhere = new ArrayList<String>();
 
-	    String cond2;
+        for (int i = 0; i < maxWhere; i++) {
+            int col = sorteio.nextInt(numCol);
+            int oper = sorteio.nextInt(numOper);
 
-	    if (sorteio.nextDouble() > 0.5) {
-		cond2 = String.valueOf(RandomUtils.nextDouble(min[col],
-			max[col]));
-	    } else {
-		int index = sorteio.nextInt(numCol);
-		cond2 = colunas[index];
-	    }
+            String cond2;
+            if (sorteio.nextDouble() > 0.5) {
+                cond2 = String.valueOf(RandomUtils.nextDouble(min[col], max[col]));
+            } else {
+                int index = sorteio.nextInt(numCol);
+                cond2 = colunas[index];
+            }
 
-	    String whereSql = String.format("%s %s %s", colunas[col],
-		    OPERADORES[oper], cond2);
+            String whereSql = String.format("%s %s %s", colunas[col], LISTA_OPERADORES[oper], cond2);
 
-	    listaWhere.add(whereSql);
-	}
+            listaWhere.add(whereSql);
+        }
 
-	return listaWhere;
+        return listaWhere;
     }
 
     /**
-     * 
+     *
      */
     public void mostraPopulacao() {
-	for (Particula p : particulas) {
-	    System.out.println(p.getVelocidadeSql());
-	}
+        for (Particula p : particulas) {
+            System.out.println(p.getWhereSql());
+        }
 
-	System.out.println("Classes");
+        System.out.println("Classes");
 
-	for (String classe : mapaSaidas.keySet()) {
-	    Set<Integer> conj = mapaSaidas.get(classe);
-	    System.out.println(classe + ") " + conj.size());
-	}
+        for (String classe : classeSaidas.keySet()) {
+            Set<Integer> conj = classeSaidas.get(classe);
+            System.out.println(classe + ") " + conj.size());
+        }
     }
 
 }
