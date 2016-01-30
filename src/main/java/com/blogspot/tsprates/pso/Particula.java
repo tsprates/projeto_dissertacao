@@ -11,14 +11,13 @@ public class Particula {
 
     private List<String> pos = new ArrayList<String>();
 
-    private String classe;
+    private final String classe;
 
     public Particula(List<String> vel, List<String> pos, String classe) {
         this.pos = pos;
         this.pbest.add(pos);
         this.classe = classe;
     }
-
 
     public List<String> getPosicao() {
         return pos;
