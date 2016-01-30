@@ -24,8 +24,12 @@ public class Particula {
         return pos;
     }
 
-    public void addpbest(List<String> pbest) {
+    public void addPBest(List<String> pbest) {
         this.pbest.add(pos);
+    }
+
+    public void removePBest(List<String> pbest) {
+	this.pbest.clear();
     }
 
     public String getWhereSql() {

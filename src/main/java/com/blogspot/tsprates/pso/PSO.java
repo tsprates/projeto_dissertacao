@@ -22,7 +22,7 @@ import org.apache.commons.lang3.RandomUtils;
  * @author thiago
  *
  */
-public class Pso {
+public class PSO {
 
     private final Connection conexao;
 
@@ -52,7 +52,7 @@ public class Pso {
      * @param c
      * @param p
      */
-    public Pso(Connection c, Properties p) {
+    public PSO(Connection c, Properties p) {
         this.conexao = c;
         // this.props = p;
 

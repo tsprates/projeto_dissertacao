@@ -27,7 +27,7 @@ public class App {
 
 	Connection conexaoDb = new DbFactory().conecta();
 	Properties config = getConfigs();	
-	Pso pso = new Pso(conexaoDb, config);
+	PSO pso = new PSO(conexaoDb, config);
 	pso.carrega();
 	pso.mostraPopulacao();
     }
