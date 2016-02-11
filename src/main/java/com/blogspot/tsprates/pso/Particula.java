@@ -5,7 +5,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class Particula {
+public class Particula
+{
 
     private final List<List<String>> pbest = new ArrayList<List<String>>();
 
@@ -13,37 +14,45 @@ public class Particula {
 
     private final String classe;
 
-    public Particula(List<String> vel, List<String> pos, String classe) {
+    public Particula(List<String> vel, List<String> pos, String classe)
+    {
+        this.classe = classe;
         this.pos = pos;
         this.pbest.add(pos);
-        this.classe = classe;
     }
 
-    public List<String> getPosicao() {
+    public List<String> getPosicao()
+    {
         return pos;
     }
 
-    public void addPBest(List<String> pbest) {
+    public void addBest(List<String> pbest)
+    {
         this.pbest.add(pos);
     }
 
-    public void removePBest(List<String> pbest) {
-	this.pbest.clear();
+    public void removeBest(List<String> pbest)
+    {
+        this.pbest.clear();
     }
 
-    public String getWhereSql() {
+    public String getWhereSql()
+    {
         return joinArray(pos);
     }
 
-    public String joinArray(List<String> l) {
+    public String joinArray(List<String> l)
+    {
         return "(" + StringUtils.join(l, ") AND (") + ")";
     }
 
-    public String getClasse() {
+    public String getClasse()
+    {
         return this.classe;
     }
-    
-    public int getSize() {
+
+    public int getSize()
+    {
         return this.pos.size();
     }
 

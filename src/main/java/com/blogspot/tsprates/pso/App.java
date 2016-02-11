@@ -6,47 +6,68 @@ import java.sql.Connection;
 import java.util.Properties;
 
 /**
- * Programa.
+ * Particles Swarm Optimization (PSO).
  * 
  * @author thiago
  *
  */
-public class App {
-    
+public class App
+{
+
     /**
      * Main.
      * 
      * @param args
      */
-    public static void main(String[] args) {
-	System.out.println("----------------------------------------");
-	System.out.println("    Projeto de Dissertação Mestrado     ");
-	System.out.println("    Implementação PSO                   ");
-	System.out.println("----------------------------------------");
-	System.out.println();
+    public static void main(String[] args)
+    {
+        System.out.println("----------------------------------------");
+        System.out.println("    Projeto de Dissertação Mestrado     ");
+        System.out.println("    Implementação PSO                   ");
+        System.out.println("----------------------------------------");
+        System.out.println();
 
-	Connection conexaoDb = new DbFactory().conecta();
-	Properties config = getConfigs();	
-	PSO pso = new PSO(conexaoDb, config);
-	pso.carrega();
-	pso.mostraPopulacao();
+        Connection conexaoDb = new DbFactory().conecta();
+        Properties config = getConfigs();
+        PSO pso = new PSO(conexaoDb, config);
+        pso.carrega();
+        pso.mostraPopulacao();
     }
 
-    
     /**
-     * Retorna arquivo de configurações. 
+     * Retorna arquivo de configurações.
      * 
      * @return Properties
      */
-    private static Properties getConfigs() {
-	try {
-	    FileInputStream fis = new FileInputStream("configs.txt");
-	    Properties prop = new Properties();
-	    prop.load(fis);
-	    fis.close();
-	    return prop;
-	} catch (IOException e) {
-	    throw new RuntimeException("Arquivo de configurações não encontrado.", e);
-	}
+    private static Properties getConfigs()
+    {
+        FileInputStream fis = null;
+        try
+        {
+            fis = new FileInputStream("configs.txt");
+            Properties prop = new Properties();
+            prop.load(fis);
+            return prop;
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(
+                    "Arquivo de configurações não encontrado.", e);
+        }
+        finally
+        {
+            if (fis != null)
+            {
+                try
+                {
+                    fis.close();
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeException(
+                            "Erro fechar o arquivo de configurações.", e);
+                }
+            }
+        }
     }
 }

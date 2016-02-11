@@ -25,8 +25,14 @@ public class Fitness implements InterfaceFitness {
 
     private List<String> resultadoLista;
 
-    public Fitness(Connection c, final String colCod, final String tab, final Map<String, Set<Integer>> classeSaidas, final Particula p) {
-        this.conexao = c;
+    public Fitness(
+            Connection conexao,
+            final String colCod,
+            final String tab,
+            final Map<String, Set<Integer>> classeSaidas,
+            final Particula p
+    ) {
+        this.conexao = conexao;
         this.colCod = colCod;
         this.tabela = tab;
         this.classeSaidas = classeSaidas;
