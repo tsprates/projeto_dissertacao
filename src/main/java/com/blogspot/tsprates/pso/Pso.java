@@ -17,12 +17,12 @@ import java.util.Set;
 import org.apache.commons.lang3.RandomUtils;
 
 /**
- * Particles Swarm Optimization (PSO).
+ * Particles Swarm Optimization (Pso).
  *
  * @author thiago
  *
  */
-public class PSO
+public class Pso
 {
 
     private final Connection conexao;
@@ -54,7 +54,7 @@ public class PSO
      * @param c
      * @param p
      */
-    public PSO(Connection c, Properties p)
+    public Pso(Connection c, Properties p)
     {
         this.conexao = c;
         // this.props = p;
@@ -83,31 +83,54 @@ public class PSO
      */
     private void recuperaClasseSaidas()
     {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
         for (String saida : tipoSaidas)
         {
             classeSaidas.put(saida, new HashSet<Integer>());
         }
 
-        String sql = "SELECT " + colSaida + ", " + colCod + " AS cod FROM "
-                + tabela;
+        String sql = "SELECT " + colSaida + ", " + colCod + " AS cod FROM " + tabela;
         try
         {
-            PreparedStatement ps = conexao.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+            ps = conexao.prepareStatement(sql);
+            rs = ps.executeQuery();
 
             while (rs.next())
             {
                 String col = rs.getString(colSaida);
                 classeSaidas.get(col).add(rs.getInt("cod"));
             }
-
-            ps.close();
-            rs.close();
         }
         catch (SQLException e)
         {
             throw new RuntimeException(
                     "Erro ao mapear nome das colunas com seu código(id).", e);
+        }
+        finally
+        {
+            if (ps != null)
+            {
+                try
+                {
+                    ps.close();
+                }
+                catch (SQLException e)
+                {
+                }
+            }
+            
+            if (rs != null)
+            {
+                try
+                {
+                    rs.close();
+                }
+                catch (SQLException e)
+                {
+                }
+            }
         }
     }
 
@@ -124,13 +147,16 @@ public class PSO
      */
     private void recuperaColunas()
     {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        ResultSetMetaData metadata = null;
         String sql = "SELECT * FROM " + tabela + " LIMIT 1";
 
         try
         {
-            PreparedStatement ps = conexao.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-            ResultSetMetaData metadata = rs.getMetaData();
+            ps = conexao.prepareStatement(sql);
+            rs = ps.executeQuery();
+            metadata = rs.getMetaData();
 
             int numCol = metadata.getColumnCount();
 
@@ -150,9 +176,7 @@ public class PSO
                 }
             }
 
-            // System.out.println(Arrays.toString(colunas));
-            ps.close();
-            rs.close();
+            
         }
         catch (SQLException e)
         {
@@ -160,7 +184,27 @@ public class PSO
         }
         finally
         {
-
+            if (ps != null)
+            {
+                try
+                {
+                    ps.close();
+                }
+                catch (SQLException e)
+                {
+                }
+            }
+            
+            if (rs != null)
+            {
+                try
+                {
+                    rs.close();
+                }
+                catch (SQLException e)
+                {
+                }
+            }
         }
     }
 
@@ -169,25 +213,48 @@ public class PSO
      */
     private void recuperaClassesSaida()
     {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         String sql = "SELECT DISTINCT " + colSaida + " FROM " + tabela;
 
         try
         {
-            PreparedStatement ps = conexao.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+            ps = conexao.prepareStatement(sql);
+            rs = ps.executeQuery();
 
             while (rs.next())
             {
                 tipoSaidas.add(rs.getString(colSaida));
             }
-
-            ps.close();
-            rs.close();
         }
         catch (SQLException e)
         {
             throw new RuntimeException(
                     "Erro ao classe saída no banco de dados.", e);
+        }
+        finally
+        {
+            if (ps != null)
+            {
+                try
+                {
+                    ps.close();
+                }
+                catch (SQLException e)
+                {
+                }
+            }
+            
+            if (rs != null)
+            {
+                try
+                {
+                    rs.close();
+                }
+                catch (SQLException e)
+                {
+                }
+            }
         }
     }
 
@@ -203,12 +270,16 @@ public class PSO
             sb.append(", ").append("max(").append(entrada).append(")")
                     .append(", ").append("min(").append(entrada).append(")");
         }
+        
         String sql = "SELECT " + sb.toString().substring(1) + " FROM " + tabela;
+        
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try
         {
-            PreparedStatement ps = conexao.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+            ps = conexao.prepareStatement(sql);
+            rs = ps.executeQuery();
 
             int numCol = colunas.length * 2;
             while (rs.next())
@@ -220,13 +291,35 @@ public class PSO
                 }
             }
 
-            ps.close();
-            rs.close();
         }
         catch (SQLException e)
         {
             throw new RuntimeException(
                     "Erro ao buscar (min, max) no banco de dados.", e);
+        }
+        finally
+        {
+            if (ps != null)
+            {
+                try
+                {
+                    ps.close();
+                }
+                catch (SQLException e)
+                {
+                }
+            }
+            
+            if (rs != null)
+            {
+                try
+                {
+                    rs.close();
+                }
+                catch (SQLException e)
+                {
+                }
+            }
         }
     }
 
@@ -252,7 +345,7 @@ public class PSO
 
         int maxWhere = sorteio.nextInt(numCol) + 1;
 
-        List<String> listaWhere = new ArrayList<String>();
+        List<String> listaDeClausulasWhere = new ArrayList<String>();
 
         for (int i = 0; i < maxWhere; i++)
         {
@@ -278,10 +371,10 @@ public class PSO
 
             String whereSql = String.format("%s %s %s", col, oper, val);
 
-            listaWhere.add(whereSql);
+            listaDeClausulasWhere.add(whereSql);
         }
 
-        return listaWhere;
+        return listaDeClausulasWhere;
     }
 
     /**

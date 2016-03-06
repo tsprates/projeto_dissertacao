@@ -13,7 +13,8 @@ import java.util.Set;
  *
  * @author thiago
  */
-public class Fitness implements InterfaceFitness {
+public class Fitness implements InterfaceFitness
+{
 
     private final Connection conexao;
 
@@ -30,30 +31,34 @@ public class Fitness implements InterfaceFitness {
             final String colCod,
             final String tab,
             final Map<String, Set<Integer>> classeSaidas,
-            final Particula p
-    ) {
+            final Particula p)
+    {
         this.conexao = conexao;
         this.colCod = colCod;
         this.tabela = tab;
         this.classeSaidas = classeSaidas;
     }
 
-    public double[] calc(Particula p) {
+    public double[] calc(Particula p)
+    {
         double[] result = new double[2];
         result[0] = calcEfetividade(p);
         result[1] = (double) p.getSize();
         return result;
     }
 
-    private List<String> recuperaClasse(String whereSql) {
+    private List<String> recuperaClasse(String whereSql)
+    {
         String sql = "SELECT " + colCod + " AS id FROM " + tabela + " WHERE " + whereSql;
         List<String> r = new ArrayList<String>();
 
-        try {
+        try
+        {
             PreparedStatement ps = conexao.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
+            while (rs.next())
+            {
                 r.add(rs.getString("id"));
             }
 
@@ -61,15 +66,18 @@ public class Fitness implements InterfaceFitness {
             rs.close();
 
             return r;
-        } catch (SQLException e) {
+        }
+        catch (SQLException e)
+        {
             throw new RuntimeException("Erro ao recupera as classes no banco de dados.", e);
         }
     }
 
-    private double calcEfetividade(Particula p) {
-        this.resultadoLista = recuperaClasse(p.getWhereSql());
+    private double calcEfetividade(Particula p)
+    {
         String classePart = p.getClasse();
-
+        
+        this.resultadoLista = recuperaClasse(p.getWhereSql());
         this.resultadoLista.removeAll(this.classeSaidas.get(classePart));
 
         return resultadoLista.size();
