@@ -5,55 +5,46 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class Particula
-{
+public class Particula {
 
-    private final List<List<String>> pbest = new ArrayList<List<String>>();
+    private final List<List<String>> best = new ArrayList<List<String>>();
 
-    private List<String> pos = new ArrayList<String>();
+    private List<String> posicao = new ArrayList<String>();
 
     private final String classe;
 
-    public Particula(List<String> vel, List<String> pos, String classe)
-    {
-        this.classe = classe;
-        this.pos = pos;
-        this.pbest.add(pos);
+    public Particula(List<String> velocidade, List<String> posicao, String classe) {
+	this.classe = classe;
+	this.posicao = posicao;
+	this.best.add(posicao);
     }
 
-    public List<String> getPosicao()
-    {
-        return pos;
+    public List<String> getPosicao() {
+	return posicao;
     }
 
-    public void addBest(List<String> pbest)
-    {
-        this.pbest.add(pos);
+    public void addBest(List<String> whereSql) {
+	best.add(whereSql);
     }
 
-    public void removeBest(List<String> pbest)
-    {
-        this.pbest.clear();
+    public void removeBest(List<String> whereSql) {
+	best.remove(whereSql);
     }
 
-    public String getWhereSql()
-    {
-        return joinArray(pos);
+    public String getWhereSql() {
+	return joinArray(posicao);
     }
 
-    public String joinArray(List<String> l)
-    {
-        return "(" + StringUtils.join(l, ") AND (") + ")";
+    private String joinArray(List<String> l) {
+	return "(" + StringUtils.join(l, ") AND (") + ")";
     }
 
-    public String getClasse()
-    {
-        return this.classe;
+    public String getClasse() {
+	return classe;
     }
 
-    public int getSize()
-    {
-        return this.pos.size();
+    public int getNumWhereSql() {
+	return posicao.size();
     }
 
 }

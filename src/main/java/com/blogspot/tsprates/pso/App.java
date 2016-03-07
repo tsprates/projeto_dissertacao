@@ -11,27 +11,26 @@ import java.util.Properties;
  * @author thiago
  *
  */
-public class App
-{
+public class App {
 
     /**
      * Main.
      * 
      * @param args
      */
-    public static void main(String[] args)
-    {
-        System.out.println("----------------------------------------");
-        System.out.println(" Projeto de Dissertação Mestrado        ");
-        System.out.println(" Implementação PSO                      ");
-        System.out.println("----------------------------------------");
-        System.out.println();
+    public static void main(String[] args) {
+	System.out.println("----------------------------------------");
+	System.out.println(" Projeto de Dissertação Mestrado        ");
+	System.out.println(" Implementação PSO                      ");
+	System.out.println("----------------------------------------");
+	System.out.println();
 
-        Connection conexaoDb = new DbFactory().conecta();
-        Properties config = getConfigs();
-        Pso pso = new Pso(conexaoDb, config);
-        pso.carrega();
-        pso.mostraPopulacao();
+	Connection conexaoDb = new DbFactory().conecta();
+	Properties config = getConfigs();
+	Pso pso = new Pso(conexaoDb, config);
+	pso.carrega();
+	// pso.mostraPopulacao();
+
     }
 
     /**
@@ -39,35 +38,25 @@ public class App
      * 
      * @return Properties
      */
-    private static Properties getConfigs()
-    {
-        FileInputStream fis = null;
-        try
-        {
-            fis = new FileInputStream("configs.txt");
-            Properties prop = new Properties();
-            prop.load(fis);
-            return prop;
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(
-                    "Arquivo de configurações não encontrado.", e);
-        }
-        finally
-        {
-            if (fis != null)
-            {
-                try
-                {
-                    fis.close();
-                }
-                catch (IOException e)
-                {
-                    throw new RuntimeException(
-                            "Erro fechar o arquivo de configurações.", e);
-                }
-            }
-        }
+    private static Properties getConfigs() {
+	FileInputStream fis = null;
+	try {
+	    fis = new FileInputStream("configs.txt");
+	    Properties prop = new Properties();
+	    prop.load(fis);
+	    return prop;
+	} catch (IOException e) {
+	    throw new RuntimeException(
+		    "Arquivo de configurações não encontrado.", e);
+	} finally {
+	    if (fis != null) {
+		try {
+		    fis.close();
+		} catch (IOException e) {
+		    throw new RuntimeException(
+			    "Erro fechar o arquivo de configurações.", e);
+		}
+	    }
+	}
     }
 }
