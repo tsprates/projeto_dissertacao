@@ -14,7 +14,7 @@ import java.util.Set;
  *
  * @author thiago
  */
-public class Fitness implements InterfaceFitness {
+public class Fitness implements FitnessInterface {
 
     private final Connection conexao;
 
@@ -104,19 +104,13 @@ public class Fitness implements InterfaceFitness {
      */
     private int calculaComplexidade(Particula p) {
 	Set<Integer> listaId = classeSaidas.get(p.getClasse());
-
 	resultado = avaliaSql(p.getWhereSql());
-//	System.out.println(resultado);
-//	System.out.println(listaId);
-	// resultado.removeAll(classeSaidas.get(classeParticula));
-	// return (resultado.size() * 100.0) / classeSaidas.size();
-	
-	int r = 0;
+	int total = 0;
 	for (int id : listaId) {
 	    if (resultado.contains(String.valueOf(id))) {
-		r += 1;
+		total += 1;
 	    }
 	}
-	return r;
+	return total;
     }
 }

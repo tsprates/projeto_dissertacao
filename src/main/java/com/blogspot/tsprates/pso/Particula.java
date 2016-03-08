@@ -7,36 +7,36 @@ import org.apache.commons.lang3.StringUtils;
 
 public class Particula {
 
-    private final List<List<String>> best = new ArrayList<List<String>>();
-
     private List<String> posicao = new ArrayList<String>();
 
-    private final String classe;
+    private List<String> velocidade = new ArrayList<String>();
 
-    public Particula(List<String> velocidade, List<String> posicao, String classe) {
+    private final String classe;
+    
+    private double[] fitness;
+    
+    private final FitnessInterface f;
+
+    public Particula(List<String> velocidade, List<String> posicao,
+	    String classe, FitnessInterface f) {
 	this.classe = classe;
 	this.posicao = posicao;
-	this.best.add(posicao);
+	this.velocidade = velocidade;
+	this.f = f;
+	this.fitness = f.calcula(this);
     }
 
     public List<String> getPosicao() {
 	return posicao;
     }
-
-    public void addBest(List<String> whereSql) {
-	best.add(whereSql);
-    }
-
-    public void removeBest(List<String> whereSql) {
-	best.remove(whereSql);
-    }
+    
+    public void setPosicao(List<String> posicao) {
+ 	this.posicao = posicao;
+ 	this.fitness = f.calcula(this);
+     }
 
     public String getWhereSql() {
-	return joinArray(posicao);
-    }
-
-    private String joinArray(List<String> l) {
-	return "(" + StringUtils.join(l, ") AND (") + ")";
+	return joinArray(getPosicao());
     }
 
     public String getClasse() {
@@ -44,7 +44,23 @@ public class Particula {
     }
 
     public int getNumWhereSql() {
-	return posicao.size();
+	return getPosicao().size();
+    }
+    
+    public double[] getFitness() {
+	return fitness;
+    }
+
+    public List<String> getVelocidade() {
+	return velocidade;
+    }
+
+    public void setVelocidade(List<String> velocidade) {
+	this.velocidade = velocidade;
+    }
+
+    private String joinArray(List<String> l) {
+	return "(" + StringUtils.join(l, ") AND (") + ")";
     }
 
 }

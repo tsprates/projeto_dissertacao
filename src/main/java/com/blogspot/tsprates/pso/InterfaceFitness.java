@@ -1,9 +1,5 @@
 package com.blogspot.tsprates.pso;
 
-/**
- *
- * @author thiago
- */
-interface InterfaceFitness {
+interface FitnessInterface {
     public double[] calcula(Particula p);
 }
