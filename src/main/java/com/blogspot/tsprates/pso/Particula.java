@@ -5,24 +5,30 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Classe Partícula.
+ * 
+ * @author thiago
+ *
+ */
 public class Particula {
 
-    private List<String> posicao = new ArrayList<String>();
+    private List<String> posicao = new ArrayList<>();
 
-    private List<String> velocidade = new ArrayList<String>();
+    private List<String> velocidade = new ArrayList<>();
 
     private final String classe;
     
     private double[] fitness;
     
-    private final FitnessInterface f;
+    private final FitnessInterface calculadorFitness;
 
     public Particula(List<String> velocidade, List<String> posicao,
 	    String classe, FitnessInterface f) {
 	this.classe = classe;
 	this.posicao = posicao;
 	this.velocidade = velocidade;
-	this.f = f;
+	this.calculadorFitness = f;
 	this.fitness = f.calcula(this);
     }
 
@@ -32,11 +38,11 @@ public class Particula {
     
     public void setPosicao(List<String> posicao) {
  	this.posicao = posicao;
- 	this.fitness = f.calcula(this);
+ 	this.fitness = calculadorFitness.calcula(this);
      }
 
     public String getWhereSql() {
-	return joinArray(getPosicao());
+	return join(getPosicao());
     }
 
     public String getClasse() {
@@ -59,7 +65,7 @@ public class Particula {
 	this.velocidade = velocidade;
     }
 
-    private String joinArray(List<String> l) {
+    private String join(List<String> l) {
 	return "(" + StringUtils.join(l, ") AND (") + ")";
     }
 

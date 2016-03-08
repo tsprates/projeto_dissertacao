@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Fitness.
+ * Classe Fitness.
  *
  * @author thiago
  */
@@ -47,7 +47,7 @@ public class Fitness implements FitnessInterface {
      */
     public double[] calcula(Particula p) {
 	double[] result = new double[2];
-	result[0] = (double) calculaComplexidade(p);
+	result[0] = (double) calculaAcurarcia(p);
 	result[1] = (double) p.getNumWhereSql();
 	return result;
     }
@@ -77,21 +77,29 @@ public class Fitness implements FitnessInterface {
     }
 
     /**
-     * Calcula a efetividade da avaliação de cada partícula.
+     * Calcula a acurácia de cada partícula.
      * 
      * @param p
      *            Partícula.
      * @return
      */
-    private int calculaComplexidade(Particula p) {
+    private double calculaAcurarcia(Particula p) {
 	Set<Integer> listaId = classeSaidas.get(p.getClasse());
+	
 	resultado = avaliaSql(p.getWhereSql());
-	int total = 0;
+	
+	int totalEncontrado = 0;
 	for (int id : listaId) {
 	    if (resultado.contains(String.valueOf(id))) {
-		total += 1;
+		totalEncontrado += 1;
 	    }
 	}
-	return total;
+	
+	int somaTotal = 0;
+	for (String chave : classeSaidas.keySet()) {
+	    somaTotal += classeSaidas.get(chave).size();
+	}
+	
+	return ((listaId.size() - totalEncontrado) + totalEncontrado) / somaTotal;
     }
 }
