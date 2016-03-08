@@ -205,19 +205,13 @@ public class Pso {
      *
      */
     private void recuperaClasseSaidas() {
-	PreparedStatement ps = null;
-	ResultSet rs = null;
-
 	for (String saida : tipoSaidas) {
 	    classeSaidas.put(saida, new HashSet<Integer>());
 	}
 
 	String sql = "SELECT " + colSaida + ", " + colId + " AS col_id FROM "
 		+ tabela;
-	try {
-	    ps = conexao.prepareStatement(sql);
-	    rs = ps.executeQuery();
-
+	try (PreparedStatement ps = conexao.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 	    while (rs.next()) {
 		String coluna = rs.getString(colSaida);
 		classeSaidas.get(coluna).add(rs.getInt("col_id"));
@@ -225,19 +219,6 @@ public class Pso {
 	} catch (SQLException e) {
 	    throw new RuntimeException(
 		    "Erro ao mapear nome das colunas com seu código(id).", e);
-	} finally {
-	    if (ps != null) {
-		try {
-		    ps.close();
-		} catch (SQLException e) {
-		}
-	    }
-	    if (rs != null) {
-		try {
-		    rs.close();
-		} catch (SQLException e) {
-		}
-	    }
 	}
     }
 
@@ -245,16 +226,11 @@ public class Pso {
      *	Converte colunas da tabela.
      */
     private void recuperaColunas() {
-	PreparedStatement ps = null;
-	ResultSet rs = null;
 	ResultSetMetaData metadata = null;
 	String sql = "SELECT * FROM " + tabela + " LIMIT 1";
 	int numCol;
 
-	try {
-	    ps = conexao.prepareStatement(sql);
-	    rs = ps.executeQuery();
-
+	try (PreparedStatement ps = conexao.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 	    metadata = rs.getMetaData();
 	    numCol = metadata.getColumnCount();
 
@@ -273,19 +249,6 @@ public class Pso {
 	    }
 	} catch (SQLException e) {
 	    throw new RuntimeException("Erro ao recuperar nome das colunas.", e);
-	} finally {
-	    if (ps != null) {
-		try {
-		    ps.close();
-		} catch (SQLException e) {
-		}
-	    }
-	    if (rs != null) {
-		try {
-		    rs.close();
-		} catch (SQLException e) {
-		}
-	    }
 	}
     }
 
@@ -293,34 +256,16 @@ public class Pso {
      *	Recupera os valores referentes a saída.
      */
     private void recuperaClassesSaida() {
-	PreparedStatement ps = null;
-	ResultSet rs = null;
 	String sql = "SELECT DISTINCT " + colSaida + " FROM " + tabela;
 
-	try {
-	    ps = conexao.prepareStatement(sql);
-	    rs = ps.executeQuery();
-
+	try (PreparedStatement ps = conexao.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 	    while (rs.next()) {
 		tipoSaidas.add(rs.getString(colSaida));
 	    }
 	} catch (SQLException e) {
 	    throw new RuntimeException(
 		    "Erro ao classe saída no banco de dados.", e);
-	} finally {
-	    if (ps != null) {
-		try {
-		    ps.close();
-		} catch (SQLException e) {
-		}
-	    }
-	    if (rs != null) {
-		try {
-		    rs.close();
-		} catch (SQLException e) {
-		}
-	    }
-	}
+	} 
     }
 
     /**
@@ -337,13 +282,7 @@ public class Pso {
 
 	String sql = "SELECT " + sb.toString().substring(1) + " FROM " + tabela;
 
-	PreparedStatement ps = null;
-	ResultSet rs = null;
-
-	try {
-	    ps = conexao.prepareStatement(sql);
-	    rs = ps.executeQuery();
-
+	try (PreparedStatement ps = conexao.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 	    int numCol = colunas.length * 2;
 	    while (rs.next()) {
 		for (int i = 0, j = 0; i < numCol; i += 2, j++) {
@@ -355,19 +294,6 @@ public class Pso {
 	} catch (SQLException e) {
 	    throw new RuntimeException(
 		    "Erro ao buscar (min, max) no banco de dados.", e);
-	} finally {
-	    if (ps != null) {
-		try {
-		    ps.close();
-		} catch (SQLException e) {
-		}
-	    }
-	    if (rs != null) {
-		try {
-		    rs.close();
-		} catch (SQLException e) {
-		}
-	    }
 	}
     }
 
@@ -428,9 +354,10 @@ public class Pso {
 	    String oper = LISTA_OPERADORES[operIndex];
 
 	    String whereSql = String.format("%s %s %s", col, oper, valor);
-	    if (sorteio.nextDouble() > 0.5) {
-		whereSql = "NOT " + whereSql;
-	    }
+	    
+//	    if (sorteio.nextDouble() > 0.5) {
+//		whereSql = "NOT " + whereSql;
+//	    }
 
 	    listaDeClausulasWhere.add(whereSql);
 	}

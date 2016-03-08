@@ -61,15 +61,10 @@ public class Fitness implements FitnessInterface {
      */
     private List<String> avaliaSql(String whereSql) {
 	List<String> result = new ArrayList<String>();
-	PreparedStatement ps = null;
-	ResultSet rs = null;
 	String sql = "SELECT " + colId + " AS id FROM " + tabela + " WHERE "
 		+ whereSql;
 
-	try {
-	    ps = conexao.prepareStatement(sql);
-	    rs = ps.executeQuery();
-
+	try (PreparedStatement ps = conexao.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 	    while (rs.next()) {
 		result.add(rs.getString("id"));
 	    }
@@ -78,20 +73,6 @@ public class Fitness implements FitnessInterface {
 	} catch (SQLException e) {
 	    throw new RuntimeException(
 		    "Erro ao recupera as classes no banco de dados.", e);
-	} finally {
-	    if (ps != null) {
-		try {
-		    ps.close();
-		} catch (SQLException e) {
-		}
-	    }
-
-	    if (rs != null) {
-		try {
-		    rs.close();
-		} catch (SQLException e) {
-		}
-	    }
 	}
     }
 
