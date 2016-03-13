@@ -14,7 +14,7 @@ import java.util.Set;
  *
  * @author thiago
  */
-public class Fitness implements FitnessInterface {
+public class Fitness implements InterfaceFitness {
 
     private final Connection conexao;
 
@@ -43,24 +43,24 @@ public class Fitness implements FitnessInterface {
     }
 
     /**
-     * 
+     * Calcula fitness.
      */
+    @Override
     public double[] calcula(Particula p) {
 	double[] result = new double[2];
 	result[0] = (double) calculaAcurarcia(p);
-	result[1] = (double) p.getNumWhereSql();
+	result[1] = (double) p.getNumWhere();
 	return result;
     }
 
     /**
      * Recupera classe para determinada cláusula SQL WHERE.
      * 
-     * @param whereSql
-     *            String de uma cláusula WHERE.
-     * @return Retorna lista resultante da WHERE.
+     * @param whereSql String de uma cláusula WHERE.
+     * @return Retorna lista de String correspondente a uma cláusula WHERE.
      */
     private List<String> avaliaSql(String whereSql) {
-	List<String> result = new ArrayList<String>();
+	List<String> result = new ArrayList<>();
 	String sql = "SELECT " + colId + " AS id FROM " + tabela + " WHERE "
 		+ whereSql;
 
@@ -79,27 +79,33 @@ public class Fitness implements FitnessInterface {
     /**
      * Calcula a acurácia de cada partícula.
      * 
-     * @param p
-     *            Partícula.
-     * @return
+     * @param p Partícula.
+     * @return Retorna o valor da acurácia obtido.
      */
     private double calculaAcurarcia(Particula p) {
-	Set<Integer> listaId = classeSaidas.get(p.getClasse());
+	Set<Integer> lista = classeSaidas.get(p.getClasse());
 	
-	resultado = avaliaSql(p.getWhereSql());
+	resultado = avaliaSql(p.asWhereSql());
 	
-	int totalEncontrado = 0;
-	for (int id : listaId) {
+	int vp = 0; // verdadeiro positivo
+	for (int id : lista) {
 	    if (resultado.contains(String.valueOf(id))) {
-		totalEncontrado += 1;
+		vp += 1;
 	    }
 	}
 	
-	int somaTotal = 0;
-	for (String chave : classeSaidas.keySet()) {
-	    somaTotal += classeSaidas.get(chave).size();
+	int nv = 0; // verdadeiro negativo
+	for (String i : resultado) {
+	    if (!lista.contains(Integer.valueOf(i))) {
+		vp += 1;
+	    }
 	}
 	
-	return ((listaId.size() - totalEncontrado) + totalEncontrado) / somaTotal;
+	int total = 0;
+	for (String chave : classeSaidas.keySet()) {
+	    total += classeSaidas.get(chave).size();
+	}
+	
+	return (nv + vp) / total;
     }
 }

@@ -6,16 +6,15 @@ package com.blogspot.tsprates.pso;
  * @author thiago
  *
  */
-interface FitnessInterface {
+interface InterfaceFitness {
 
     /**
      * Calcula o fitness, e devolve um array numérico de tamanho 2, que o
      * primeiro elemento é a acurácia da regra e o segundo sua complexidade
      * (número de nós) da cláusula WHERE.
      * 
-     * @param p
-     *            Partícula.
+     * @param p Partícula.
      * @return Fitness para MOPSO.
      */
-    public double[] calcula(Particula p);
+    public double[] calcula(final Particula p);
 }

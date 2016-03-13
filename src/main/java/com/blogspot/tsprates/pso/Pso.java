@@ -71,10 +71,10 @@ public class Pso {
 	this.tabela = (String) p.get("tabela");
 	this.colSaida = (String) p.get("saida");
 	this.colId = (String) p.get("id");
-	this.numPop = Integer.valueOf((String) p.get("npop"));
-	this.maxIter = Integer.valueOf((String) p.get("maxiter"));
 	this.c1 = Double.valueOf((String) p.get("c1"));
 	this.c2 = Double.valueOf((String) p.get("c2"));
+	this.numPop = Integer.valueOf((String) p.get("npop"));
+	this.maxIter = Integer.valueOf((String) p.get("maxiter"));
 
 	recuperaColunas();
 	recuperaClassesSaida();
@@ -96,6 +96,7 @@ public class Pso {
      */
     public void carrega() {
 	List<Particula> pop = geraPopulacaoInicial();
+	mostraPopulacao();
 
 	for (int i = 0; i < maxIter; i++) {
 	    for (Particula p : pop) {
@@ -109,7 +110,7 @@ public class Pso {
 	// Mostra resultado
 	for (List<Particula> parts : gbest.values()) {
 	    for (Particula part : parts) {
-		System.out.println(part.getClasse() + ") " + part.getWhereSql() + " : " + Arrays.toString(part.getFitness()));
+		System.out.println(part.getClasse() + ") " + Arrays.toString(part.getFitness()) + ": " + part.asWhereSql());
 	    }
 	}
     }
@@ -142,9 +143,11 @@ public class Pso {
 	Collections.shuffle(p1);
 	p2 = p2.subList(0, (int) Math.ceil(c2 * Math.random() * p2.size()));
 	
+	// remove repetidos
 	p1.removeAll(p2);
 	p1.addAll(p2);
 	
+	// v(i) = v(i - 1) + c1 * rand() * (pbest(i) - x(i)) + c2 * Rand() * (gbest(i) - x(i))
 	vel.removeAll(p1);
 	vel.addAll(p1);
 	
@@ -177,7 +180,7 @@ public class Pso {
 	String cl = p.getClasse();
 	double[] fit = p.getFitness();
 	
-	// Lista dos melhores de acordo com nicho
+	// Lista dos melhores partículas do nicho
 	List<Particula> listaParticulas = melhoresDeCadaClasse.get(cl); 
 
 	if (listaParticulas.size() == 0) {
@@ -185,12 +188,12 @@ public class Pso {
 	} else {
 	    List<Particula> aSerRemovido = new ArrayList<>();
 
-	    for (Particula partAtual : listaParticulas) {
-		double[] pfit = partAtual.getFitness();
+	    for (Particula part : listaParticulas) {
+		double[] pfit = part.getFitness();
 
 		if (fit[0] >= pfit[0] && fit[1] <= pfit[1]
 			&& (fit[0] > pfit[0] || fit[1] < pfit[1])) {
-		    aSerRemovido.add(partAtual);
+		    aSerRemovido.add(part);
 		}
 	    }
 	   
@@ -323,29 +326,30 @@ public class Pso {
      * @return Lista com clásulas WHERE.
      */
     private List<String> criaWhereAleatorio() {
+	List<String> listaWhere = new ArrayList<>();
+
 	int numOper = LISTA_OPERADORES.length;
 	int numCols = colunas.length;
+	double prob = 0.9;
 
-	int maxClausulasWhere = sorteio.nextInt(numCols) + 1;
+	int maxWhere = sorteio.nextInt(numCols) + 1;
+	double decProb = (prob - 0.5) / maxWhere;
 
-	List<String> listaDeClausulasWhere = new ArrayList<>();
 
-	for (int i = 0; i < maxClausulasWhere; i++) {
+	for (int i = 0; i < maxWhere; i++) {
 	    int colIndex = sorteio.nextInt(numCols);
 	    int operIndex = sorteio.nextInt(numOper);
 
-	    // Verifica se comparação ocorrerá 
-	    // com outra coluna ou numericamente
+	    // Verifica se comparação ocorrerá numericamente ou via coluna
 	    String valor;
-	    if (sorteio.nextDouble() > 0.5) {
+	    if (sorteio.nextDouble() > prob) {
 		valor = String.valueOf(RandomUtils.nextDouble(min[colIndex],
 			max[colIndex]));
 	    } else {
-		// diferentes colunas
 		int index;
 		do {
 		    index = sorteio.nextInt(numCols);
-		} while (index == colIndex);
+		} while (index == colIndex); // diferentes colunas
 
 		valor = colunas[index];
 	    }
@@ -354,34 +358,29 @@ public class Pso {
 	    String oper = LISTA_OPERADORES[operIndex];
 
 	    String whereSql = String.format("%s %s %s", col, oper, valor);
-	    
-//	    if (sorteio.nextDouble() > 0.5) {
-//		whereSql = "NOT " + whereSql;
-//	    }
 
-	    listaDeClausulasWhere.add(whereSql);
+	    listaWhere.add(whereSql);
+	    
+	    prob -= decProb;
 	}
 
-	return listaDeClausulasWhere;
+	return listaWhere;
     }
 
     /**
      *  
      */
-    // public void mostraPopulacao()
-    // {
-    // for (Particula p : particulas)
-    // {
-    // System.out.println(p.getWhereSql());
-    // }
-    //
-    // System.out.println("Classes");
-    //
-    // for (String classe : classeSaidas.keySet())
-    // {
-    // Set<Integer> conj = classeSaidas.get(classe);
-    // System.out.println(classe + ") " + conj.size());
-    // }
-    // }
+    public void mostraPopulacao() {
+	for (Particula p : particulas) {
+	    System.out.println(p.asWhereSql());
+	}
+
+	System.out.println("Classes");
+
+	for (String classe : classeSaidas.keySet()) {
+	    Set<Integer> conj = classeSaidas.get(classe);
+	    System.out.println(classe + ") " + conj.size());
+	}
+    }
 
 }
