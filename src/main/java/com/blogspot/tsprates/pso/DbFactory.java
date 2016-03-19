@@ -6,11 +6,12 @@ import java.sql.SQLException;
 
 /**
  * Banco de dados.
- * 
+ *
  * @author thiago
  *
  */
 public class DbFactory {
+
     /**
      * Nome do banco de dados.
      */
@@ -28,7 +29,7 @@ public class DbFactory {
 
     /**
      * Conexão banco de dados.
-     * 
+     *
      * @return Connection
      */
     public Connection conecta() {

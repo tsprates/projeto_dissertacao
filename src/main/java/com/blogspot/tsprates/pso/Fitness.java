@@ -14,7 +14,8 @@ import java.util.Set;
  *
  * @author thiago
  */
-public class Fitness implements InterfaceFitness {
+public class Fitness implements InterfaceFitness
+{
 
     private final Connection conexao;
 
@@ -22,90 +23,106 @@ public class Fitness implements InterfaceFitness {
 
     private final String colId;
 
-    private final Map<String, Set<Integer>> classeSaidas;
+    private final Map<String, Set<String>> classeSaidas;
 
     private List<String> resultado;
 
+    private int total = 0;
+
     /**
      * Construtor.
-     * 
+     *
      * @param conexao
      * @param colId
      * @param tabela
      * @param classeSaidas
      */
     public Fitness(Connection conexao, final String colId, final String tabela,
-	    final Map<String, Set<Integer>> classeSaidas) {
-	this.conexao = conexao;
-	this.colId = colId;
-	this.tabela = tabela;
-	this.classeSaidas = classeSaidas;
+            final Map<String, Set<String>> classeSaidas)
+    {
+        this.conexao = conexao;
+        this.colId = colId;
+        this.tabela = tabela;
+        this.classeSaidas = classeSaidas;
+
+        for (String k : classeSaidas.keySet())
+        {
+            total += classeSaidas.get(k).size();
+        }
     }
 
     /**
      * Calcula fitness.
      */
     @Override
-    public double[] calcula(Particula p) {
-	double[] result = new double[2];
-	result[0] = (double) calculaAcurarcia(p);
-	result[1] = (double) p.getNumWhere();
-	return result;
+    public double[] calcula(Particula p)
+    {
+        double[] result = new double[2];
+        result[0] = calculaEspecifidade(p);
+        result[1] = 1.0 / p.numWhere();
+        return result;
     }
 
     /**
      * Recupera classe para determinada cláusula SQL WHERE.
-     * 
-     * @param whereSql String de uma cláusula WHERE.
+     *
+     * @param where String de uma cláusula WHERE.
      * @return Retorna lista de String correspondente a uma cláusula WHERE.
      */
-    private List<String> avaliaSql(String whereSql) {
-	List<String> result = new ArrayList<>();
-	String sql = "SELECT " + colId + " AS id FROM " + tabela + " WHERE "
-		+ whereSql;
+    private List<String> consultaSql(String where)
+    {
+        List<String> l = new ArrayList<>();
+        String sql = "SELECT " + colId + " AS id FROM " + tabela + " "
+                + "WHERE " + where;
 
-	try (PreparedStatement ps = conexao.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-	    while (rs.next()) {
-		result.add(rs.getString("id"));
-	    }
+        try (PreparedStatement ps = conexao.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery())
+        {
 
-	    return result;
-	} catch (SQLException e) {
-	    throw new RuntimeException(
-		    "Erro ao recupera as classes no banco de dados.", e);
-	}
+            while (rs.next())
+            {
+                l.add(rs.getString("id"));
+            }
+
+            return l;
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(
+                    "Erro ao recupera as classes no banco de dados.", e);
+        }
     }
 
     /**
-     * Calcula a acurácia de cada partícula.
-     * 
+     * Calcula a especificidade de cada partícula.
+     *
      * @param p Partícula.
      * @return Retorna o valor da acurácia obtido.
      */
-    private double calculaAcurarcia(Particula p) {
-	Set<Integer> lista = classeSaidas.get(p.getClasse());
-	
-	resultado = avaliaSql(p.asWhereSql());
-	
-	int vp = 0; // verdadeiro positivo
-	for (int id : lista) {
-	    if (resultado.contains(String.valueOf(id))) {
-		vp += 1;
-	    }
-	}
-	
-	int nv = 0; // verdadeiro negativo
-	for (String i : resultado) {
-	    if (!lista.contains(Integer.valueOf(i))) {
-		vp += 1;
-	    }
-	}
-	
-	int total = 0;
-	for (String chave : classeSaidas.keySet()) {
-	    total += classeSaidas.get(chave).size();
-	}
-	
-	return (nv + vp) / total;
+    private double calculaEspecifidade(Particula p)
+    {
+        Set<String> lista = classeSaidas.get(p.classe());
+
+        resultado = consultaSql(p.toWhereSql());
+
+        int tp = 0;
+        for (String iter : resultado)
+        {
+            if (lista.contains(iter))
+            {
+                tp += 1;
+            }
+        }
+
+        int fp = resultado.size() - tp;
+
+        int tn = total - fp;
+        int fn = total - tp;
+
+        double sensibilidade = (double) tp / (tp + fn);
+        double especificidade = (double) tn / (tn + fp);
+
+        return sensibilidade * especificidade;
+//	return (double) (tp + tn) / total;
     }
 }

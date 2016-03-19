@@ -1,7 +1,8 @@
-saida=classificacao
-id=cod
-npop=60
-tabela=wine_class
-maxiter=50
-c1=0.7
-c2=0.6
+saida=classe
+id=id
+npop=90
+tabela=wine
+maxiter=10
+w=0.7
+c1=0.6
+c2=0.8
