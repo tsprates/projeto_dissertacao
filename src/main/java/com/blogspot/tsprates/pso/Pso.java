@@ -162,10 +162,10 @@ public class Pso
             pos.add(clausula);
         }
 
-        Particula partP = pBest.get(RandomUtils.nextInt(0, pBest.size()));
+        Particula pb = pBest.get(RandomUtils.nextInt(0, pBest.size()));
         if (c1 > Math.random())
         {
-            List<String[]> v = new ArrayList<>(partP.velocidade());
+            List<String[]> v = new ArrayList<>(pb.velocidade());
 
             vel.removeAll(v);
             vel.addAll(v);
@@ -173,10 +173,10 @@ public class Pso
             p.setVelocidade(vel.subList(0, v.size()));
         }
 
-        Particula partG = gBest.get(RandomUtils.nextInt(0, pBest.size()));
+        Particula pg = gBest.get(RandomUtils.nextInt(0, pBest.size()));
         if (c2 > Math.random())
         {
-            List<String[]> v = new ArrayList<>(partG.velocidade());
+            List<String[]> v = new ArrayList<>(pg.velocidade());
 
             vel.removeAll(v);
             vel.addAll(v);
