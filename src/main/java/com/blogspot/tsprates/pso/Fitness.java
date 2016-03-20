@@ -114,17 +114,18 @@ public class Fitness implements InterfaceFitness
             }
         }
         
-        final int rsize = resultado.size();
+        final int resultadoSize = resultado.size();
+        final int listaSize = lista.size();
 
-        int fp = rsize - tp;
-        int fn = lista.size() - tp;
-        int tn = total - rsize + fp;
+        int fp = resultadoSize - tp;
+        int fn = listaSize - tp;
+        int tn = total - resultadoSize + fp;
 
         double sensibilidade = (double) tp / (tp + fn);
         double especificidade = (double) tn / (tn + fp);
         double acuracia = (double) (tp + tn) / total;
 
-        return acuracia * sensibilidade * especificidade;
 //	return (double) (tp + tn) / total;
+        return acuracia * sensibilidade * especificidade;
     }
 }
