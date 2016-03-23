@@ -119,13 +119,13 @@ public class Fitness implements InterfaceFitness
 
         int fp = resultadoSize - tp;
         int fn = listaSize - tp;
-        int tn = totalSize - listaSize - fp;
+        int tn = totalSize - resultadoSize;
 
-//        double sensibilidade = (double) tp / (tp + fn);
-//        double especificidade = (double) tn / (tn + fp);
-        double acuracia = (double) (tp + tn) / (tp + tn + fp + fn);
+        double sensibilidade = (double) tp / (tp + fn);
+        double especificidade = (double) tn / (tn + fp);
+//        double acuracia = (double) (tp + tn) / (tp + tn + fp + fn);
 
-	return acuracia;
-//        return  acuracia * especificidade * sensibilidade;
+//	return acuracia;
+        return especificidade * sensibilidade;
     }
 }
