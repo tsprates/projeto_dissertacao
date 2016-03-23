@@ -1,8 +1,8 @@
 package com.blogspot.tsprates.pso;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,9 +14,9 @@ import org.apache.commons.lang3.StringUtils;
 public class Particula
 {
 
-    private List<String[]> posicao = new ArrayList<>();
+    private Set<String> posicao = new HashSet<>();
 
-    private List<String[]> velocidade = new ArrayList<>();
+    private Set<String> velocidade = new HashSet<>();
 
     private String classe;
 
@@ -32,11 +32,11 @@ public class Particula
      * @param classe
      * @param f
      */
-    public Particula(List<String[]> velocidade, List<String[]> posicao,
+    public Particula(Collection<String> velocidade, Collection<String> posicao,
             String classe, InterfaceFitness f)
     {
-        this.posicao = posicao;
-        this.velocidade = velocidade;
+        this.posicao = new HashSet<>(posicao);
+        this.velocidade = new HashSet<>(velocidade);
         this.classe = classe;
         this.calculadorFitness = f;
 
@@ -49,7 +49,7 @@ public class Particula
      *
      * @return Lista de String WHERE de nova posição.
      */
-    public List<String[]> posicao()
+    public Set<String> posicao()
     {
         return posicao;
     }
@@ -59,7 +59,7 @@ public class Particula
      *
      * @param posicao Lista de String WHERE de nova posição.
      */
-    public void setPosicao(List<String[]> posicao)
+    public void setPosicao(Set<String> posicao)
     {
         this.posicao = posicao;
     }
@@ -119,7 +119,7 @@ public class Particula
      *
      * @return Lista de String WHERE de nova velocidade.
      */
-    public List<String[]> velocidade()
+    public Set<String> velocidade()
     {
         return velocidade;
     }
@@ -129,7 +129,7 @@ public class Particula
      *
      * @param velocidade Lista de String WHERE de nova velocidade.
      */
-    public void setVelocidade(List<String[]> velocidade)
+    public void setVelocidade(Set<String> velocidade)
     {
         this.fitness = calculadorFitness.calcula(this);
         this.velocidade = velocidade;
@@ -141,16 +141,9 @@ public class Particula
      * @param l
      * @return String de cláusulas WHERE.
      */
-    private String join(List<String[]> l)
+    private String join(Set<String> l)
     {
-        List<String> list = new LinkedList<>();
-
-        for (String[] iter : l)
-        {
-            list.add(String.format("%s %s %s", iter[0], iter[1], iter[2]));
-        }
-
-        return "(" + StringUtils.join(list, ") AND (") + ")";
+        return "(" + StringUtils.join(l, ") AND (") + ")";
     }
 
     @Override

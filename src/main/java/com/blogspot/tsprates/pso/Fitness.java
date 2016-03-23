@@ -27,7 +27,7 @@ public class Fitness implements InterfaceFitness
 
     private List<String> resultado;
 
-    private int total = 0;
+    private int totalSize = 0;
 
     /**
      * Construtor.
@@ -47,7 +47,7 @@ public class Fitness implements InterfaceFitness
 
         for (String k : classeSaidas.keySet())
         {
-            total += classeSaidas.get(k).size();
+            totalSize += classeSaidas.get(k).size();
         }
     }
 
@@ -101,31 +101,31 @@ public class Fitness implements InterfaceFitness
      */
     private double calculaEspecifidade(Particula p)
     {
-        Set<String> lista = classeSaidas.get(p.classe());
+        Set<String> listaVerdadeiros = classeSaidas.get(p.classe());
 
         resultado = consultaSql(p.toWhereSql());
 
         int tp = 0;
         for (String iter : resultado)
         {
-            if (lista.contains(iter))
+            if (listaVerdadeiros.contains(iter))
             {
                 tp += 1;
             }
         }
         
         final int resultadoSize = resultado.size();
-        final int listaSize = lista.size();
+        final int listaSize = listaVerdadeiros.size();
 
         int fp = resultadoSize - tp;
         int fn = listaSize - tp;
-        int tn = total - resultadoSize + fp;
+        int tn = totalSize - listaSize - fp;
 
-        double sensibilidade = (double) tp / (tp + fn);
-        double especificidade = (double) tn / (tn + fp);
-        double acuracia = (double) (tp + tn) / total;
+//        double sensibilidade = (double) tp / (tp + fn);
+//        double especificidade = (double) tn / (tn + fp);
+        double acuracia = (double) (tp + tn) / (tp + tn + fp + fn);
 
-//	return (double) (tp + tn) / total;
-        return acuracia * sensibilidade * especificidade;
+	return acuracia;
+//        return  acuracia * especificidade * sensibilidade;
     }
 }
