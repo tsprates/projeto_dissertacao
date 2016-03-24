@@ -118,7 +118,6 @@ public class Pso
             {
                 atualizaParticulasNaoDominadas(pbest, part);
                 atualizaParticulasNaoDominadas(gbest, part);
-                atualizaVelocidade(part);
                 atualizaPosicao(part);
             }
         }
@@ -126,76 +125,67 @@ public class Pso
         // Mostra resultado
         for (List<Particula> parts : gbest.values())
         {
+            StringBuilder builder = new StringBuilder("");
             for (Particula part : parts)
             {
-                System.out.print(part.classe() + ") ");
+                builder.append(part.classe());
                 for (double d : part.fitness())
                 {
-                    System.out.print(d);
-                    System.out.print(" ");
+                    builder.append("\t").append(d);
                 }
-                System.out.println(part.toWhereSql());
+                builder.append("\t").append(part.toWhereSql());
             }
+            System.out.println(builder.toString());
         }
     }
 
-    /**
-     * Atualiza velocidade.
-     *
-     * @param p
-     */
-    private void atualizaVelocidade(Particula p)
-    {
-        List<Particula> pBest = pbest.get(p.classe());
-        List<Particula> gBest = gbest.get(p.classe());
-
-        List<String> vel = new ArrayList<>(p.velocidade());
-        List<String> pos = new ArrayList<>(p.posicao());
-
-        if (w > Math.random())
-        {
-            int index = RandomUtils.nextInt(0, pos.size());
-            String[] clausula = pos.get(index).split(" ");
-            clausula[1] = LISTA_OPERADORES[RandomUtils.nextInt(0, LISTA_OPERADORES.length)];
-//            vel.remove(index);
-            vel.add(clausula[0] + " " + clausula[1] + " " + clausula[2]);
-        }
-
-        Particula pb = pBest.get(RandomUtils.nextInt(0, pBest.size()));
-        if (c1 > Math.random())
-        {
-            List<String> v = new ArrayList<>(pb.velocidade());
-//            vel.removeAll(v);
-            vel.addAll(v);
-            Collections.shuffle(vel);
-            p.setVelocidade(new HashSet<>(vel.subList(0, v.size())));
-        }
-
-        Particula pg = gBest.get(RandomUtils.nextInt(0, pBest.size()));
-        if (c2 > Math.random())
-        {
-            List<String> v = new ArrayList<>(pg.velocidade());
-//            vel.removeAll(v);
-            vel.addAll(v);
-            Collections.shuffle(vel);
-            p.setVelocidade(new HashSet<>(vel.subList(0, v.size())));
-        }
-    }
 
     /**
-     * Atualiza velocidade.
+     * Atualiza posição.
      *
      * @param p Partícula.
      */
     private void atualizaPosicao(Particula p)
     {
-        Set<String> vel = new HashSet<>(p.velocidade());
-        Set<String> pos = new HashSet<>(p.posicao());
+        List<String> pos = new ArrayList<>(p.posicao());
+        
+        List<Particula> pBest = pbest.get(p.classe());
+        List<Particula> gBest = gbest.get(p.classe());
+        
+        if (w > Math.random())
+        {
+            int index = rand.nextInt(pos.size());
+            String[] clausula = pos.get(index).split(" ");
+            clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
+            pos.add(String.format(Locale.ROOT, "%s %s %s", 
+                    clausula[0], clausula[1], clausula[2]));
+            p.setPosicao(pos);
+        }
 
-//        vel.removeAll(pos);
-        vel.addAll(pos);
+        
+        final int pBestSize = pBest.size();
 
-        p.setPosicao(pos);
+        Particula pb = pBest.get(rand.nextInt(pBestSize));
+        if (c1 > Math.random())
+        {
+            List<String> posb = new ArrayList<>(pb.posicao());
+            posb.addAll(pos);
+//            Collections.shuffle(pos);
+            p.setPosicao(new HashSet<>(posb.subList(0, pos.size())));
+        }
+        
+        
+        final int gBestSize = gBest.size();
+
+        Particula pg = gBest.get(rand.nextInt(gBestSize));
+        if (c2 > Math.random())
+        {
+            List<String> posg = new ArrayList<>(pg.posicao());
+            posg.addAll(pos);
+//            Collections.shuffle(pos);
+            p.setPosicao(new HashSet<>(posg.subList(0, pos.size())));
+        }
+
     }
 
     /**
@@ -400,6 +390,7 @@ public class Pso
         }
 
 	// System.out.println(contPopNicho);
+
         for (String tipo : contPopNicho.keySet())
         {
             for (int i = 0, len = contPopNicho.get(tipo); i < len; i++)
@@ -407,36 +398,7 @@ public class Pso
                 Collection<String> vel = criaWhere();
                 Collection<String> pos = criaWhere();
                 String classe = tipo;
-
                 Particula particula = new Particula(vel, pos, classe, fitness);
-
-//		String sql = "SELECT " + colSaida + " AS cl, COUNT(*) AS t "
-//			+ "FROM " + tabela + " " + "WHERE "
-//			+ particula.toWhereSql() + " " + "GROUP BY " + colSaida
-//			+ " " + "ORDER BY t DESC";
-//
-//		try (PreparedStatement ps = conexao.prepareStatement(sql);
-//			ResultSet rs = ps.executeQuery()) {
-//
-//		    if (rs.next()) {
-//			particula.setClasse(rs.getString("cl"));
-//		    } else {
-//			int index;
-//			String cl;
-//
-//			do {
-//			    index = rand.nextInt(saida.size());
-//			    cl = saida.get(index);
-//			    contPopNicho.put(cl,
-//				    contPopNicho.get(cl) - 1);
-//			} while (contPopNicho.get(cl) > 0);
-//
-//			particula.setClasse(cl);
-//		    }
-//		} catch (SQLException e) {
-//		    throw new RuntimeException("Erro ao determinar a classe.",
-//			    e);
-//		}
                 particulas.add(particula);
             }
 

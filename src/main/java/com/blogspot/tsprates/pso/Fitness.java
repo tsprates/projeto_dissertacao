@@ -57,9 +57,11 @@ public class Fitness implements InterfaceFitness
     @Override
     public double[] calcula(Particula p)
     {
-        double[] result = new double[2];
-        result[0] = calculaEspecifidade(p);
-        result[1] = 1.0 / p.numWhere();
+        final double[] r = calc(p);
+        final double[] result = new double[3];
+        result[0] = 1.0 / p.numWhere();
+        result[1] = r[0];
+        result[2] = r[1];
         return result;
     }
 
@@ -99,7 +101,7 @@ public class Fitness implements InterfaceFitness
      * @param p Partícula.
      * @return Retorna o valor da acurácia obtido.
      */
-    private double calculaEspecifidade(Particula p)
+    private double[] calc(Particula p)
     {
         Set<String> listaVerdadeiros = classeSaidas.get(p.classe());
 
@@ -119,13 +121,14 @@ public class Fitness implements InterfaceFitness
 
         int fp = resultadoSize - tp;
         int fn = listaSize - tp;
-        int tn = totalSize - resultadoSize;
+        int tn = totalSize - fn - fp - tp;
 
         double sensibilidade = (double) tp / (tp + fn);
         double especificidade = (double) tn / (tn + fp);
-//        double acuracia = (double) (tp + tn) / (tp + tn + fp + fn);
-
+        double acuracia = (double) (tp + tn) / (tp + tn + fp + fn);
+ 
 //	return acuracia;
-        return especificidade * sensibilidade;
+//        return especificidade * sensibilidade;
+        return new double[]{especificidade * sensibilidade, acuracia};
     }
 }

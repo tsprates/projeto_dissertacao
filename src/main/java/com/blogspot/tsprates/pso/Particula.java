@@ -59,9 +59,10 @@ public class Particula
      *
      * @param posicao Lista de String WHERE de nova posição.
      */
-    public void setPosicao(Set<String> posicao)
+    public void setPosicao(Collection<String> posicao)
     {
-        this.posicao = posicao;
+        this.posicao = new HashSet<>(posicao);
+        this.fitness = this.calculadorFitness.calcula(this);
     }
 
     /**
@@ -114,26 +115,6 @@ public class Particula
         return fitness;
     }
 
-    /**
-     * Retorna a velocidade da partícula.
-     *
-     * @return Lista de String WHERE de nova velocidade.
-     */
-    public Set<String> velocidade()
-    {
-        return velocidade;
-    }
-
-    /**
-     * Seta nova velocidade da partícula.
-     *
-     * @param velocidade Lista de String WHERE de nova velocidade.
-     */
-    public void setVelocidade(Set<String> velocidade)
-    {
-        this.fitness = calculadorFitness.calcula(this);
-        this.velocidade = velocidade;
-    }
 
     /**
      * Retorna string de cláusulas WHERE.
