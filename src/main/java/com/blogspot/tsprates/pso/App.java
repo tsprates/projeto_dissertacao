@@ -22,8 +22,8 @@ public class App
     public static void main(String[] args)
     {
         System.out.println("--------------------------------------------");
-        System.out.println(" Projeto de Dissertação Mestrado 		");
-        System.out.println(" Implementação PSO 				");
+        System.out.println(" Projeto de Dissertação Mestrado            ");
+        System.out.println(" Implementação PSO                          ");
         System.out.println("--------------------------------------------");
         System.out.println();
 
