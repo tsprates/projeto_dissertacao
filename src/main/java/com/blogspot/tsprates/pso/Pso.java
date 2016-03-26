@@ -112,6 +112,7 @@ public class Pso
     {
         List<Particula> pop = geraPopulacaoInicial();
 
+        long tempoInicial = System.nanoTime();
         for (int i = 0; i < maxIter; i++)
         {
             for (Particula part : pop)
@@ -121,6 +122,7 @@ public class Pso
                 atualizaPosicao(part);
             }
         }
+        long tempoFinal = System.nanoTime();
 
         // Mostra resultado
         for (List<Particula> parts : gbest.values())
@@ -137,6 +139,9 @@ public class Pso
             }
             System.out.println(builder.toString());
         }
+        
+        double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
+        System.out.println("\nTempo decorrido: " + tempoDecorrido);
     }
 
 
