@@ -1,8 +1,8 @@
 saida=classe
 id=id
-npop=150
+npop=120
 tabela=wine
-maxiter=50
+maxiter=60
 w=0.9
 c1=0.8
 c2=0.8

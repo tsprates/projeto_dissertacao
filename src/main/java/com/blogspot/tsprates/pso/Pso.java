@@ -5,10 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Classe PSO (Particles Swarm Optimization).
@@ -71,6 +73,8 @@ public class Pso
     private final double c1, c2, w;
 
     private final Fitness fitness;
+    
+    private final DecimalFormat formatter;
 
     /**
      * Construtor.
@@ -103,6 +107,12 @@ public class Pso
         }
 
         this.fitness = new Fitness(c, colId, tabela, classeSaidas);
+        
+        
+        // Decimal formatter
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
+        symbols.setDecimalSeparator('.');
+        formatter = new DecimalFormat("##.##", symbols);
     }
 
     /**
@@ -133,7 +143,7 @@ public class Pso
                 builder.append(part.classe());
                 for (double d : part.fitness())
                 {
-                    builder.append("\t").append(d);
+                    builder.append("\t").append(formatter.format(d));
                 }
                 builder.append("\t").append(part.toWhereSql());
             }
@@ -161,10 +171,19 @@ public class Pso
         {
             int index = rand.nextInt(pos.size());
             String[] clausula = pos.get(index).split(" ");
-            clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
-            pos.add(String.format(Locale.ROOT, "%s %s %s", 
-                    clausula[0], clausula[1], clausula[2]));
-            p.setPosicao(pos);
+            
+            if (StringUtils.isNumeric(clausula[2])) {
+                if (Math.random() < 0.1) {
+                    clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
+                }
+                double novoValor = Double.parseDouble(clausula[1]) + RandomUtils.nextDouble(-1, 1);
+                pos.add(String.format(Locale.ROOT, "%s %s %.2f", clausula[0], clausula[1], novoValor));
+                p.setPosicao(pos);
+            } else {
+                clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
+                pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
+                p.setPosicao(pos);
+            }
         }
 
         
@@ -196,16 +215,16 @@ public class Pso
     /**
      * Adiciona partículas não dominadas
      *
-     * @param melhorCadaClasse pbest ou gbest
+     * @param melhoresDaClasse pbest ou gbest
      * @param p Partícula.
      */
     private void atualizaParticulasNaoDominadas(
-            Map<String, List<Particula>> melhorCadaClasse, Particula p)
+            Map<String, List<Particula>> melhoresDaClasse, Particula p)
     {
         double[] pfit = p.fitness();
         String pcl = p.classe();
 
-        List<Particula> parts = melhorCadaClasse.get(pcl);
+        List<Particula> parts = melhoresDaClasse.get(pcl);
 
         if (parts.isEmpty())
         {
@@ -218,8 +237,6 @@ public class Pso
             for (Particula part : parts)
             {
                 double[] fit = part.fitness();
-
-//		System.out.println(Arrays.toString(pfit) + " " + Arrays.toString(fit));
                 if (pfit[0] >= fit[0] && pfit[1] >= fit[1]
                         && (pfit[0] > fit[0] || pfit[1] > fit[1]))
                 {
@@ -244,9 +261,9 @@ public class Pso
      */
     private void carregaIdParaSaida()
     {
-        for (String saida : saida)
+        for (String s : saida)
         {
-            classeSaidas.put(saida, new HashSet<String>());
+            classeSaidas.put(s, new HashSet<String>());
         }
 
         String sql = "SELECT " + colSaida + ", " + colId + " AS col_id FROM " + tabela;
@@ -400,10 +417,9 @@ public class Pso
         {
             for (int i = 0, len = contPopNicho.get(tipo); i < len; i++)
             {
-                Collection<String> vel = criaWhere();
                 Collection<String> pos = criaWhere();
                 String classe = tipo;
-                Particula particula = new Particula(vel, pos, classe, fitness);
+                Particula particula = new Particula(pos, classe, fitness);
                 particulas.add(particula);
             }
 

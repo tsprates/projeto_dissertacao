@@ -16,8 +16,6 @@ public class Particula
 
     private Set<String> posicao = new HashSet<>();
 
-    private Set<String> velocidade = new HashSet<>();
-
     private String classe;
 
     private double[] fitness;
@@ -32,11 +30,10 @@ public class Particula
      * @param classe
      * @param f
      */
-    public Particula(Collection<String> velocidade, Collection<String> posicao,
+    public Particula(Collection<String> posicao,
             String classe, InterfaceFitness f)
     {
         this.posicao = new HashSet<>(posicao);
-        this.velocidade = new HashSet<>(velocidade);
         this.classe = classe;
         this.calculadorFitness = f;
 
