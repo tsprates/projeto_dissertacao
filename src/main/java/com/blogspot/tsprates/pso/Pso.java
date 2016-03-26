@@ -132,12 +132,14 @@ public class Pso
                 atualizaPosicao(part);
             }
         }
-        long tempoFinal = System.nanoTime();
 
+        long tempoFinal = System.nanoTime();
+        
         // Mostra resultado
+        StringBuilder builder = new StringBuilder("Classe\tCompl.\tEfet.\tAcur.\tRegra\n\n");
+
         for (List<Particula> parts : gbest.values())
         {
-            StringBuilder builder = new StringBuilder("");
             for (Particula part : parts)
             {
                 builder.append(part.classe());
@@ -147,9 +149,11 @@ public class Pso
                 }
                 builder.append("\t").append(part.toWhereSql());
             }
-            System.out.println(builder.toString());
+            builder.append("\n");
         }
         
+        System.out.println(builder.toString());
+
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
         System.out.println("\nTempo decorrido: " + tempoDecorrido);
     }
@@ -186,13 +190,11 @@ public class Pso
             }
         }
 
-        
         final int pBestSize = pBest.size();
-
-        Particula pb = pBest.get(rand.nextInt(pBestSize));
+        Particula pBestPart = pBest.get(rand.nextInt(pBestSize));
         if (c1 > Math.random())
         {
-            List<String> posb = new ArrayList<>(pb.posicao());
+            List<String> posb = new ArrayList<>(pBestPart.posicao());
             posb.addAll(pos);
 //            Collections.shuffle(pos);
             p.setPosicao(new HashSet<>(posb.subList(0, pos.size())));
@@ -200,11 +202,10 @@ public class Pso
         
         
         final int gBestSize = gBest.size();
-
-        Particula pg = gBest.get(rand.nextInt(gBestSize));
+        Particula gBestPart = gBest.get(rand.nextInt(gBestSize));
         if (c2 > Math.random())
         {
-            List<String> posg = new ArrayList<>(pg.posicao());
+            List<String> posg = new ArrayList<>(gBestPart.posicao());
             posg.addAll(pos);
 //            Collections.shuffle(pos);
             p.setPosicao(new HashSet<>(posg.subList(0, pos.size())));
