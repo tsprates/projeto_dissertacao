@@ -1,0 +1,8 @@
+saida=classe
+id=cod
+npop=180
+tabela=hepatite_correta
+maxiter=100
+w=0.9
+c1=0.7
+c2=0.7

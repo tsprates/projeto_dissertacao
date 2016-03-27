@@ -28,7 +28,7 @@ public class App
         System.out.println();
 
         Connection conexaoDb = new DbFactory().conecta();
-        Properties config = getConfigs();
+        Properties config = getConfigs(args[0]);
         Pso pso = new Pso(conexaoDb, config);
 //        pso.mostraPopulacao();
         pso.carrega();
@@ -37,12 +37,13 @@ public class App
 
     /**
      * Retorna arquivo de configurações.
-     *
+     * 
+     * @param configFile Configurations
      * @return Properties
      */
-    private static Properties getConfigs()
+    private static Properties getConfigs(String configFile)
     {
-        try (FileInputStream fis = new FileInputStream("configs.txt"))
+        try (FileInputStream fis = new FileInputStream(configFile))
         {
             Properties prop = new Properties();
             prop.load(fis);

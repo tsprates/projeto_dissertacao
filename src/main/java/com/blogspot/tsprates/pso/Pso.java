@@ -10,6 +10,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -167,6 +168,7 @@ public class Pso
     private void atualizaPosicao(Particula p)
     {
         List<String> pos = new ArrayList<>(p.posicao());
+        final int posSize = pos.size();
         
         List<Particula> pBest = pbest.get(p.classe());
         List<Particula> gBest = gbest.get(p.classe());
@@ -196,8 +198,8 @@ public class Pso
         {
             List<String> posb = new ArrayList<>(pBestPart.posicao());
             posb.addAll(pos);
-//            Collections.shuffle(pos);
-            p.setPosicao(new HashSet<>(posb.subList(0, pos.size())));
+            Collections.shuffle(pos);
+            p.setPosicao(new HashSet<>(posb.subList(0, posSize)));
         }
         
         
@@ -207,8 +209,8 @@ public class Pso
         {
             List<String> posg = new ArrayList<>(gBestPart.posicao());
             posg.addAll(pos);
-//            Collections.shuffle(pos);
-            p.setPosicao(new HashSet<>(posg.subList(0, pos.size())));
+            Collections.shuffle(pos);
+            p.setPosicao(new HashSet<>(posg.subList(0, posSize)));
         }
 
     }
