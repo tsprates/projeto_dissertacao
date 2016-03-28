@@ -1,7 +1,9 @@
 package com.blogspot.tsprates.pso;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +23,9 @@ public class Particula
     private double[] fitness;
 
     private final InterfaceFitness calculadorFitness;
+    
+    private List<Particula> pbest = new ArrayList<>();
+    
 
     /**
      * Construtor.
@@ -128,6 +133,23 @@ public class Particula
     public String toString()
     {
         return join(posicao);
+    }
+
+    
+    /**
+     * 
+     */
+    public void atualizaPBest() {
+	FronteiraPareto.atualizaParticulasNaoDominadas(pbest, this);
+    }
+
+    /**
+     * 
+     * 
+     * @return
+     */
+    public List<Particula> getPbest() {
+	return pbest;
     }
 
 }

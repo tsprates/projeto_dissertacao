@@ -126,9 +126,9 @@ public class Fitness implements InterfaceFitness
         double sensibilidade = (double) tp / (tp + fn);
         double especificidade = (double) tn / (tn + fp);
         double acuracia = (double) (tp + tn) / (tp + tn + fp + fn);
- 
-//	return acuracia;
-//        return especificidade * sensibilidade;
-        return new double[]{especificidade * sensibilidade, acuracia};
+
+        double efetividade = especificidade * sensibilidade;
+        
+	return new double[]{efetividade, acuracia};
     }
 }

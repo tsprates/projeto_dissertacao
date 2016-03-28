@@ -2,6 +2,8 @@ package com.blogspot.tsprates.pso;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.util.Properties;
 
@@ -26,12 +28,16 @@ public class App
         System.out.println(" Implementação PSO                          ");
         System.out.println("--------------------------------------------");
         System.out.println();
+        
+        if (args[0] != null && Files.exists(Paths.get(args[0]))) {
+            Connection conexaoDb = new DbFactory().conecta();
+            Properties config = getConfigs(args[0]);
+            Pso pso = new Pso(conexaoDb, config);
+            pso.carrega();            
+        } else {
+            System.err.println("É necessário definir um arquivo de configuração.");
+        }
 
-        Connection conexaoDb = new DbFactory().conecta();
-        Properties config = getConfigs(args[0]);
-        Pso pso = new Pso(conexaoDb, config);
-//        pso.mostraPopulacao();
-        pso.carrega();
 
     }
 

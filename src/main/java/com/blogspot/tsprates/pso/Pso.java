@@ -10,7 +10,6 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,8 +51,6 @@ public class Pso
     private final List<String> saida = new ArrayList<>();
 
     private final Map<String, Set<String>> classeSaidas = new HashMap<>();
-
-    private final Map<String, List<Particula>> pbest = new HashMap<>();
 
     private final Map<String, List<Particula>> gbest = new HashMap<>();
 
@@ -103,7 +100,6 @@ public class Pso
         // Lista não dominados (pbest e gbest)
         for (String cl : classeSaidas.keySet())
         {
-            pbest.put(cl, new ArrayList<Particula>());
             gbest.put(cl, new ArrayList<Particula>());
         }
 
@@ -128,8 +124,15 @@ public class Pso
         {
             for (Particula part : pop)
             {
-                atualizaParticulasNaoDominadas(pbest, part);
-                atualizaParticulasNaoDominadas(gbest, part);
+        	String cl = part.classe();
+        	List<Particula> gbestParts = gbest.get(cl);
+        	
+        	// gbest
+                FronteiraPareto.atualizaParticulasNaoDominadas(gbestParts, part);
+                
+                // pbest
+                part.atualizaPBest();
+
                 atualizaPosicao(part);
             }
         }
@@ -144,13 +147,14 @@ public class Pso
             for (Particula part : parts)
             {
                 builder.append(part.classe());
+                
                 for (double d : part.fitness())
                 {
                     builder.append("\t").append(formatter.format(d));
                 }
-                builder.append("\t").append(part.toWhereSql());
+                
+                builder.append("\t").append(part.toWhereSql()).append("\n");
             }
-            builder.append("\n");
         }
         
         System.out.println(builder.toString());
@@ -169,8 +173,8 @@ public class Pso
     {
         List<String> pos = new ArrayList<>(p.posicao());
         final int posSize = pos.size();
+        double cr = 0.9;
         
-        List<Particula> pBest = pbest.get(p.classe());
         List<Particula> gBest = gbest.get(p.classe());
         
         if (w > Math.random())
@@ -179,7 +183,7 @@ public class Pso
             String[] clausula = pos.get(index).split(" ");
             
             if (StringUtils.isNumeric(clausula[2])) {
-                if (Math.random() < 0.1) {
+                if (Math.random() < 0.05) {
                     clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
                 }
                 double novoValor = Double.parseDouble(clausula[1]) + RandomUtils.nextDouble(-1, 1);
@@ -192,72 +196,65 @@ public class Pso
             }
         }
 
-        final int pBestSize = pBest.size();
-        Particula pBestPart = pBest.get(rand.nextInt(pBestSize));
+//        final int pBestSize = p.getPbest().size();
+//        Particula pBestPart = p.getPbest().get(rand.nextInt(pBestSize));
+//        if (c1 > Math.random())
+//        {
+//            List<String> posb = new ArrayList<>(pBestPart.posicao());
+//            posb.addAll(pos);
+//            Collections.shuffle(pos);
+//            p.setPosicao(new HashSet<>(posb.subList(0, posSize)));
+//        }
+//        
+//        
+//        final int gBestSize = gBest.size();
+//        Particula gBestPart = gBest.get(rand.nextInt(gBestSize));
+//        if (c2 > Math.random())
+//        {
+//            List<String> posg = new ArrayList<>(gBestPart.posicao());
+//            posg.addAll(pos);
+//            Collections.shuffle(pos);
+//            p.setPosicao(new HashSet<>(posg.subList(0, posSize)));
+//        }
+        
+        final int pBestSize = p.getPbest().size();
+        Particula pBestPart = p.getPbest().get(rand.nextInt(pBestSize));
+        List<String> pBestPos = new ArrayList<>(pBestPart.posicao());
+        int pBestIndex = rand.nextInt(pBestSize);
         if (c1 > Math.random())
         {
-            List<String> posb = new ArrayList<>(pBestPart.posicao());
-            posb.addAll(pos);
-            Collections.shuffle(pos);
-            p.setPosicao(new HashSet<>(posb.subList(0, posSize)));
+            List<String> nPosP = new ArrayList<>();
+            for (int i = 0; i < posSize; i++){
+        	if ((cr > Math.random() || pBestIndex == i) && pBestSize > posSize) {
+        	    nPosP.add(pBestPos.get(i));
+        	} else {
+        	    nPosP.add(pos.get(i));
+        	}
+            }
+            p.setPosicao(new HashSet<>(nPosP.subList(0, pBestSize)));
         }
         
         
         final int gBestSize = gBest.size();
         Particula gBestPart = gBest.get(rand.nextInt(gBestSize));
+        List<String> gBestPos = new ArrayList<>(gBestPart.posicao());
+        int gBestIndex = rand.nextInt(gBestSize);
         if (c2 > Math.random())
         {
-            List<String> posg = new ArrayList<>(gBestPart.posicao());
-            posg.addAll(pos);
-            Collections.shuffle(pos);
-            p.setPosicao(new HashSet<>(posg.subList(0, posSize)));
+            List<String> nPosG = new ArrayList<>();
+            for (int i = 0; i < posSize; i++){
+        	if ((cr > Math.random() || gBestIndex == i) && gBestSize > posSize) {
+        	    nPosG.add(gBestPos.get(i));
+        	} else {
+        	    nPosG.add(pos.get(i));
+        	}
+            }
+            p.setPosicao(new HashSet<>(nPosG.subList(0, gBestSize)));
         }
 
     }
 
-    /**
-     * Adiciona partículas não dominadas
-     *
-     * @param melhoresDaClasse pbest ou gbest
-     * @param p Partícula.
-     */
-    private void atualizaParticulasNaoDominadas(
-            Map<String, List<Particula>> melhoresDaClasse, Particula p)
-    {
-        double[] pfit = p.fitness();
-        String pcl = p.classe();
-
-        List<Particula> parts = melhoresDaClasse.get(pcl);
-
-        if (parts.isEmpty())
-        {
-            parts.add(p);
-        }
-        else
-        {
-            List<Particula> removeItens = new ArrayList<>();
-
-            for (Particula part : parts)
-            {
-                double[] fit = part.fitness();
-                if (pfit[0] >= fit[0] && pfit[1] >= fit[1]
-                        && (pfit[0] > fit[0] || pfit[1] > fit[1]))
-                {
-                    removeItens.add(part);
-                }
-
-            }
-
-//	    System.out.println(parts);
-//	    System.out.print("Remove: ");
-//	    System.out.println(removeItens);
-            if (removeItens.size() > 0)
-            {
-                parts.removeAll(removeItens);
-                parts.add(p);
-            }
-        }
-    }
+    
 
     /**
      *
