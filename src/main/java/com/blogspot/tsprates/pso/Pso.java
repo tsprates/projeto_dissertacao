@@ -68,7 +68,7 @@ public class Pso
 
     private double[] max, min;
 
-    private final double c1, c2, w;
+    private final double w, c1, c2, cr, mut;
 
     private final Fitness fitness;
     
@@ -86,9 +86,11 @@ public class Pso
         this.tabela = (String) p.get("tabela");
         this.colSaida = (String) p.get("saida");
         this.colId = (String) p.get("id");
+        this.w = Double.valueOf((String) p.get("w"));
         this.c1 = Double.valueOf((String) p.get("c1"));
         this.c2 = Double.valueOf((String) p.get("c2"));
-        this.w = Double.valueOf((String) p.get("w"));
+        this.cr = Double.valueOf((String) p.get("cr"));
+        this.mut = Double.valueOf((String) p.get("mut"));
         this.numPop = Integer.valueOf((String) p.get("npop"));
         this.maxIter = Integer.valueOf((String) p.get("maxiter"));
 
@@ -173,8 +175,7 @@ public class Pso
     {
         List<String> pos = new ArrayList<>(p.posicao());
         final int posSize = pos.size();
-        double cr = 0.9;
-        
+
         List<Particula> gBest = gbest.get(p.classe());
         
         if (w > Math.random())
@@ -183,7 +184,7 @@ public class Pso
             String[] clausula = pos.get(index).split(" ");
             
             if (StringUtils.isNumeric(clausula[2])) {
-                if (Math.random() < 0.05) {
+                if (Math.random() < mut) {
                     clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
                 }
                 double novoValor = Double.parseDouble(clausula[1]) + RandomUtils.nextDouble(-1, 1);
@@ -195,32 +196,12 @@ public class Pso
                 p.setPosicao(pos);
             }
         }
-
-//        final int pBestSize = p.getPbest().size();
-//        Particula pBestPart = p.getPbest().get(rand.nextInt(pBestSize));
-//        if (c1 > Math.random())
-//        {
-//            List<String> posb = new ArrayList<>(pBestPart.posicao());
-//            posb.addAll(pos);
-//            Collections.shuffle(pos);
-//            p.setPosicao(new HashSet<>(posb.subList(0, posSize)));
-//        }
-//        
-//        
-//        final int gBestSize = gBest.size();
-//        Particula gBestPart = gBest.get(rand.nextInt(gBestSize));
-//        if (c2 > Math.random())
-//        {
-//            List<String> posg = new ArrayList<>(gBestPart.posicao());
-//            posg.addAll(pos);
-//            Collections.shuffle(pos);
-//            p.setPosicao(new HashSet<>(posg.subList(0, posSize)));
-//        }
         
+        // pbest
         final int pBestSize = p.getPbest().size();
-        Particula pBestPart = p.getPbest().get(rand.nextInt(pBestSize));
-        List<String> pBestPos = new ArrayList<>(pBestPart.posicao());
-        int pBestIndex = rand.nextInt(pBestSize);
+        final Particula pBestPart = p.getPbest().get(rand.nextInt(pBestSize));
+        final List<String> pBestPos = new ArrayList<>(pBestPart.posicao());
+        final int pBestIndex = rand.nextInt(pBestSize);
         if (c1 > Math.random())
         {
             List<String> nPosP = new ArrayList<>();
@@ -234,11 +215,11 @@ public class Pso
             p.setPosicao(new HashSet<>(nPosP.subList(0, pBestSize)));
         }
         
-        
+        // gbest
         final int gBestSize = gBest.size();
-        Particula gBestPart = gBest.get(rand.nextInt(gBestSize));
-        List<String> gBestPos = new ArrayList<>(gBestPart.posicao());
-        int gBestIndex = rand.nextInt(gBestSize);
+        final Particula gBestPart = gBest.get(rand.nextInt(gBestSize));
+        final List<String> gBestPos = new ArrayList<>(gBestPart.posicao());
+        final int gBestIndex = rand.nextInt(gBestSize);
         if (c2 > Math.random())
         {
             List<String> nPosG = new ArrayList<>();
