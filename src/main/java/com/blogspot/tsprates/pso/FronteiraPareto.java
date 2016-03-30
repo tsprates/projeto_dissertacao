@@ -34,7 +34,7 @@ public class FronteiraPareto {
                 }
 
             }
-
+	    
             if (removeItens.size() > 0)
             {
                 listaParticulas.removeAll(removeItens);
