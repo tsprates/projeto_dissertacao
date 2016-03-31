@@ -1,10 +1,11 @@
 saida=classe
 id=cod
-npop=180
-tabela=hepatite_correta
-maxiter=100
-w=0.9
-c1=0.7
-c2=0.7
+npop=480
+tabela=wine
+maxiter=200
+wmax=0.9
+wmin=0.4
+c1=0.9
+c2=0.9
 cr=0.9
 mut=0.05
