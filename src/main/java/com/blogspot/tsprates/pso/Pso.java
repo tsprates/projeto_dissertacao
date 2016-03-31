@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
  * Classe PSO (Particles Swarm Optimization).
  *
  * @author thiago
- *
  */
 public class Pso
 {
