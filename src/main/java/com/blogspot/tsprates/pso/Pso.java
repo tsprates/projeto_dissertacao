@@ -10,14 +10,17 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,16 +29,15 @@ import org.apache.commons.lang3.StringUtils;
  * Classe PSO (Particles Swarm Optimization).
  *
  * @author thiago
+ * @param <E>
  *
  */
-public class Pso
+public class Pso<E>
 {
 
     // ALTER TABLE wine ADD COLUMN id SERIAL;
     // UPDATE wine SET id = nextval(pg_get_serial_sequence('wine','id'));
     // ALTER TABLE wine ADD PRIMARY KEY (id);
-    
-    
     private final Connection conexao;
 
     private final static String[] LISTA_OPERADORES =
@@ -46,13 +48,15 @@ public class Pso
 
     private final Random rand = new Random();
 
-    private final List<Particula> particulas = new ArrayList<>();
+    private Set<Particula> particulas = new HashSet<>();
 
     private final List<String> saida = new ArrayList<>();
 
     private final Map<String, Set<String>> classeSaidas = new HashMap<>();
 
-    private final Map<String, List<Particula>> gbest = new HashMap<>();
+    private final Map<String, Set<Particula>> gbest = new HashMap<>();
+
+    private final FronteiraPareto fp = new FronteiraPareto();
 
     private final String tabela;
 
@@ -63,15 +67,17 @@ public class Pso
     private final int numPop;
 
     private String[] colunas;
-    
+
     private int[] tipoColunas;
 
     private double[] max, min;
 
-    private final double w, c1, c2, cr, mut;
+    private final double wmin, wmax, c1, c2, cr, mut;
+    
+    private double w;
 
     private final Fitness fitness;
-    
+
     private final DecimalFormat formatter;
 
     /**
@@ -86,7 +92,9 @@ public class Pso
         this.tabela = (String) p.get("tabela");
         this.colSaida = (String) p.get("saida");
         this.colId = (String) p.get("id");
-        this.w = Double.valueOf((String) p.get("w"));
+        this.wmin = Double.valueOf((String) p.get("wmin"));
+        this.wmax = Double.valueOf((String) p.get("wmax"));
+        this.w = this.wmin;
         this.c1 = Double.valueOf((String) p.get("c1"));
         this.c2 = Double.valueOf((String) p.get("c2"));
         this.cr = Double.valueOf((String) p.get("cr"));
@@ -99,15 +107,14 @@ public class Pso
         carregaIdParaSaida();
         carregaMaxMinDasEntradas();
 
-        // Lista não dominados (pbest e gbest)
+        // Lista não dominados (gbest)
         for (String cl : classeSaidas.keySet())
         {
-            gbest.put(cl, new ArrayList<Particula>());
+            gbest.put(cl, new HashSet<Particula>());
         }
 
         this.fitness = new Fitness(c, colId, tabela, classeSaidas);
-        
-        
+
         // Decimal formatter
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
         symbols.setDecimalSeparator('.');
@@ -119,52 +126,62 @@ public class Pso
      */
     public void carrega()
     {
-        List<Particula> pop = geraPopulacaoInicial();
+        this.particulas = geraPopulacaoInicial();
 
         long tempoInicial = System.nanoTime();
         for (int i = 0; i < maxIter; i++)
         {
-            for (Particula part : pop)
+            for (Particula part : particulas)
             {
-        	String cl = part.classe();
-        	List<Particula> gbestParts = gbest.get(cl);
-        	
-        	// gbest
-                FronteiraPareto.atualizaParticulasNaoDominadas(gbestParts, part);
-                
+                // gbest
+                String gcl = part.classe();
+                Set<Particula> gbestParts = gbest.get(gcl);
+                fp.atualizaParticulasNaoDominadas(gbestParts, part);
+
                 // pbest
-                part.atualizaPBest();
+                part.atualizaPbest();
 
                 atualizaPosicao(part);
+                
+                atualizaW(i);
             }
         }
 
         long tempoFinal = System.nanoTime();
-        
-        // Mostra resultado
-        StringBuilder builder = new StringBuilder("Classe\tCompl.\tEfet.\tAcur.\tRegra\n\n");
 
-        for (List<Particula> parts : gbest.values())
-        {
-            for (Particula part : parts)
-            {
-                builder.append(part.classe());
-                
-                for (double d : part.fitness())
-                {
-                    builder.append("\t").append(formatter.format(d));
-                }
-                
-                builder.append("\t").append(part.toWhereSql()).append("\n");
-            }
-        }
-        
-        System.out.println(builder.toString());
+        mostraResultados();
 
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
         System.out.println("\nTempo decorrido: " + tempoDecorrido);
     }
 
+    /**
+     * 
+     */
+    private void mostraResultados()
+    {
+        // Mostra resultado
+        StringBuilder builder = new StringBuilder("Classe\tCompl.\tEfet.\tAcur.\tRegra\n\n");
+
+        for (Set<Particula> parts : gbest.values())
+        {
+            
+            for (Particula part : parts)
+            {
+                builder.append(part.classe());
+
+                for (double d : part.fitness())
+                {
+                    builder.append("\t").append(formatter.format(d));
+                }
+
+                builder.append("\t").append(part.whereSql()).append("\n");
+            }
+            builder.append("\n");
+        }
+
+        System.out.println(builder.toString());
+    }
 
     /**
      * Atualiza posição.
@@ -176,66 +193,114 @@ public class Pso
         List<String> pos = new ArrayList<>(p.posicao());
         final int posSize = pos.size();
 
-        List<Particula> gBest = gbest.get(p.classe());
-        
         if (w > Math.random())
         {
             int index = rand.nextInt(pos.size());
             String[] clausula = pos.get(index).split(" ");
-            
-            if (StringUtils.isNumeric(clausula[2])) {
-                if (Math.random() < mut) {
+
+            if (StringUtils.isNumeric(clausula[2]))
+            {
+                if (Math.random() < mut)
+                {
                     clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
                 }
+                
                 double novoValor = Double.parseDouble(clausula[1]) + RandomUtils.nextDouble(-1, 1);
                 pos.add(String.format(Locale.ROOT, "%s %s %.2f", clausula[0], clausula[1], novoValor));
                 p.setPosicao(pos);
-            } else {
+            }
+            else
+            {
                 clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
                 pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
                 p.setPosicao(pos);
             }
         }
-        
+
         // pbest
-        final int pBestSize = p.getPbest().size();
-        final Particula pBestPart = p.getPbest().get(rand.nextInt(pBestSize));
+        final Set<Particula> pBest = p.getPbest();
+        final int pBestSize = pBest.size();
+        final Particula pBestPart = getRandomElement(pBest);
         final List<String> pBestPos = new ArrayList<>(pBestPart.posicao());
         final int pBestIndex = rand.nextInt(pBestSize);
         if (c1 > Math.random())
         {
             List<String> nPosP = new ArrayList<>();
-            for (int i = 0; i < posSize; i++){
-        	if ((cr > Math.random() || pBestIndex == i) && pBestSize > posSize) {
-        	    nPosP.add(pBestPos.get(i));
-        	} else {
-        	    nPosP.add(pos.get(i));
-        	}
+            int i = 0;
+            int pBestPosSize = pBestPos.size();
+            while (i < pBestPosSize)
+            {
+                if (cr > Math.random() || pBestIndex == i)
+                {
+                    nPosP.add(pBestPos.get(i));
+                }
+                else if (i < posSize)
+                {
+                    nPosP.add(pos.get(i));
+                }
+                i++;
             }
-            p.setPosicao(new HashSet<>(nPosP.subList(0, pBestSize)));
+            p.setPosicao(new HashSet<>(nPosP));
         }
-        
+
         // gbest
+        final Set<Particula> gBest = gbest.get(p.classe());
         final int gBestSize = gBest.size();
-        final Particula gBestPart = gBest.get(rand.nextInt(gBestSize));
+        final Particula gBestPart = getRandomElement(gBest);
         final List<String> gBestPos = new ArrayList<>(gBestPart.posicao());
         final int gBestIndex = rand.nextInt(gBestSize);
         if (c2 > Math.random())
         {
             List<String> nPosG = new ArrayList<>();
-            for (int i = 0; i < posSize; i++){
-        	if ((cr > Math.random() || gBestIndex == i) && gBestSize > posSize) {
-        	    nPosG.add(gBestPos.get(i));
-        	} else {
-        	    nPosG.add(pos.get(i));
-        	}
+            int i = 0;
+            int gBestPosSize = gBestPos.size();
+            while (i < gBestPosSize)
+            {
+                if (cr > Math.random() || gBestIndex == i)
+                {
+                    nPosG.add(gBestPos.get(i));
+                }
+                else if (i < posSize)
+                {
+                    nPosG.add(pos.get(i));
+                }
+                i++;
             }
-            p.setPosicao(new HashSet<>(nPosG.subList(0, gBestSize)));
+            p.setPosicao(new HashSet<>(nPosG));
         }
 
     }
 
-    
+    /**
+     * Termo de inércia.
+     * 
+     * @param k 
+     */
+    private void atualizaW(int k)
+    {
+        // atualiza fator de inércia
+        w = wmax - k * (wmax - wmin) / maxIter;
+    }
+
+    /**
+     *
+     * @param s
+     * @return
+     */
+    private Particula getRandomElement(Set<Particula> s)
+    {
+        Iterator<Particula> it = s.iterator();
+        int i = 0, index = rand.nextInt(s.size());
+        while (it.hasNext())
+        {
+            if (i == index)
+            {
+                return it.next();
+            }
+            i++;
+        }
+        return null;
+    }
 
     /**
      *
@@ -284,7 +349,7 @@ public class Pso
 
             colunas = new String[numCol - 2];
             tipoColunas = new int[numCol - 2];
-            
+
             max = new double[numCol - 2];
             min = new double[numCol - 2];
 
@@ -372,7 +437,7 @@ public class Pso
      *
      * @return Lista contendo a população de partículas.
      */
-    private List<Particula> geraPopulacaoInicial()
+    private Set<Particula> geraPopulacaoInicial()
     {
         int numSaidas = saida.size();
         int numPopNicho = numPop / numSaidas;
@@ -392,15 +457,14 @@ public class Pso
             }
         }
 
-	// System.out.println(contPopNicho);
-
+        // System.out.println(contPopNicho);
         for (String tipo : contPopNicho.keySet())
         {
             for (int i = 0, len = contPopNicho.get(tipo); i < len; i++)
             {
-                Collection<String> pos = criaWhere();
+                Set<String> pos = criaWhere();
                 String classe = tipo;
-                Particula particula = new Particula(pos, classe, fitness);
+                Particula particula = new Particula(pos, classe, fitness, fp);
                 particulas.add(particula);
             }
 
@@ -414,9 +478,9 @@ public class Pso
      *
      * @return Lista com clásulas WHERE.
      */
-    private Collection<String> criaWhere()
+    private Set<String> criaWhere()
     {
-        List<String> listaWhere = new ArrayList<>();
+        Set<String> listaWhere = new HashSet<>();
 
         int numOper = LISTA_OPERADORES.length;
         int numCols = colunas.length;
@@ -454,8 +518,7 @@ public class Pso
             String col = colunas[colIndex];
             String oper = LISTA_OPERADORES[operIndex];
 
-            
-            listaWhere.add(String.format(Locale.ROOT, 
+            listaWhere.add(String.format(Locale.ROOT,
                     "%s %s %s", col, oper, valor));
 
             prob -= decProb;
@@ -470,11 +533,11 @@ public class Pso
     public void mostraPopulacao()
     {
 //        System.out.println(Arrays.toString(tipoColunas));
-        
+
         for (Particula p : particulas)
         {
             System.out.println(Arrays.toString(p.fitness()) + " : "
-                    + p.toWhereSql());
+                    + p.whereSql());
         }
 
         System.out.println("Classes");

@@ -105,7 +105,7 @@ public class Fitness implements InterfaceFitness
     {
         Set<String> listaVerdadeiros = classeSaidas.get(p.classe());
 
-        resultado = consultaSql(p.toWhereSql());
+        resultado = consultaSql(p.whereSql());
 
         int tp = 0;
         for (String iter : resultado)

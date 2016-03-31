@@ -1,9 +1,8 @@
 package com.blogspot.tsprates.pso;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,37 +12,49 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author thiago
  */
-public class Particula
+public class Particula implements Comparable<Particula>
 {
 
     private Set<String> posicao = new HashSet<>();
 
+    private String strPos = null;
+
     private String classe;
+
+    private final FronteiraPareto fp;
 
     private double[] fitness;
 
     private final InterfaceFitness calculadorFitness;
     
-    private List<Particula> pbest = new ArrayList<>();
-    
-
+    private Set<Particula> pbest = new HashSet<>();
+   
     /**
      * Construtor.
      *
-     * @param velocidade
      * @param posicao
      * @param classe
      * @param f
+     * @param fp
      */
-    public Particula(Collection<String> posicao,
-            String classe, InterfaceFitness f)
+    public Particula(Set<String> posicao, String classe, InterfaceFitness f, FronteiraPareto fp)
     {
         this.posicao = new HashSet<>(posicao);
+        this.strPos = join(this.posicao);
+        this.fp = fp;
         this.classe = classe;
         this.calculadorFitness = f;
-
         final Particula that = this;
         this.fitness = this.calculadorFitness.calcula(that);
+    }
+    
+    /**
+     * 
+     * @param p 
+     */
+    public Particula(Particula p)
+    {
+        this(p.posicao, p.classe, p.calculadorFitness, p.fp);
     }
 
     /**
@@ -64,6 +75,7 @@ public class Particula
     public void setPosicao(Collection<String> posicao)
     {
         this.posicao = new HashSet<>(posicao);
+        this.strPos = join(this.posicao);
         this.fitness = this.calculadorFitness.calcula(this);
     }
 
@@ -72,9 +84,9 @@ public class Particula
      *
      * @return String WHERE SQL.
      */
-    public String toWhereSql()
+    public String whereSql()
     {
-        return join(posicao());
+        return strPos;
     }
 
     /**
@@ -117,7 +129,6 @@ public class Particula
         return fitness;
     }
 
-
     /**
      * Retorna string de cláusulas WHERE.
      *
@@ -132,24 +143,66 @@ public class Particula
     @Override
     public String toString()
     {
-        return join(posicao);
+        return strPos;
     }
-
+    
     
     /**
      * 
+     * @return 
      */
-    public void atualizaPBest() {
-	FronteiraPareto.atualizaParticulasNaoDominadas(pbest, this);
+    public Set<Particula> getPbest()
+    {
+        return pbest;
     }
 
     /**
      * 
-     * 
-     * @return
+     * @param pbest 
      */
-    public List<Particula> getPbest() {
-	return pbest;
+    public void setPbest(Set<Particula> pbest)
+    {
+        this.pbest = pbest;
     }
+
+    /**
+     * 
+     */
+    public void atualizaPbest()
+    {
+        fp.atualizaParticulasNaoDominadas(pbest, this);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int hash = 5;
+        hash = 11 * hash + Objects.hashCode(this.posicao);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        final Particula other = (Particula) obj;
+        return Objects.equals(this.posicao, other.posicao);
+    }
+
+    @Override
+    public int compareTo(Particula t)
+    {
+        double[] fit = t.fitness();
+        return (int) (fitness[0] - fit[0] + fitness[1] - fit[1]);
+    }
+
+   
 
 }

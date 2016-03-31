@@ -1,44 +1,64 @@
 package com.blogspot.tsprates.pso;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.Iterator;
+import java.util.Set;
 
-public class FronteiraPareto {
-    
+public class FronteiraPareto
+{
+
     /**
      * Adiciona partículas não dominadas.
      *
      * @param listaParticulas Lista de partícula.
      * @param particula Partícula.
      */
-    public static void atualizaParticulasNaoDominadas(Collection<Particula> listaParticulas, Particula particula)
+    public void atualizaParticulasNaoDominadas(Set<Particula> listaParticulas, Particula particula)
     {
-        double[] pfit = particula.fitness();
+        double[] partFit = particula.fitness();
 
         if (listaParticulas.isEmpty())
         {
-            listaParticulas.add(particula);
+            listaParticulas.add(new Particula(particula));
         }
         else
         {
-            List<Particula> removeItens = new ArrayList<>();
-
-            for (Particula p : listaParticulas)
+            boolean removido = false;
+            
+            Iterator<Particula> it = listaParticulas.iterator();
+            while (it.hasNext())
             {
-                double[] fit = p.fitness();
-                if (pfit[0] >= fit[0] && pfit[1] >= fit[1]
-                        && (pfit[0] > fit[0] || pfit[1] > fit[1]))
+                Particula p = it.next();
+                double[] pfit = p.fitness();
+                if (partFit[0] >= pfit[0] && partFit[1] >= pfit[1]
+                        && (partFit[0] > pfit[0] || partFit[1] > pfit[1]))
                 {
-                    removeItens.add(p);
+                    removido = true;
+                    it.remove();
+                }
+            }
+
+            if (removido)
+            {
+                listaParticulas.add(new Particula(particula));
+            }
+            else
+            {
+
+                boolean adiciona = false;
+                for (Particula p : listaParticulas)
+                {
+                    double[] fit = p.fitness();
+                    if ((partFit[0] >= fit[0] || partFit[1] >= fit[1]))
+                    {
+                        adiciona = true;
+                        break;
+                    }
                 }
 
-            }
-	    
-            if (removeItens.size() > 0)
-            {
-                listaParticulas.removeAll(removeItens);
-                listaParticulas.add(particula);
+                if (adiciona)
+                {
+                    listaParticulas.add(new Particula(particula));
+                }
             }
         }
     }
