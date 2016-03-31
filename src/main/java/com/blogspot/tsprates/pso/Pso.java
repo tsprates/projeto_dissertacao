@@ -9,8 +9,6 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,7 +18,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,10 +26,9 @@ import org.apache.commons.lang3.StringUtils;
  * Classe PSO (Particles Swarm Optimization).
  *
  * @author thiago
- * @param <E>
  *
  */
-public class Pso<E>
+public class Pso
 {
 
     // ALTER TABLE wine ADD COLUMN id SERIAL;
