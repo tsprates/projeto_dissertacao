@@ -29,8 +29,8 @@ public class FronteiraPareto
             {
                 Particula p = it.next();
                 double[] pfit = p.fitness();
-                if (partFit[0] >= pfit[0] && partFit[1] >= pfit[1]
-                        && (partFit[0] > pfit[0] || partFit[1] > pfit[1])) 
+                if (Double.compare(partFit[0], pfit[0]) >= 0 && Double.compare(partFit[1], pfit[1]) >= 0
+                        && (Double.compare(partFit[0], pfit[0]) > 0 || Double.compare(partFit[1], pfit[1]) > 0)) 
                 {
                     removido = true;
                     it.remove();
@@ -48,8 +48,8 @@ public class FronteiraPareto
                 for (Particula p : listaParticulas)
                 {
                     double[] pfit = p.fitness();
-                    if ((partFit[0] > pfit[0] && partFit[1] >= pfit[1])
-                	    && (partFit[0] >= pfit[0] && partFit[1] > pfit[1]))
+                    if ((Double.compare(partFit[0], pfit[0]) > 0 && Double.compare(partFit[1], pfit[1]) >= 0)
+                	    || (Double.compare(partFit[0], pfit[0]) >= 0 && Double.compare(partFit[1], pfit[1]) > 0))
                     {
                         adiciona = true;
                         break;
