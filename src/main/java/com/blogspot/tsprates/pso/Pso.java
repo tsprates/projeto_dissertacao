@@ -455,14 +455,36 @@ public class Pso
         // System.out.println(contPopNicho);
         for (String tipo : contPopNicho.keySet())
         {
+            Particula partobj1 = null;
+            Particula partobj2 = null;
+            
+            double[] pfitobj1 = null;
+            double[] pfitobj2 = null;
+            
             for (int i = 0, len = contPopNicho.get(tipo); i < len; i++)
             {
                 Set<String> pos = criaWhere();
                 String classe = tipo;
                 Particula particula = new Particula(pos, classe, fitness, fp);
                 particulas.add(particula);
+                
+                double[] pfit = particula.fitness();
+                
+                if (partobj1 == null || pfit[0] > pfitobj1[0])
+                {
+                    partobj1 = particula;
+                    pfitobj1 = particula.fitness();
+                }
+                
+                if (partobj2 == null || pfit[1] > pfitobj2[1])
+                {
+                    partobj2 = particula;
+                    pfitobj2 = particula.fitness();
+                }
             }
-
+            
+            gbest.get(tipo).add(new Particula(partobj1));
+            gbest.get(tipo).add(new Particula(partobj2));
         }
 
         return particulas;
