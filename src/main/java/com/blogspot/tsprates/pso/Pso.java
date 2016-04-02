@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
@@ -140,6 +141,8 @@ public class Pso
                 
                 atualizaW(i);
             }
+            
+            System.out.println("Iteração: " + (i+1));
         }
 
         long tempoFinal = System.nanoTime();
@@ -155,27 +158,52 @@ public class Pso
      */
     private void mostraResultados()
     {
+	Grafico g = new Grafico(tabela);
+	
+	System.out.println();
+	
         // Mostra resultado
         StringBuilder builder = new StringBuilder("Classe\tCompl.\tEfet.\tAcur.\tRegra\n\n");
 
-        for (Set<Particula> parts : gbest.values())
+	for (Entry<String, Set<Particula>> parts : gbest.entrySet())
         {
+            List<Double> x = new ArrayList<>();
+            List<Double> y = new ArrayList<>();
             
-            for (Particula part : parts)
-            {
-                builder.append(part.classe());
+            String classe = parts.getKey();
 
-                for (double d : part.fitness())
+            for (Particula part : parts.getValue())
+            {               
+                builder.append(classe);
+
+                double[] d = part.fitness();
+                for (int i = 0, len = d.length; i < len; i++)
                 {
-                    builder.append("\t").append(formatter.format(d));
+                    builder.append("\t").append(formatter.format(d[i]));
+                    
+                    if (i == 0)
+                    {
+                	x.add(d[i]);
+                    }
+                    
+                    if (i == 1)
+                    {
+                	y.add(d[i]);
+                    }
+                    
                 }
-
+                
                 builder.append("\t").append(part.whereSql()).append("\n");
             }
+            
+            g.adicionaSerie(classe, x, y);
+
             builder.append("\n");
         }
 
         System.out.println(builder.toString());
+        
+        g.mostra();
     }
 
     /**
@@ -373,7 +401,7 @@ public class Pso
      */
     private void carregaTiposClassesSaida()
     {
-        String sql = "SELECT DISTINCT " + colSaida + " FROM " + tabela;
+        String sql = "SELECT DISTINCT " + colSaida + " FROM " + tabela  + " ORDER BY " + colSaida + " ASC";
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery())
@@ -467,6 +495,7 @@ public class Pso
                 String classe = tipo;
                 Particula particula = new Particula(pos, classe, fitness, fp);
                 particulas.add(particula);
+//                gbest.get(tipo).add(new Particula(particula));
                 
                 double[] pfit = particula.fitness();
                 
@@ -485,7 +514,9 @@ public class Pso
             
             gbest.get(tipo).add(new Particula(partobj1));
             gbest.get(tipo).add(new Particula(partobj2));
+//            System.out.println(partobj1 + " : " + partobj2);
         }
+        
 
         return particulas;
     }
