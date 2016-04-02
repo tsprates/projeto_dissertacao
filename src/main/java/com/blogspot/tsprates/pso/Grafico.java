@@ -24,7 +24,7 @@ public class Grafico
 
 	chart.getStyler().setDefaultSeriesRenderStyle(
 		XYSeriesRenderStyle.Scatter);
-	chart.getStyler().setChartTitleVisible(false);
+	chart.getStyler().setChartTitleVisible(true);
 	chart.getStyler().setLegendPosition(LegendPosition.OutsideE);
 	chart.getStyler().setMarkerSize(16);
 	chart.setTitle(titulo);

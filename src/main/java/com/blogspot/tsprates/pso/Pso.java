@@ -114,7 +114,7 @@ public class Pso
         // Decimal formatter
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
         symbols.setDecimalSeparator('.');
-        formatter = new DecimalFormat("##.##", symbols);
+        formatter = new DecimalFormat("##.###", symbols);
     }
 
     /**
@@ -163,7 +163,7 @@ public class Pso
 	System.out.println();
 	
         // Mostra resultado
-        StringBuilder builder = new StringBuilder("Classe\tCompl.\tEfet.\tAcur.\tRegra\n\n");
+        StringBuilder builder = new StringBuilder("Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
 
 	for (Entry<String, Set<Particula>> parts : gbest.entrySet())
         {
@@ -535,7 +535,7 @@ public class Pso
         double prob = 0.8;
 
 //        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
-        int maxWhere = (int) (Math.log(RandomUtils.nextDouble(1, numCols)) / Math.log(Math.E)) + 1;
+        int maxWhere = (int) (Math.log(RandomUtils.nextDouble(1, numCols)) / Math.log(2)) + 1;
         double decProb = (prob - 0.3) / maxWhere;
 
         for (int i = 0; i < maxWhere; i++)
