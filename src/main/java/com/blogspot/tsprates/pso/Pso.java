@@ -68,8 +68,10 @@ public class Pso
 
     private double[] max, min;
 
-    private final double wmin, wmax, c1, c2, cr, mut;
+    private final double wmin, wmax, c1, c2;
     
+    private final double cr, mutadd, mutoper, numattr;
+
     private double w;
 
     private final Fitness fitness;
@@ -94,7 +96,9 @@ public class Pso
         this.c1 = Double.valueOf((String) p.get("c1"));
         this.c2 = Double.valueOf((String) p.get("c2"));
         this.cr = Double.valueOf((String) p.get("cr"));
-        this.mut = Double.valueOf((String) p.get("mut"));
+        this.mutoper = Double.valueOf((String) p.get("mutoper"));
+        this.mutadd = Double.valueOf((String) p.get("mutadd"));
+        this.numattr = Double.valueOf((String) p.get("numattr"));
         this.numPop = Integer.valueOf((String) p.get("npop"));
         this.maxIter = Integer.valueOf((String) p.get("maxiter"));
 
@@ -138,11 +142,11 @@ public class Pso
                 part.atualizaPbest();
 
                 atualizaPosicao(part);
-                
+
                 atualizaW(i);
             }
-            
-            System.out.println("Iteração: " + (i+1));
+
+            System.out.println("Iteração: " + (i + 1));
         }
 
         long tempoFinal = System.nanoTime();
@@ -154,55 +158,56 @@ public class Pso
     }
 
     /**
+     * Solução encontrada.
      * 
      */
     private void mostraResultados()
     {
-	Grafico g = new Grafico(tabela);
-	
-	System.out.println();
-	
+        Grafico g = new Grafico(tabela);
+
+        System.out.println();
+
         // Mostra resultado
         StringBuilder builder = new StringBuilder("Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
 
-	for (Entry<String, Set<Particula>> parts : gbest.entrySet())
+        for (Entry<String, Set<Particula>> parts : gbest.entrySet())
         {
             List<Double> x = new ArrayList<>();
             List<Double> y = new ArrayList<>();
-            
+
             String classe = parts.getKey();
 
             for (Particula part : parts.getValue())
-            {               
+            {
                 builder.append(classe);
 
                 double[] d = part.fitness();
                 for (int i = 0, len = d.length; i < len; i++)
                 {
                     builder.append("\t").append(formatter.format(d[i]));
-                    
+
                     if (i == 0)
                     {
-                	x.add(d[i]);
+                        x.add(d[i]);
                     }
-                    
+
                     if (i == 1)
                     {
-                	y.add(d[i]);
+                        y.add(d[i]);
                     }
-                    
+
                 }
-                
+
                 builder.append("\t").append(part.whereSql()).append("\n");
             }
-            
+
             g.adicionaSerie(classe, x, y);
 
             builder.append("\n");
         }
 
         System.out.println(builder.toString());
-        
+
         g.mostra();
     }
 
@@ -223,21 +228,28 @@ public class Pso
 
             if (StringUtils.isNumeric(clausula[2]))
             {
-                if (Math.random() < mut)
+                if (Math.random() < mutoper)
                 {
                     clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
                 }
-                
+
                 double novoValor = Double.parseDouble(clausula[1]) + RandomUtils.nextDouble(-1, 1);
                 pos.add(String.format(Locale.ROOT, "%s %s %.2f", clausula[0], clausula[1], novoValor));
-                p.setPosicao(pos);
+//                p.setPosicao(pos);
             }
             else
             {
                 clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
                 pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
-                p.setPosicao(pos);
+//                p.setPosicao(pos);
             }
+
+            if (Math.random() < mutadd)
+            {
+                pos.add(criaCond());
+            }
+
+            p.setPosicao(pos);
         }
 
         // pbest
@@ -296,8 +308,8 @@ public class Pso
 
     /**
      * Termo de inércia.
-     * 
-     * @param k 
+     *
+     * @param k
      */
     private void atualizaW(int k)
     {
@@ -401,7 +413,7 @@ public class Pso
      */
     private void carregaTiposClassesSaida()
     {
-        String sql = "SELECT DISTINCT " + colSaida + " FROM " + tabela  + " ORDER BY " + colSaida + " ASC";
+        String sql = "SELECT DISTINCT " + colSaida + " FROM " + tabela + " ORDER BY " + colSaida + " ASC";
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery())
@@ -485,10 +497,10 @@ public class Pso
         {
             Particula partobj1 = null;
             Particula partobj2 = null;
-            
+
             double[] pfitobj1 = null;
             double[] pfitobj2 = null;
-            
+
             for (int i = 0, len = contPopNicho.get(tipo); i < len; i++)
             {
                 Set<String> pos = criaWhere();
@@ -496,27 +508,26 @@ public class Pso
                 Particula particula = new Particula(pos, classe, fitness, fp);
                 particulas.add(particula);
 //                gbest.get(tipo).add(new Particula(particula));
-                
+
                 double[] pfit = particula.fitness();
-                
+
                 if (partobj1 == null || pfit[0] > pfitobj1[0])
                 {
                     partobj1 = particula;
                     pfitobj1 = particula.fitness();
                 }
-                
+
                 if (partobj2 == null || pfit[1] > pfitobj2[1])
                 {
                     partobj2 = particula;
                     pfitobj2 = particula.fitness();
                 }
             }
-            
+
             gbest.get(tipo).add(new Particula(partobj1));
             gbest.get(tipo).add(new Particula(partobj2));
 //            System.out.println(partobj1 + " : " + partobj2);
         }
-        
 
         return particulas;
     }
@@ -528,51 +539,77 @@ public class Pso
      */
     private Set<String> criaWhere()
     {
-        Set<String> listaWhere = new HashSet<>();
-
-        int numOper = LISTA_OPERADORES.length;
         int numCols = colunas.length;
-        double prob = 0.8;
+        double probCond = numattr;
+        Set<String> listaWhere = new HashSet<>();
 
 //        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
         int maxWhere = (int) (Math.log(RandomUtils.nextDouble(1, numCols)) / Math.log(2)) + 1;
-        double decProb = (prob - 0.3) / maxWhere;
+        double decProb = (probCond - 0.3) / maxWhere;
 
         for (int i = 0; i < maxWhere; i++)
         {
-            int colIndex = rand.nextInt(numCols);
-            int operIndex = rand.nextInt(numOper);
+            String cond = criaCond(probCond);
 
-            String valor;
+            listaWhere.add(cond);
 
-            // Verifica se comparação ocorrerá numericamente ou via coluna
-            if (rand.nextDouble() > prob)
-            {
-                valor = String.format(Locale.ROOT, "%.2f",
-                        RandomUtils.nextDouble(min[colIndex], max[colIndex]));
-            }
-            else
-            {
-                int index;
-                do
-                {
-                    index = rand.nextInt(numCols);
-                }
-                while (index == colIndex); // diferentes colunas
-
-                valor = colunas[index];
-            }
-
-            String col = colunas[colIndex];
-            String oper = LISTA_OPERADORES[operIndex];
-
-            listaWhere.add(String.format(Locale.ROOT,
-                    "%s %s %s", col, oper, valor));
-
-            prob -= decProb;
+            probCond -= decProb;
         }
 
         return listaWhere;
+    }
+
+    /**
+     * Cria condição para cláusula WHERE.
+     *
+     * @return
+     */
+    private String criaCond()
+    {
+        return criaCond(numattr);
+    }
+
+    /**
+     * Cria condição para cláusula WHERE.
+     *
+     * @param prob
+     * @return
+     */
+    private String criaCond(double prob)
+    {
+        int numOper = LISTA_OPERADORES.length;
+        int numCols = colunas.length;
+
+        int colIndex = rand.nextInt(numCols);
+        int operIndex = rand.nextInt(numOper);
+
+        String valor;
+
+        // Verifica se comparação ocorrerá numericamente ou via coluna
+        if (rand.nextDouble() > prob)
+        {
+            valor = String.format(Locale.ROOT, "%.2f",
+                    RandomUtils.nextDouble(min[colIndex], max[colIndex]));
+        }
+        else
+        {
+            int index;
+            do
+            {
+                index = rand.nextInt(numCols);
+            }
+            while (index == colIndex); // diferentes colunas
+
+            valor = colunas[index];
+        }
+
+        String col = colunas[colIndex];
+        String oper = LISTA_OPERADORES[operIndex];
+
+        String cond = String.format(Locale.ROOT,
+                "%s %s %s", col, oper, valor);
+
+        return cond;
     }
 
     /**
