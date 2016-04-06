@@ -12,31 +12,43 @@ import org.knowm.xchart.style.XYStyler;
 public class Grafico
 {
 
-    private XYChart chart;
+    private final XYChart chart;
 
     public void mostra()
     {
-        new SwingWrapper<XYChart>(chart).displayChart();
+        new SwingWrapper<>(chart).displayChart();
     }
 
     public Grafico(String titulo)
     {
         chart = new XYChartBuilder().width(800).height(600).build();
-
         XYStyler styler = chart.getStyler();
-        
-        styler.setDefaultSeriesRenderStyle(
-                XYSeriesRenderStyle.Scatter);
+        prepareGrafico(styler);
+        setTitle(titulo);
+        setAxis(styler);
+    }
+
+    private XYStyler prepareGrafico(XYStyler styler)
+    {
+        styler.setDefaultSeriesRenderStyle(XYSeriesRenderStyle.Scatter);
         styler.setChartTitleVisible(true);
         styler.setLegendPosition(LegendPosition.OutsideE);
         styler.setMarkerSize(16);
-        
+        return styler;
+    }
+
+    private void setTitle(String titulo)
+    {
         chart.setTitle(titulo);
         chart.setXAxisTitle("Complexidade");
         chart.setYAxisTitle("Sensibilidade x Especificidade");
+    }
 
+    private void setAxis(XYStyler styler)
+    {
         styler.setXAxisMax(1);
         styler.setXAxisMin(0);
+        
         styler.setYAxisMax(1);
         styler.setYAxisMin(0);
     }
