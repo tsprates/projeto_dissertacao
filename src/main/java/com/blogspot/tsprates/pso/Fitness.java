@@ -107,28 +107,31 @@ public class Fitness implements InterfaceFitness
 
         resultado = consultaSql(p.whereSql());
 
-        int tp = 0;
+        double tp = 0.0;
         for (String iter : resultado)
         {
             if (listaVerdadeiros.contains(iter))
             {
-                tp += 1;
+                tp += 1.0;
             }
         }
-        
+
         final int resultadoSize = resultado.size();
         final int listaSize = listaVerdadeiros.size();
 
-        int fp = resultadoSize - tp;
-        int fn = listaSize - tp;
-        int tn = totalSize - fn - fp - tp;
+        double fp = resultadoSize - tp;
+        double fn = listaSize - tp;
+        double tn = totalSize - fn - fp - tp;
 
-        double sensibilidade = (double) tp / (tp + fn);
-        double especificidade = (double) tn / (tn + fp);
-        double acuracia = (double) (tp + tn) / (tp + tn + fp + fn);
+        double sensibilidade = tp / (tp + fn);
+        double especificidade = tn / (tn + fp);
+        double acuracia = (tp + tn) / (tp + tn + fp + fn);
 
         double efetividade = especificidade * sensibilidade;
-        
-        return new double[]{efetividade, acuracia};
+
+        return new double[]
+        {
+            efetividade, acuracia
+        };
     }
 }

@@ -69,7 +69,7 @@ public class Pso
     private double[] max, min;
 
     private final double wmin, wmax, c1, c2;
-    
+
     private final double cr, mutadd, mutoper, numattr;
 
     private double w;
@@ -142,7 +142,7 @@ public class Pso
                 part.atualizaPbest();
 
                 atualizaPosicao(part);
-                
+
                 atualizaW(i);
             }
 
@@ -159,7 +159,7 @@ public class Pso
 
     /**
      * Solução encontrada.
-     * 
+     *
      */
     private void mostraResultados()
     {
@@ -203,7 +203,7 @@ public class Pso
 
             g.adicionaSerie(classe, x, y);
 
-            builder.append("\n");
+//            builder.append("\n");
         }
 
         System.out.println(builder.toString());
@@ -235,13 +235,11 @@ public class Pso
 
                 double novoValor = Double.parseDouble(clausula[1]) + RandomUtils.nextDouble(-1, 1);
                 pos.add(String.format(Locale.ROOT, "%s %s %.2f", clausula[0], clausula[1], novoValor));
-//                p.setPosicao(pos);
             }
             else
             {
                 clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
                 pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
-//                p.setPosicao(pos);
             }
 
             if (Math.random() < mutadd)
@@ -549,7 +547,7 @@ public class Pso
 
         for (int i = 0; i < maxWhere; i++)
         {
-            String cond = criaCond(probCond);
+            String cond = criaCondicao(probCond);
 
             listaWhere.add(cond);
 
@@ -566,7 +564,7 @@ public class Pso
      */
     private String criaCond()
     {
-        return criaCond(numattr);
+        return criaCondicao(numattr);
     }
 
     /**
@@ -575,7 +573,7 @@ public class Pso
      * @param prob
      * @return
      */
-    private String criaCond(double prob)
+    private String criaCondicao(double prob)
     {
         int numOper = LISTA_OPERADORES.length;
         int numCols = colunas.length;
