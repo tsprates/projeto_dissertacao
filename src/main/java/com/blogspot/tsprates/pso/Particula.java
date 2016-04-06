@@ -26,9 +26,9 @@ public class Particula implements Comparable<Particula>
     private double[] fitness;
 
     private final InterfaceFitness calculadorFitness;
-    
+
     private Set<Particula> pbest = new HashSet<>();
-   
+
     /**
      * Construtor.
      *
@@ -47,10 +47,10 @@ public class Particula implements Comparable<Particula>
         final Particula that = this;
         this.fitness = this.calculadorFitness.calcula(that);
     }
-    
+
     /**
-     * 
-     * @param p 
+     *
+     * @param p
      */
     public Particula(Particula p)
     {
@@ -145,11 +145,10 @@ public class Particula implements Comparable<Particula>
     {
         return strPos;
     }
-    
-    
+
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public Set<Particula> getPbest()
     {
@@ -157,8 +156,8 @@ public class Particula implements Comparable<Particula>
     }
 
     /**
-     * 
-     * @param pbest 
+     *
+     * @param pbest
      */
     public void setPbest(Set<Particula> pbest)
     {
@@ -166,7 +165,7 @@ public class Particula implements Comparable<Particula>
     }
 
     /**
-     * 
+     *
      */
     public void atualizaPbest()
     {
@@ -202,7 +201,5 @@ public class Particula implements Comparable<Particula>
         double[] fit = t.fitness();
         return (int) (fitness[0] - fit[0] + fitness[1] - fit[1]);
     }
-
-   
 
 }
