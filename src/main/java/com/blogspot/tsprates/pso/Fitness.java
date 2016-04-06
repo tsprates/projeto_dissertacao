@@ -23,7 +23,7 @@ public class Fitness implements InterfaceFitness
 
     private final String colId;
 
-    private final Map<String, Set<String>> classeSaidas;
+    private final Map<String, Set<String>> classeSaida;
 
     private List<String> resultado;
 
@@ -43,7 +43,7 @@ public class Fitness implements InterfaceFitness
         this.conexao = conexao;
         this.colId = colId;
         this.tabela = tabela;
-        this.classeSaidas = classeSaidas;
+        this.classeSaida = classeSaidas;
 
         for (String k : classeSaidas.keySet())
         {
@@ -103,7 +103,7 @@ public class Fitness implements InterfaceFitness
      */
     private double[] calc(Particula p)
     {
-        Set<String> listaVerdadeiros = classeSaidas.get(p.classe());
+        Set<String> listaVerdadeiros = classeSaida.get(p.classe());
 
         resultado = consultaSql(p.whereSql());
 
@@ -129,6 +129,6 @@ public class Fitness implements InterfaceFitness
 
         double efetividade = especificidade * sensibilidade;
         
-	return new double[]{efetividade, acuracia};
+        return new double[]{efetividade, acuracia};
     }
 }

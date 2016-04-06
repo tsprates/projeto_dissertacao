@@ -48,7 +48,7 @@ public class Pso
 
     private final List<String> saida = new ArrayList<>();
 
-    private final Map<String, Set<String>> classeSaidas = new HashMap<>();
+    private final Map<String, Set<String>> classeSaida = new HashMap<>();
 
     private final Map<String, Set<Particula>> gbest = new HashMap<>();
 
@@ -103,21 +103,21 @@ public class Pso
         this.maxIter = Integer.valueOf((String) p.get("maxiter"));
 
         carregaColunas();
-        carregaTiposClassesSaida();
+        carregaTiposSaida();
         carregaIdParaSaida();
         carregaMaxMinDasEntradas();
 
         // Lista não dominados (gbest)
-        for (String cl : classeSaidas.keySet())
+        for (String cl : classeSaida.keySet())
         {
             gbest.put(cl, new HashSet<Particula>());
         }
 
-        this.fitness = new Fitness(c, colId, tabela, classeSaidas);
+        this.fitness = new Fitness(c, colId, tabela, classeSaida);
 
         // Decimal formatter
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
-        symbols.setDecimalSeparator('.');
+        symbols.setDecimalSeparator(',');
         formatter = new DecimalFormat("##.###", symbols);
     }
 
@@ -142,7 +142,7 @@ public class Pso
                 part.atualizaPbest();
 
                 atualizaPosicao(part);
-
+                
                 atualizaW(i);
             }
 
@@ -154,7 +154,7 @@ public class Pso
         mostraResultados();
 
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
-        System.out.println("\nTempo decorrido: " + tempoDecorrido);
+        System.out.println("Tempo decorrido: " + tempoDecorrido);
     }
 
     /**
@@ -344,7 +344,7 @@ public class Pso
     {
         for (String s : saida)
         {
-            classeSaidas.put(s, new HashSet<String>());
+            classeSaida.put(s, new HashSet<String>());
         }
 
         String sql = "SELECT " + colSaida + ", " + colId + " AS col_id FROM " + tabela;
@@ -356,7 +356,7 @@ public class Pso
             while (rs.next())
             {
                 String coluna = rs.getString(colSaida);
-                classeSaidas.get(coluna).add(rs.getString("col_id"));
+                classeSaida.get(coluna).add(rs.getString("col_id"));
             }
         }
         catch (SQLException e)
@@ -411,7 +411,7 @@ public class Pso
     /**
      * Recupera os valores da coluna de saída.
      */
-    private void carregaTiposClassesSaida()
+    private void carregaTiposSaida()
     {
         String sql = "SELECT DISTINCT " + colSaida + " FROM " + tabela + " ORDER BY " + colSaida + " ASC";
 
@@ -627,9 +627,9 @@ public class Pso
 
         System.out.println("Classes");
 
-        for (String classe : classeSaidas.keySet())
+        for (String classe : classeSaida.keySet())
         {
-            Set<String> c = classeSaidas.get(classe);
+            Set<String> c = classeSaida.get(classe);
             System.out.println(classe + ") " + c.size());
         }
     }
