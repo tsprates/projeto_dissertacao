@@ -2,4 +2,4 @@ target/
 .classpath
 .settings/
 .project
-.nbactions.xml
+nbactions.xml
