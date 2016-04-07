@@ -10,4 +10,4 @@ c2=0.8
 cr=0.9
 mutoper=0.01
 mutadd=0.03
-numattr=0.8
+prefatribnum=0.8

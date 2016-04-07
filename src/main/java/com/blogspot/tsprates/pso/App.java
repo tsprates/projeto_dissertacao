@@ -27,7 +27,6 @@ public class App
         System.out.println(" Projeto de Dissertação Mestrado            ");
         System.out.println(" Implementação PSO                          ");
         System.out.println("--------------------------------------------");
-        System.out.println();
         
         if (args[0] != null && Files.exists(Paths.get(args[0]))) {
             Connection conexaoDb = new DbFactory().conecta();

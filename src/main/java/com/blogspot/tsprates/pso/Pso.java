@@ -70,7 +70,7 @@ public class Pso
 
     private final double wmin, wmax, c1, c2;
 
-    private final double cr, mutadd, mutoper, numattr;
+    private final double cr, mutAdd, mutOper, prefAtribNum;
 
     private double w;
 
@@ -96,9 +96,9 @@ public class Pso
         this.c1 = Double.valueOf((String) p.get("c1"));
         this.c2 = Double.valueOf((String) p.get("c2"));
         this.cr = Double.valueOf((String) p.get("cr"));
-        this.mutoper = Double.valueOf((String) p.get("mutoper"));
-        this.mutadd = Double.valueOf((String) p.get("mutadd"));
-        this.numattr = Double.valueOf((String) p.get("numattr"));
+        this.mutOper = Double.valueOf((String) p.get("mutoper"));
+        this.mutAdd = Double.valueOf((String) p.get("mutadd"));
+        this.prefAtribNum = Double.valueOf((String) p.get("prefatribnum"));
         this.numPop = Integer.valueOf((String) p.get("npop"));
         this.maxIter = Integer.valueOf((String) p.get("maxiter"));
 
@@ -228,7 +228,7 @@ public class Pso
 
             if (StringUtils.isNumeric(clausula[2]))
             {
-                if (Math.random() < mutoper)
+                if (Math.random() < mutOper)
                 {
                     clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
                 }
@@ -242,7 +242,7 @@ public class Pso
                 pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
             }
 
-            if (Math.random() < mutadd)
+            if (Math.random() < mutAdd)
             {
                 pos.add(criaCond());
             }
@@ -538,7 +538,7 @@ public class Pso
     private Set<String> criaWhere()
     {
         int numCols = colunas.length;
-        double probCond = numattr;
+        double probCond = prefAtribNum;
         Set<String> listaWhere = new HashSet<>();
 
 //        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
@@ -564,7 +564,7 @@ public class Pso
      */
     private String criaCond()
     {
-        return criaCondicao(numattr);
+        return criaCondicao(prefAtribNum);
     }
 
     /**
