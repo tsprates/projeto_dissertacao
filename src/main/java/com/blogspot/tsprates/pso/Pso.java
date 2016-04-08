@@ -90,11 +90,14 @@ public class Pso
         this.tabela = (String) p.get("tabela");
         this.colSaida = (String) p.get("saida");
         this.colId = (String) p.get("id");
+        
         this.wmin = Double.valueOf((String) p.get("wmin"));
         this.wmax = Double.valueOf((String) p.get("wmax"));
         this.w = this.wmin;
+        
         this.c1 = Double.valueOf((String) p.get("c1"));
         this.c2 = Double.valueOf((String) p.get("c2"));
+        
         this.cr = Double.valueOf((String) p.get("cr"));
         this.mutOper = Double.valueOf((String) p.get("mutoper"));
         this.mutAdd = Double.valueOf((String) p.get("mutadd"));
@@ -107,11 +110,7 @@ public class Pso
         carregaIdParaSaida();
         carregaMaxMinDasEntradas();
 
-        // Lista não dominados (gbest)
-        for (String cl : classeSaida.keySet())
-        {
-            gbest.put(cl, new HashSet<Particula>());
-        }
+        criaGBest();
 
         this.fitness = new Fitness(c, colId, tabela, classeSaida);
 
@@ -119,6 +118,18 @@ public class Pso
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
         symbols.setDecimalSeparator(',');
         formatter = new DecimalFormat("##.###", symbols);
+    }
+
+    /**
+     * Cria GBest.
+     */
+    private void criaGBest()
+    {
+        // Lista não dominados (gbest)
+        for (String cl : classeSaida.keySet())
+        {
+            gbest.put(cl, new HashSet<Particula>());
+        }
     }
 
     /**
@@ -206,8 +217,10 @@ public class Pso
 //            builder.append("\n");
         }
 
+        // output resultados
         System.out.println(builder.toString());
 
+        // mostra gráfico
         g.mostra();
     }
 
@@ -220,6 +233,7 @@ public class Pso
     {
         List<String> pos = new ArrayList<>(p.posicao());
         final int posSize = pos.size();
+        final int operLen = LISTA_OPERADORES.length;
 
         if (w > Math.random())
         {
@@ -230,16 +244,20 @@ public class Pso
             {
                 if (Math.random() < mutOper)
                 {
-                    clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
+                    clausula[1] = LISTA_OPERADORES[rand.nextInt(operLen)];
                 }
 
-                double novoValor = Double.parseDouble(clausula[1]) + RandomUtils.nextDouble(-1, 1);
-                pos.add(String.format(Locale.ROOT, "%s %s %.2f", clausula[0], clausula[1], novoValor));
+                double novoValor = Double.parseDouble(clausula[1])
+                        + RandomUtils.nextDouble(-1, 1);
+
+                pos.add(String.format(Locale.ROOT, "%s %s %.2f",
+                        clausula[0], clausula[1], novoValor));
             }
             else
             {
-                clausula[1] = LISTA_OPERADORES[rand.nextInt(LISTA_OPERADORES.length)];
-                pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
+                clausula[1] = LISTA_OPERADORES[rand.nextInt(operLen)];
+                pos.add(String.format(Locale.ROOT, "%s %s %s",
+                        clausula[0], clausula[1], clausula[2]));
             }
 
             if (Math.random() < mutAdd)
@@ -253,9 +271,11 @@ public class Pso
         // pbest
         final Set<Particula> pBest = p.getPbest();
         final int pBestSize = pBest.size();
+        final int pBestIndex = rand.nextInt(pBestSize);
+        
         final Particula pBestPart = getRandomElement(pBest);
         final List<String> pBestPos = new ArrayList<>(pBestPart.posicao());
-        final int pBestIndex = rand.nextInt(pBestSize);
+
         if (c1 > Math.random())
         {
             List<String> nPosP = new ArrayList<>();
@@ -279,9 +299,11 @@ public class Pso
         // gbest
         final Set<Particula> gBest = gbest.get(p.classe());
         final int gBestSize = gBest.size();
+        final int gBestIndex = rand.nextInt(gBestSize);
+        
         final Particula gBestPart = getRandomElement(gBest);
         final List<String> gBestPos = new ArrayList<>(gBestPart.posicao());
-        final int gBestIndex = rand.nextInt(gBestSize);
+        
         if (c2 > Math.random())
         {
             List<String> nPosG = new ArrayList<>();
