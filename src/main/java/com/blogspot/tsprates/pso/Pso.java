@@ -90,14 +90,14 @@ public class Pso
         this.tabela = (String) p.get("tabela");
         this.colSaida = (String) p.get("saida");
         this.colId = (String) p.get("id");
-        
+
         this.wmin = Double.valueOf((String) p.get("wmin"));
         this.wmax = Double.valueOf((String) p.get("wmax"));
         this.w = this.wmin;
-        
+
         this.c1 = Double.valueOf((String) p.get("c1"));
         this.c2 = Double.valueOf((String) p.get("c2"));
-        
+
         this.cr = Double.valueOf((String) p.get("cr"));
         this.mutOper = Double.valueOf((String) p.get("mutoper"));
         this.mutAdd = Double.valueOf((String) p.get("mutadd"));
@@ -112,12 +112,24 @@ public class Pso
 
         criaGBest();
 
+        // calcula fitness
         this.fitness = new Fitness(c, colId, tabela, classeSaida);
 
+        // numeric format ouput
+        formatter = getNumFormat();
+    }
+
+    /**
+     * Formata valor numérico.
+     *
+     * @return
+     */
+    private DecimalFormat getNumFormat()
+    {
         // Decimal formatter
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
         symbols.setDecimalSeparator(',');
-        formatter = new DecimalFormat("##.###", symbols);
+        return new DecimalFormat("0.000", symbols);
     }
 
     /**
@@ -213,8 +225,6 @@ public class Pso
             }
 
             g.adicionaSerie(classe, x, y);
-
-//            builder.append("\n");
         }
 
         // output resultados
@@ -272,7 +282,7 @@ public class Pso
         final Set<Particula> pBest = p.getPbest();
         final int pBestSize = pBest.size();
         final int pBestIndex = rand.nextInt(pBestSize);
-        
+
         final Particula pBestPart = getRandomElement(pBest);
         final List<String> pBestPos = new ArrayList<>(pBestPart.posicao());
 
@@ -300,10 +310,10 @@ public class Pso
         final Set<Particula> gBest = gbest.get(p.classe());
         final int gBestSize = gBest.size();
         final int gBestIndex = rand.nextInt(gBestSize);
-        
+
         final Particula gBestPart = getRandomElement(gBest);
         final List<String> gBestPos = new ArrayList<>(gBestPart.posicao());
-        
+
         if (c2 > Math.random())
         {
             List<String> nPosG = new ArrayList<>();
@@ -546,7 +556,6 @@ public class Pso
 
             gbest.get(tipo).add(new Particula(partobj1));
             gbest.get(tipo).add(new Particula(partobj2));
-//            System.out.println(partobj1 + " : " + partobj2);
         }
 
         return particulas;
@@ -637,8 +646,6 @@ public class Pso
      */
     public void mostraPopulacao()
     {
-//        System.out.println(Arrays.toString(tipoColunas));
-
         for (Particula p : particulas)
         {
             System.out.println(Arrays.toString(p.fitness()) + " : "
