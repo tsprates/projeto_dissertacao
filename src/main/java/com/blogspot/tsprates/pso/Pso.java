@@ -117,6 +117,8 @@ public class Pso
 
         // numeric format ouput
         formatter = getNumFormat();
+        
+        this.particulas = geraPopulacaoInicial();
     }
 
     /**
@@ -149,8 +151,6 @@ public class Pso
      */
     public void carrega()
     {
-        this.particulas = geraPopulacaoInicial();
-
         long tempoInicial = System.nanoTime();
         for (int i = 0; i < maxIter; i++)
         {
@@ -559,18 +559,19 @@ public class Pso
             double[] pfit = particula.fitness();
             String cl = particula.classe();
             
-            if (tipo.equals(cl) 
-                    && (partobj1 == null || pfit[0] > pfitobj1[0]))
+            if (tipo.equals(cl))
             {
-                partobj1 = particula;
-                pfitobj1 = particula.fitness();
-            }
-            
-            if (tipo.equals(cl) 
-                    && (partobj2 == null || pfit[1] > pfitobj2[1]))
-            {
-                partobj2 = particula;
-                pfitobj2 = particula.fitness();
+                if (partobj1 == null || pfit[0] > pfitobj1[0])
+                {
+                    partobj1 = particula;
+                    pfitobj1 = particula.fitness();
+                }
+
+                if (partobj2 == null || pfit[1] > pfitobj2[1])
+                {
+                    partobj2 = particula;
+                    pfitobj2 = particula.fitness();
+                }
             }
         }
         
@@ -664,18 +665,20 @@ public class Pso
      */
     public void mostraPopulacao()
     {
-        for (Particula p : particulas)
-        {
-            System.out.println(Arrays.toString(p.fitness()) + " : "
-                    + p.whereSql());
-        }
-
-        System.out.println("Classes");
-
+        System.out.println("Classe:");
         for (String classe : saidas.keySet())
         {
             Set<String> c = saidas.get(classe);
             System.out.println(classe + ") " + c.size());
         }
+        System.out.println();
+        
+        System.out.println("População:");
+        for (Particula p : particulas)
+        {
+            System.out.println(Arrays.toString(p.fitness()) + " : "
+                    + p.whereSql());
+        }
+        System.out.println();
     }
 }

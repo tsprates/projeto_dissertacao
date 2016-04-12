@@ -200,7 +200,7 @@ public class Particula implements Comparable<Particula>
     public int compareTo(Particula t)
     {
         double[] fit = t.fitness();
-        return (int) (fitness[0] - fit[0] + fitness[1] - fit[1]);
+        return (int) (fitness[0] - fit[0] + (fitness[1] - fit[1]) * 2);
     }
 
 }

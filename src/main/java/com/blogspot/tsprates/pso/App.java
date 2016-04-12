@@ -32,7 +32,7 @@ public class App
             Connection conexaoDb = new DbFactory().conecta();
             Properties config = getConfigs(args[0]);
             Pso pso = new Pso(conexaoDb, config);
-//            pso.mostraPopulacao();
+            pso.mostraPopulacao();
             pso.carrega();            
         } else {
             System.err.println("É necessário definir um arquivo de configuração.");
