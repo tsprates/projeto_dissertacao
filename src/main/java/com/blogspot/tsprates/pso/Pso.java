@@ -46,13 +46,13 @@ public class Pso
 
     private Set<Particula> particulas = new HashSet<>();
 
-    private final List<String> saida = new ArrayList<>();
+    private final List<String> tipoSaida = new ArrayList<>();
 
-    private final Map<String, Set<String>> classeSaida = new HashMap<>();
+    private final Map<String, Set<String>> saidas = new HashMap<>();
 
     private final Map<String, Set<Particula>> gbest = new HashMap<>();
 
-    private final FronteiraPareto fp = new FronteiraPareto();
+    private final FronteiraPareto fronteiraPareto = new FronteiraPareto();
 
     private final String tabela;
 
@@ -107,13 +107,13 @@ public class Pso
 
         carregaColunas();
         carregaTiposSaida();
-        carregaIdParaSaida();
+        mapaSaidaCadaId();
         carregaMaxMinDasEntradas();
 
         criaGBest();
 
         // calcula fitness
-        this.fitness = new Fitness(c, colId, tabela, classeSaida);
+        this.fitness = new Fitness(c, colId, tabela, saidas);
 
         // numeric format ouput
         formatter = getNumFormat();
@@ -138,7 +138,7 @@ public class Pso
     private void criaGBest()
     {
         // Lista não dominados (gbest)
-        for (String cl : classeSaida.keySet())
+        for (String cl : saidas.keySet())
         {
             gbest.put(cl, new HashSet<Particula>());
         }
@@ -157,9 +157,10 @@ public class Pso
             for (Particula part : particulas)
             {
                 // gbest
-                String gcl = part.classe();
-                Set<Particula> gbestParts = gbest.get(gcl);
-                fp.atualizaParticulasNaoDominadas(gbestParts, part);
+                String cl = part.classe();
+                Set<Particula> gbestParts = gbest.get(cl);
+                fronteiraPareto
+                        .atualizaParticulasNaoDominadas(gbestParts, part);
 
                 // pbest
                 part.atualizaPbest();
@@ -190,8 +191,9 @@ public class Pso
 
         System.out.println();
 
-        // Mostra resultado
-        StringBuilder builder = new StringBuilder("Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
+        // Output resultado
+        StringBuilder builder = new StringBuilder(
+                "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
 
         for (Entry<String, Set<Particula>> parts : gbest.entrySet())
         {
@@ -368,13 +370,13 @@ public class Pso
     }
 
     /**
-     *
+     * Mapa de todas as saídas (classes) possíves.
      */
-    private void carregaIdParaSaida()
+    private void mapaSaidaCadaId()
     {
-        for (String s : saida)
+        for (String s : tipoSaida)
         {
-            classeSaida.put(s, new HashSet<String>());
+            saidas.put(s, new HashSet<String>());
         }
 
         String sql = "SELECT " + colSaida + ", " + colId + " AS col_id FROM " + tabela;
@@ -386,14 +388,13 @@ public class Pso
             while (rs.next())
             {
                 String coluna = rs.getString(colSaida);
-                classeSaida.get(coluna).add(rs.getString("col_id"));
+                saidas.get(coluna).add(rs.getString("col_id"));
             }
         }
         catch (SQLException e)
         {
-            throw new RuntimeException(
-                    "Erro ao mapear nome das colunas que correspondem as saídas.",
-                    e);
+            throw new RuntimeException("Erro ao mapear nome das colunas que "
+                    + "correspondem as saídas.", e);
         }
     }
 
@@ -443,14 +444,15 @@ public class Pso
      */
     private void carregaTiposSaida()
     {
-        String sql = "SELECT DISTINCT " + colSaida + " FROM " + tabela + " ORDER BY " + colSaida + " ASC";
+        String sql = "SELECT DISTINCT " + colSaida + " FROM " + tabela 
+                + " ORDER BY " + colSaida + " ASC";
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery())
         {
             while (rs.next())
             {
-                saida.add(rs.getString(colSaida));
+                tipoSaida.add(rs.getString(colSaida));
             }
         }
         catch (SQLException e)
@@ -504,12 +506,12 @@ public class Pso
      */
     private Set<Particula> geraPopulacaoInicial()
     {
-        int numSaidas = saida.size();
-        int numPopNicho = numPop / numSaidas;
-        int resto = numPop % numSaidas;
         Map<String, Integer> contPopNicho = new HashMap<>();
+        final int numSaidas = tipoSaida.size();
+        final int numPopNicho = numPop / numSaidas;
+        int resto = numPop % numSaidas;
 
-        for (String i : saida)
+        for (String i : tipoSaida)
         {
             if (resto > 0)
             {
@@ -522,44 +524,61 @@ public class Pso
             }
         }
 
-        // System.out.println(contPopNicho);
         for (String tipo : contPopNicho.keySet())
         {
-            Particula partobj1 = null;
-            Particula partobj2 = null;
-
-            double[] pfitobj1 = null;
-            double[] pfitobj2 = null;
-
             for (int i = 0, len = contPopNicho.get(tipo); i < len; i++)
             {
                 Set<String> pos = criaWhere();
                 String classe = tipo;
-                Particula particula = new Particula(pos, classe, fitness, fp);
+                Particula particula = new Particula(pos, classe, fitness, 
+                        fronteiraPareto);
                 particulas.add(particula);
-//                gbest.get(tipo).add(new Particula(particula));
-
-                double[] pfit = particula.fitness();
-
-                if (partobj1 == null || pfit[0] > pfitobj1[0])
-                {
-                    partobj1 = particula;
-                    pfitobj1 = particula.fitness();
-                }
-
-                if (partobj2 == null || pfit[1] > pfitobj2[1])
-                {
-                    partobj2 = particula;
-                    pfitobj2 = particula.fitness();
-                }
             }
-
-            gbest.get(tipo).add(new Particula(partobj1));
-            gbest.get(tipo).add(new Particula(partobj2));
+            
+            carregaIniGbest(tipo);
         }
 
         return particulas;
     }
+
+    /**
+     * 
+     * @param tipo 
+     */
+    private void carregaIniGbest(String tipo)
+    {
+        Particula partobj1 = null;
+        Particula partobj2 = null;
+
+        double[] pfitobj1 = null;
+        double[] pfitobj2 = null;
+
+        for (Particula particula : particulas)
+        {
+            double[] pfit = particula.fitness();
+            String cl = particula.classe();
+            
+            if (tipo.equals(cl) 
+                    && (partobj1 == null || pfit[0] > pfitobj1[0]))
+            {
+                partobj1 = particula;
+                pfitobj1 = particula.fitness();
+            }
+            
+            if (tipo.equals(cl) 
+                    && (partobj2 == null || pfit[1] > pfitobj2[1]))
+            {
+                partobj2 = particula;
+                pfitobj2 = particula.fitness();
+            }
+        }
+        
+        // adiciona os melhores indíduos
+        // a partir de cada objetivo
+        gbest.get(tipo).add(new Particula(partobj1));
+        gbest.get(tipo).add(new Particula(partobj2));
+    }
+    
 
     /**
      * Retorna uma lista com clásulas WHERE.
@@ -635,14 +654,12 @@ public class Pso
         String col = colunas[colIndex];
         String oper = LISTA_OPERADORES[operIndex];
 
-        String cond = String.format(Locale.ROOT,
-                "%s %s %s", col, oper, valor);
-
+        String cond = String.format(Locale.ROOT, "%s %s %s", col, oper, valor);
         return cond;
     }
 
     /**
-     *
+     * Lista toda a população.
      */
     public void mostraPopulacao()
     {
@@ -654,9 +671,9 @@ public class Pso
 
         System.out.println("Classes");
 
-        for (String classe : classeSaida.keySet())
+        for (String classe : saidas.keySet())
         {
-            Set<String> c = classeSaida.get(classe);
+            Set<String> c = saidas.get(classe);
             System.out.println(classe + ") " + c.size());
         }
     }

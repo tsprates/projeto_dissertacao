@@ -9,22 +9,22 @@ public class FronteiraPareto
     /**
      * Adiciona partículas não dominadas.
      *
-     * @param listaParticulas Lista de partícula.
+     * @param particulas Lista de partícula.
      * @param particula Partícula.
      */
-    public void atualizaParticulasNaoDominadas(Set<Particula> listaParticulas, Particula particula)
+    public void atualizaParticulasNaoDominadas(Set<Particula> particulas, Particula particula)
     {
         double[] partFit = particula.fitness();
 
-        if (listaParticulas.isEmpty())
+        if (particulas.isEmpty())
         {
-            listaParticulas.add(new Particula(particula));
+            particulas.add(new Particula(particula));
         }
         else
         {
             boolean removido = false;
 
-            Iterator<Particula> it = listaParticulas.iterator();
+            Iterator<Particula> it = particulas.iterator();
             while (it.hasNext())
             {
                 Particula p = it.next();
@@ -41,13 +41,13 @@ public class FronteiraPareto
 
             if (removido)
             {
-                listaParticulas.add(new Particula(particula));
+                particulas.add(new Particula(particula));
             }
             else
             {
 
                 boolean adiciona = false;
-                for (Particula p : listaParticulas)
+                for (Particula p : particulas)
                 {
                     double[] pfit = p.fitness();
                     if ((Double.compare(partFit[0], pfit[0]) > 0 
@@ -62,7 +62,7 @@ public class FronteiraPareto
 
                 if (adiciona)
                 {
-                    listaParticulas.add(new Particula(particula));
+                    particulas.add(new Particula(particula));
                 }
             }
         }

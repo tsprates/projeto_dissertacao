@@ -34,16 +34,17 @@ public class Particula implements Comparable<Particula>
      *
      * @param posicao
      * @param classe
-     * @param f
+     * @param fit
      * @param fp
      */
-    public Particula(Set<String> posicao, String classe, InterfaceFitness f, FronteiraPareto fp)
+    public Particula(Set<String> posicao, String classe, InterfaceFitness fit, 
+            FronteiraPareto fp)
     {
         this.posicao = new HashSet<>(posicao);
         this.strPos = join(this.posicao);
         this.fp = fp;
         this.classe = classe;
-        this.calculadorFitness = f;
+        this.calculadorFitness = fit;
         final Particula that = this;
         this.fitness = this.calculadorFitness.calcula(that);
     }
@@ -192,7 +193,7 @@ public class Particula implements Comparable<Particula>
             return false;
         }
         final Particula other = (Particula) obj;
-        return Objects.equals(this.posicao, other.posicao);
+        return Objects.equals(this.strPos, other.strPos);
     }
 
     @Override
