@@ -187,7 +187,8 @@ public class Pso
      */
     private void mostraResultados()
     {
-        Grafico g = new Grafico(tabela);
+        Grafico g = new Grafico(String.format(Locale.ROOT,
+                                        "%s - %d iterações", tabela, maxIter));
 
         System.out.println();
 
@@ -229,10 +230,10 @@ public class Pso
             g.adicionaSerie(classe, x, y);
         }
 
-        // output resultados
+        // mostra resultados
         System.out.println(builder.toString());
 
-        // mostra gráfico
+        // mostra gráfico visível
         g.mostra();
     }
 
