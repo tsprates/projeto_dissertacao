@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -21,6 +22,7 @@ import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -44,7 +46,7 @@ public class Pso
 
     private final Random rand = new Random();
 
-    private Set<Particula> particulas = new HashSet<>();
+    private Set<Particula> particulas = new LinkedHashSet<>();
 
     private final List<String> tipoSaida = new ArrayList<>();
 
@@ -77,6 +79,7 @@ public class Pso
     private final Fitness fitness;
 
     private final DecimalFormat formatter;
+
 
     /**
      * Construtor.
@@ -187,8 +190,7 @@ public class Pso
      */
     private void mostraResultados()
     {
-        Grafico g = new Grafico(String.format(Locale.ROOT,
-                                        "%s - %d iterações", tabela, maxIter));
+        Grafico g = new Grafico(tabela);
 
         System.out.println();
 
@@ -198,8 +200,8 @@ public class Pso
 
         for (Entry<String, Set<Particula>> parts : gbest.entrySet())
         {
-            List<Double> x = new ArrayList<>();
-            List<Double> y = new ArrayList<>();
+//            List<Double> x = new ArrayList<>();
+//            List<Double> y = new ArrayList<>();
 
             String classe = parts.getKey();
 
@@ -212,23 +214,42 @@ public class Pso
                 {
                     builder.append("\t").append(formatter.format(d[i]));
 
-                    if (i == 0)
-                    {
-                        x.add(d[i]);
-                    }
-
-                    if (i == 1)
-                    {
-                        y.add(d[i]);
-                    }
+//                    if (i == 0)
+//                    {
+//                        x.add(d[i]);
+//                    }
+//
+//                    if (i == 1)
+//                    {
+//                        y.add(d[i]);
+//                    }
 
                 }
 
                 builder.append("\t").append(part.whereSql()).append("\n");
             }
 
-            g.adicionaSerie(classe, x, y);
+//            g.adicionaSerie(classe, x, y);
         }
+        
+        
+        Map<String, List<Double>> mapaPart = new HashMap<>();
+        for (String saida : tipoSaida)
+        {
+            mapaPart.put(saida, new ArrayList<Double>());
+        }
+        
+        for (Particula part : particulas)
+        {
+            double[] fit = part.fitness();
+            mapaPart.get(part.classe()).add(fit[1]);
+        }
+        
+        for (Entry<String, List<Double>> ent : mapaPart.entrySet())
+        {
+            g.adicionaSerie(ent.getKey(), ent.getValue());
+        }
+        
 
         // mostra resultados
         System.out.println(builder.toString());

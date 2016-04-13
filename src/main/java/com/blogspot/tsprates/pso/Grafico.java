@@ -1,63 +1,88 @@
 package com.blogspot.tsprates.pso;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.util.List;
 
-import org.knowm.xchart.SwingWrapper;
-import org.knowm.xchart.XYChart;
-import org.knowm.xchart.XYChartBuilder;
-import org.knowm.xchart.XYSeries.XYSeriesRenderStyle;
-import org.knowm.xchart.style.Styler.LegendPosition;
-import org.knowm.xchart.style.XYStyler;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.ApplicationFrame;
+import org.jfree.ui.RefineryUtilities;
 
-public class Grafico
+public class Grafico extends ApplicationFrame
 {
 
-    private final XYChart chart;
+    private static final long serialVersionUID = 1L;
 
-    public void mostra()
-    {
-        new SwingWrapper<>(chart).displayChart();
-    }
+    private final String titulo;
+
+    private final XYSeriesCollection dataset = new XYSeriesCollection();
 
     public Grafico(String titulo)
     {
-        chart = new XYChartBuilder().width(800).height(600).build();
-        XYStyler styler = chart.getStyler();
-        prepareGrafico(styler);
-        setTitle(titulo);
-        setAxis(styler);
-    }
-
-    private XYStyler prepareGrafico(XYStyler styler)
-    {
-        styler.setDefaultSeriesRenderStyle(XYSeriesRenderStyle.Scatter);
-        styler.setChartTitleVisible(true);
-        styler.setLegendPosition(LegendPosition.OutsideE);
-        styler.setMarkerSize(16);
-        return styler;
-    }
-
-    private void setTitle(String titulo)
-    {
-        chart.setTitle(titulo);
-        chart.setXAxisTitle("Complexidade");
-        chart.setYAxisTitle("Sensibilidade x Especificidade");
-    }
-
-    private void setAxis(XYStyler styler)
-    {
-        styler.setXAxisMax(1);
-        styler.setXAxisMin(0);
-        
-        styler.setYAxisMax(1);
-        styler.setYAxisMin(0);
+        super(titulo);
+        this.titulo = titulo;
     }
 
     public Grafico adicionaSerie(String legenda, List<? extends Number> xData,
             List<? extends Number> yData)
     {
-        chart.addSeries(legenda, xData, yData);
+        final XYSeries serie = new XYSeries(legenda);
+
+        for (int i = 0, len = xData.size(); i < len; i++)
+        {
+            serie.add(xData.get(i), yData.get(i));
+        }
+
+        dataset.addSeries(serie);
+
         return this;
     }
 
+    public Grafico adicionaSerie(String legenda, List<? extends Number> yData)
+    {
+        final XYSeries serie = new XYSeries(legenda);
+
+        for (int i = 0, len = yData.size(); i < len; i++)
+        {
+            serie.add(i, yData.get(i));
+        }
+
+        dataset.addSeries(serie);
+
+        return this;
+    }
+
+    public void mostra()
+    {
+        JFreeChart chart = ChartFactory.createXYLineChart(titulo,
+                "Iterações", "Sensibilidade x Especificidade", dataset,
+                PlotOrientation.VERTICAL, true, true, false);
+        XYPlot plot = setBackground(chart);
+        createChart(chart);
+    }
+
+    private XYPlot setBackground(JFreeChart chart)
+    {
+        XYPlot plot = chart.getXYPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setDomainGridlinePaint(Color.GRAY);
+        plot.setRangeGridlinePaint(Color.GRAY);
+        return plot;
+    }
+
+    private void createChart(JFreeChart chart)
+    {
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(800, 600));
+        setContentPane(chartPanel);
+        pack();
+        RefineryUtilities.centerFrameOnScreen(this);
+        setVisible(true);
+    }
 }

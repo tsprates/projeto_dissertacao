@@ -2,6 +2,7 @@ package com.blogspot.tsprates.pso;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -15,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 public class Particula implements Comparable<Particula>
 {
 
-    private Set<String> posicao = new HashSet<>();
+    private Set<String> posicao = new LinkedHashSet<>();
 
     private String strPos = null;
 
@@ -37,7 +38,7 @@ public class Particula implements Comparable<Particula>
      * @param fit
      * @param fp
      */
-    public Particula(Set<String> posicao, String classe, InterfaceFitness fit, 
+    public Particula(Set<String> posicao, String classe, InterfaceFitness fit,
             FronteiraPareto fp)
     {
         this.posicao = new HashSet<>(posicao);
