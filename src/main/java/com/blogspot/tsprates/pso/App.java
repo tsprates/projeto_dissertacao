@@ -13,28 +13,30 @@ import java.util.Properties;
  * @author thiago
  *
  */
-public class App {
+public class App
+{
 
     /**
      * Main.
      *
      * @param args
      */
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         System.out.println("--------------------------------------------");
         System.out.println(" Projeto de Dissertação Mestrado            ");
         System.out.println(" Implementação PSO                          ");
         System.out.println("--------------------------------------------");
 
-        if (args.length > 0 && Files.exists(Paths.get(args[0]))) 
+        if (args.length > 0 && Files.exists(Paths.get(args[0])))
         {
             Connection conexaoDb = new DbFactory().conecta();
             Properties config = getConfigs(args[0]);
             Pso pso = new Pso(conexaoDb, config);
 //            pso.mostraPopulacao();
             pso.carrega();
-        } 
-        else 
+        }
+        else
         {
             System.err.println("É necessário definir um arquivo de configuração.");
         }
@@ -47,15 +49,15 @@ public class App {
      * @param configFile Configurations
      * @return Properties
      */
-    private static Properties getConfigs(String configFile) 
+    private static Properties getConfigs(String configFile)
     {
-        try (FileInputStream fis = new FileInputStream(configFile)) 
+        try (FileInputStream fis = new FileInputStream(configFile))
         {
             Properties prop = new Properties();
             prop.load(fis);
             return prop;
-        } 
-        catch (IOException e) 
+        }
+        catch (IOException e)
         {
             throw new RuntimeException(
                     "Arquivo de configurações não encontrado.", e);
