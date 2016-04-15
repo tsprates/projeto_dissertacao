@@ -69,7 +69,7 @@ public class Pso
 
     private double[] max, min;
 
-    private final double wmin, wmax, c1, c2;
+    private final double c1, c2;
 
     private final double cr, mutAdd, mutOper, prefAtribNum;
 
@@ -78,19 +78,18 @@ public class Pso
     private final Fitness fitness;
 
     private final DecimalFormat formatter;
-    
+
     private final Map<String, List<Double>> efetividade = new HashMap<>();
 
     /**
-     * Retorna mapa das classes com a efetividade de cada partícula 
-     * 
+     * Retorna mapa das classes com a efetividade de cada partícula
+     *
      * @return Mapa das classes com a efetividade de cada partícula.
      */
     public Map<String, List<Double>> getEfetividade()
     {
         return efetividade;
     }
-
 
     /**
      * Construtor.
@@ -105,10 +104,7 @@ public class Pso
         this.colSaida = prop.getProperty("saida");
         this.colId = prop.getProperty("id");
 
-        this.wmin = Double.valueOf(prop.getProperty("wmin"));
-        this.wmax = Double.valueOf(prop.getProperty("wmax"));
-        this.w = this.wmin;
-
+        this.w = Double.valueOf(prop.getProperty("w"));
         this.c1 = Double.valueOf(prop.getProperty("c1"));
         this.c2 = Double.valueOf(prop.getProperty("c2"));
 
@@ -131,7 +127,7 @@ public class Pso
 
         // numeric format ouput
         formatter = getNumFormat();
-        
+
         this.particulas = geraPopulacaoInicial();
     }
 
@@ -180,8 +176,6 @@ public class Pso
                 part.atualizaPbest();
 
                 atualizaPosicao(part);
-
-                atualizaW(i);
             }
 
             System.out.println("Iteração: " + (i + 1));
@@ -224,24 +218,20 @@ public class Pso
                 builder.append("\t").append(part.whereSql()).append("\n");
             }
         }
-        
-        
-        
+
         for (String saida : tipoSaida)
         {
             efetividade.put(saida, new ArrayList<Double>());
         }
-        
+
         for (Particula part : particulas)
         {
             double[] fit = part.fitness();
             efetividade.get(part.classe()).add(fit[1]);
         }
-                
+
         System.out.println(builder.toString());
     }
-    
-    
 
     /**
      * Atualiza posição.
@@ -346,17 +336,6 @@ public class Pso
     }
 
     /**
-     * Termo de inércia.
-     *
-     * @param k
-     */
-    private void atualizaW(int k)
-    {
-        // atualiza fator de inércia
-        w = wmax - k * (wmax - wmin) / maxIter;
-    }
-
-    /**
      *
      * @param s
      * @return
@@ -451,7 +430,7 @@ public class Pso
      */
     private void carregaTiposSaida()
     {
-        String sql = "SELECT DISTINCT " + colSaida + " FROM " + tabela 
+        String sql = "SELECT DISTINCT " + colSaida + " FROM " + tabela
                 + " ORDER BY " + colSaida + " ASC";
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
@@ -537,11 +516,11 @@ public class Pso
             {
                 Set<String> pos = criaWhere();
                 String classe = tipo;
-                Particula particula = new Particula(pos, classe, fitness, 
+                Particula particula = new Particula(pos, classe, fitness,
                         fronteiraPareto);
                 particulas.add(particula);
             }
-            
+
             carregaIniGbest(tipo);
         }
 
@@ -549,8 +528,8 @@ public class Pso
     }
 
     /**
-     * 
-     * @param tipo 
+     *
+     * @param tipo
      */
     private void carregaIniGbest(String tipo)
     {
@@ -564,7 +543,7 @@ public class Pso
         {
             double[] pfit = particula.fitness();
             String cl = particula.classe();
-            
+
             if (tipo.equals(cl))
             {
                 if (partobj1 == null || pfit[0] > pfitobj1[0])
@@ -580,13 +559,12 @@ public class Pso
                 }
             }
         }
-        
+
         // adiciona os melhores indíduos
         // a partir de cada objetivo
         gbest.get(tipo).add(new Particula(partobj1));
         gbest.get(tipo).add(new Particula(partobj2));
     }
-    
 
     /**
      * Retorna uma lista com clásulas WHERE.
@@ -678,7 +656,7 @@ public class Pso
             System.out.println(classe + ") " + c.size());
         }
         System.out.println();
-        
+
         System.out.println("População:");
         for (Particula p : particulas)
         {
