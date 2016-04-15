@@ -19,6 +19,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,7 +47,7 @@ public class Pso
 
     private List<Particula> particulas = new ArrayList<>();
 
-    private final List<String> tipoSaida = new ArrayList<>();
+    private final Set<String> tipoSaidas = new TreeSet<>();
 
     private final Map<String, Set<String>> saidas = new HashMap<>();
 
@@ -77,16 +78,6 @@ public class Pso
     private final DecimalFormat formatter;
 
     private final Map<String, List<Double>> efetividade = new HashMap<>();
-
-    /**
-     * Retorna mapa das classes com a efetividade de cada partícula
-     *
-     * @return Mapa das classes com a efetividade de cada partícula.
-     */
-    public Map<String, List<Double>> getEfetividade()
-    {
-        return efetividade;
-    }
 
     /**
      * Construtor.
@@ -140,6 +131,26 @@ public class Pso
         symbols.setDecimalSeparator(',');
         return new DecimalFormat("0.000", symbols);
     }
+    
+    /**
+     * Retorna mapa das classes com a efetividade de cada partícula.
+     *
+     * @return Mapa das classes com a efetividade de cada partícula.
+     */
+    public Map<String, List<Double>> getEfetividade()
+    {
+        return efetividade;
+    }
+    
+    /**
+     * Retorna tipos saídas (classes).
+     *
+     * @return Tipos saídas.
+     */
+//    public Set<String> getTipoSaida()
+//    {
+//        return tipoSaidas;
+//    }
 
     /**
      * Cria GBest.
@@ -164,8 +175,8 @@ public class Pso
             for (Particula part : particulas)
             {
                 // gbest
-                String cl = part.classe();
-                Set<Particula> gbestParts = gbest.get(cl);
+                String classe = part.classe();
+                Set<Particula> gbestParts = gbest.get(classe);
                 fronteiraPareto
                         .atualizaParticulasNaoDominadas(gbestParts, part);
 
@@ -216,7 +227,7 @@ public class Pso
             }
         }
 
-        for (String saida : tipoSaida)
+        for (String saida : tipoSaidas)
         {
             efetividade.put(saida, new ArrayList<Double>());
         }
@@ -333,7 +344,8 @@ public class Pso
     }
 
     /**
-     *
+     * Retorna um elemento dentro conjunto das partículas.
+     * 
      * @param s
      * @return
      */
@@ -357,7 +369,7 @@ public class Pso
      */
     private void mapaSaidaCadaId()
     {
-        for (String s : tipoSaida)
+        for (String s : tipoSaidas)
         {
             saidas.put(s, new HashSet<String>());
         }
@@ -435,7 +447,7 @@ public class Pso
         {
             while (rs.next())
             {
-                tipoSaida.add(rs.getString(colSaida));
+                tipoSaidas.add(rs.getString(colSaida));
             }
         }
         catch (SQLException e)
@@ -490,11 +502,11 @@ public class Pso
     private List<Particula> geraPopulacaoInicial()
     {
         Map<String, Integer> contPopNicho = new HashMap<>();
-        final int numSaidas = tipoSaida.size();
+        final int numSaidas = tipoSaidas.size();
         final int numPopNicho = numPop / numSaidas;
         int resto = numPop % numSaidas;
 
-        for (String i : tipoSaida)
+        for (String i : tipoSaidas)
         {
             if (resto > 0)
             {

@@ -5,10 +5,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Particles Swarm Optimization (PSO).
@@ -35,13 +39,73 @@ public class App
         {
             Connection conexaoDb = new DbFactory().conecta();
             Properties config = getConfigs(args[0]);
-            Pso pso = new Pso(conexaoDb, config);
+//            Pso pso = new Pso(conexaoDb, config);
 //            pso.mostraPopulacao();
-            pso.carrega();
+//            pso.carrega();
 
-            final String tituloGrafico = config.getProperty("tabela");
-            final Map<String, List<Double>> efetividade = pso.getEfetividade();
-            mostraGrafico(tituloGrafico, efetividade);
+            final String tituloGrafico = String.format("%s - %s Iteração",
+                    config.getProperty("tabela"),
+                    config.getProperty("maxiter"));
+
+            
+            final int exec = 30;
+            final Map<String, List<Double>> efetividadeMedia = new HashMap<>();
+            Map<String, List<Double>> efetividade;
+            
+            for (int iter = 0; iter < exec; iter++) 
+            {
+                System.out.println();
+                System.out.println("Execução: " + (iter + 1));
+                System.out.println();
+                
+                Pso pso = new Pso(conexaoDb, config);
+                pso.carrega();
+                
+                efetividade = pso.getEfetividade();
+                
+                // Inicia efetividade média com valor zero.
+                if (iter == 0)
+                {
+                    for (Entry<String, List<Double>> ent : efetividade.entrySet())
+                    {
+                        final int size = ent.getValue().size();
+                        final List<Double> zeros = new ArrayList<>(Collections.nCopies(size, 0.0));
+                        efetividadeMedia.put(ent.getKey(), zeros);
+                                        
+                    }
+                }
+                
+                
+                // cada execução atualiza resultados da iteração anterior
+                for (Entry<String, List<Double>> ent : efetividade.entrySet())
+                {
+                    List<Double> efetMed = efetividadeMedia.get(ent.getKey());
+                    final List<Double> listaValores = ent.getValue();
+                    for (int i = 0, len = listaValores.size(); i < len; i++)
+                    {
+                        double valor = listaValores.get(i);
+                        double valorAtual = efetMed.get(i);
+                        efetMed.set(i, valorAtual + valor);
+                    }
+                }
+                
+                
+            }
+
+            // tira média
+            Set<String> classes = efetividadeMedia.keySet();
+            for (String classe : classes)
+            {
+                for (int i = 0, len = efetividadeMedia.get(classe).size();
+                        i < len; i++) 
+                {
+                    final List<Double> results = efetividadeMedia.get(classe);
+                    double valor = results.get(i);
+                    efetividadeMedia.get(classe).set(i, valor / (double) exec);
+                }
+            }
+            
+            mostraGrafico(tituloGrafico, efetividadeMedia);
         }
         else
         {
@@ -51,7 +115,7 @@ public class App
     }
 
     /**
-     * Gráfico de resultado
+     * Gráfico de resultados.
      *
      * @param tituloGrafico
      * @param pso
@@ -59,7 +123,9 @@ public class App
     private static void mostraGrafico(final String tituloGrafico,
             Map<String, List<Double>> mapa)
     {
-        Grafico g = new Grafico(tituloGrafico);
+        final String eixoX = "População";
+        final String eixoY = "Sensibilidade x Especificidade";
+        Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
         for (Entry<String, List<Double>> ent : mapa.entrySet())
         {
             g.adicionaSerie(ent.getKey(), ent.getValue());

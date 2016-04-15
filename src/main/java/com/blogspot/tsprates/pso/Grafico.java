@@ -17,14 +17,16 @@ public class Grafico extends ApplicationFrame
 
     private static final long serialVersionUID = 1L;
 
-    private final String titulo;
+    private final String titulo, eixoX, eixoY;
 
     private final XYSeriesCollection dataset = new XYSeriesCollection();
 
-    public Grafico(String titulo)
+    public Grafico(String titulo, String tituloX, String tituloY)
     {
         super(titulo);
         this.titulo = titulo;
+        this.eixoX = tituloX;
+        this.eixoY = tituloY;
     }
 
     public Grafico adicionaSerie(String legenda, List<? extends Number> xData,
@@ -59,7 +61,7 @@ public class Grafico extends ApplicationFrame
     public void mostra()
     {
         JFreeChart chart = ChartFactory.createXYLineChart(titulo,
-                "Iterações", "Sensibilidade x Especificidade", dataset,
+                eixoX, eixoY, dataset,
                 PlotOrientation.VERTICAL, true, true, false);
 //        XYPlot plot = setBackground(chart);
         createChart(chart);
@@ -73,7 +75,7 @@ public class Grafico extends ApplicationFrame
 //        plot.setRangeGridlinePaint(Color.GRAY);
 //        return plot;
 //    }
-
+    
     private void createChart(JFreeChart chart)
     {
         ChartPanel chartPanel = new ChartPanel(chart);
