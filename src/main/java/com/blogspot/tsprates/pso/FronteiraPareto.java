@@ -1,7 +1,7 @@
 package com.blogspot.tsprates.pso;
 
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 public class FronteiraPareto
 {
@@ -12,7 +12,7 @@ public class FronteiraPareto
      * @param particulas Lista de partícula.
      * @param particula Partícula.
      */
-    public void atualizaParticulasNaoDominadas(Set<Particula> particulas, Particula particula)
+    public void atualizaParticulasNaoDominadas(Collection<Particula> particulas, Particula particula)
     {
         double[] partFit = particula.fitness();
 

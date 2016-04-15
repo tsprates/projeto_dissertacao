@@ -3,6 +3,7 @@ package com.blogspot.tsprates.pso;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -28,7 +29,7 @@ public class Particula implements Comparable<Particula>
 
     private final InterfaceFitness calculadorFitness;
 
-    private Set<Particula> pbest = new HashSet<>();
+    private Set<Particula> pbest = new LinkedHashSet<>();
 
     /**
      * Construtor.
@@ -161,9 +162,9 @@ public class Particula implements Comparable<Particula>
      *
      * @param pbest
      */
-    public void setPbest(Set<Particula> pbest)
+    public void setPbest(List<Particula> pbest)
     {
-        this.pbest = pbest;
+        this.pbest = new LinkedHashSet<>(pbest);
     }
 
     /**

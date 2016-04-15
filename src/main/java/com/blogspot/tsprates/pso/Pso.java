@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -45,7 +44,7 @@ public class Pso
 
     private final Random rand = new Random();
 
-    private Set<Particula> particulas = new LinkedHashSet<>();
+    private List<Particula> particulas = new ArrayList<>();
 
     private final List<String> tipoSaida = new ArrayList<>();
 
@@ -69,11 +68,9 @@ public class Pso
 
     private double[] max, min;
 
-    private final double c1, c2;
+    private final double w, c1, c2;
 
     private final double cr, mutAdd, mutOper, prefAtribNum;
-
-    private double w;
 
     private final Fitness fitness;
 
@@ -490,7 +487,7 @@ public class Pso
      *
      * @return Lista contendo a população de partículas.
      */
-    private Set<Particula> geraPopulacaoInicial()
+    private List<Particula> geraPopulacaoInicial()
     {
         Map<String, Integer> contPopNicho = new HashMap<>();
         final int numSaidas = tipoSaida.size();
@@ -656,7 +653,7 @@ public class Pso
             System.out.println(classe + ") " + c.size());
         }
         System.out.println();
-
+        
         System.out.println("População:");
         for (Particula p : particulas)
         {

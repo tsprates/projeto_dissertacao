@@ -50,7 +50,7 @@ public class Grafico extends ApplicationFrame
 
         for (int i = 0, len = yData.size(); i < len; i++)
         {
-            serie.add(i, yData.get(i));
+            serie.add((double) i, yData.get(i).doubleValue());
         }
 
         dataset.addSeries(serie);
@@ -63,18 +63,18 @@ public class Grafico extends ApplicationFrame
         JFreeChart chart = ChartFactory.createXYLineChart(titulo,
                 "Iterações", "Sensibilidade x Especificidade", dataset,
                 PlotOrientation.VERTICAL, true, true, false);
-        XYPlot plot = setBackground(chart);
+//        XYPlot plot = setBackground(chart);
         createChart(chart);
     }
 
-    private XYPlot setBackground(JFreeChart chart)
-    {
-        XYPlot plot = chart.getXYPlot();
-        plot.setBackgroundPaint(Color.WHITE);
-        plot.setDomainGridlinePaint(Color.GRAY);
-        plot.setRangeGridlinePaint(Color.GRAY);
-        return plot;
-    }
+//    private XYPlot setBackground(JFreeChart chart)
+//    {
+//        XYPlot plot = chart.getXYPlot();
+//        plot.setBackgroundPaint(Color.WHITE);
+//        plot.setDomainGridlinePaint(Color.GRAY);
+//        plot.setRangeGridlinePaint(Color.GRAY);
+//        return plot;
+//    }
 
     private void createChart(JFreeChart chart)
     {
