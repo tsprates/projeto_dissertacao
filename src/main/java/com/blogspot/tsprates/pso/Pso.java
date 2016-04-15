@@ -78,6 +78,18 @@ public class Pso
     private final Fitness fitness;
 
     private final DecimalFormat formatter;
+    
+    private final Map<String, List<Double>> efetividade = new HashMap<>();
+
+    /**
+     * Retorna mapa das classes com a efetividade de cada partícula 
+     * 
+     * @return Mapa das classes com a efetividade de cada partícula.
+     */
+    public Map<String, List<Double>> getEfetividade()
+    {
+        return efetividade;
+    }
 
 
     /**
@@ -189,18 +201,13 @@ public class Pso
      */
     private void mostraResultados()
     {
-        Grafico g = new Grafico(tabela);
-
         System.out.println();
 
-        // Output resultado
         StringBuilder builder = new StringBuilder(
                 "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
 
         for (Entry<String, Set<Particula>> parts : gbest.entrySet())
         {
-//            List<Double> x = new ArrayList<>();
-//            List<Double> y = new ArrayList<>();
 
             String classe = parts.getKey();
 
@@ -212,50 +219,29 @@ public class Pso
                 for (int i = 0, len = d.length; i < len; i++)
                 {
                     builder.append("\t").append(formatter.format(d[i]));
-
-//                    if (i == 0)
-//                    {
-//                        x.add(d[i]);
-//                    }
-//
-//                    if (i == 1)
-//                    {
-//                        y.add(d[i]);
-//                    }
-
                 }
 
                 builder.append("\t").append(part.whereSql()).append("\n");
             }
-
-//            g.adicionaSerie(classe, x, y);
         }
         
         
-        Map<String, List<Double>> mapaPart = new HashMap<>();
+        
         for (String saida : tipoSaida)
         {
-            mapaPart.put(saida, new ArrayList<Double>());
+            efetividade.put(saida, new ArrayList<Double>());
         }
         
         for (Particula part : particulas)
         {
             double[] fit = part.fitness();
-            mapaPart.get(part.classe()).add(fit[1]);
+            efetividade.get(part.classe()).add(fit[1]);
         }
-        
-        for (Entry<String, List<Double>> ent : mapaPart.entrySet())
-        {
-            g.adicionaSerie(ent.getKey(), ent.getValue());
-        }
-        
-
-        // mostra resultados
+                
         System.out.println(builder.toString());
-
-        // mostra gráfico visível
-        g.mostra();
     }
+    
+    
 
     /**
      * Atualiza posição.

@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 /**
@@ -35,12 +38,33 @@ public class App
             Pso pso = new Pso(conexaoDb, config);
 //            pso.mostraPopulacao();
             pso.carrega();
+
+            final String tituloGrafico = config.getProperty("tabela");
+            final Map<String, List<Double>> efetividade = pso.getEfetividade();
+            mostraGrafico(tituloGrafico, efetividade);
         }
         else
         {
             System.err.println("É necessário definir um arquivo de configuração.");
         }
 
+    }
+
+    /**
+     * Gráfico de resultado
+     *
+     * @param tituloGrafico
+     * @param pso
+     */
+    private static void mostraGrafico(final String tituloGrafico,
+            Map<String, List<Double>> mapa)
+    {
+        Grafico g = new Grafico(tituloGrafico);
+        for (Entry<String, List<Double>> ent : mapa.entrySet())
+        {
+            g.adicionaSerie(ent.getKey(), ent.getValue());
+        }
+        g.mostra();
     }
 
     /**
