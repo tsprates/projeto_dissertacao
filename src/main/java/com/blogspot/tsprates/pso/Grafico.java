@@ -1,6 +1,5 @@
 package com.blogspot.tsprates.pso;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.util.List;
 
@@ -8,7 +7,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
