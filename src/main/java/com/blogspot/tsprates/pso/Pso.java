@@ -96,28 +96,28 @@ public class Pso
      * Construtor.
      *
      * @param c Conexão com banco de dados PostgreSQL.
-     * @param p Propriedades de configuração.
+     * @param prop Propriedades de configuração.
      */
-    public Pso(Connection c, Properties p)
+    public Pso(Connection c, Properties prop)
     {
         this.conexao = c;
-        this.tabela = (String) p.get("tabela");
-        this.colSaida = (String) p.get("saida");
-        this.colId = (String) p.get("id");
+        this.tabela = (prop.getProperty("tabela"));
+        this.colSaida = prop.getProperty("saida");
+        this.colId = prop.getProperty("id");
 
-        this.wmin = Double.valueOf((String) p.get("wmin"));
-        this.wmax = Double.valueOf((String) p.get("wmax"));
+        this.wmin = Double.valueOf(prop.getProperty("wmin"));
+        this.wmax = Double.valueOf(prop.getProperty("wmax"));
         this.w = this.wmin;
 
-        this.c1 = Double.valueOf((String) p.get("c1"));
-        this.c2 = Double.valueOf((String) p.get("c2"));
+        this.c1 = Double.valueOf(prop.getProperty("c1"));
+        this.c2 = Double.valueOf(prop.getProperty("c2"));
 
-        this.cr = Double.valueOf((String) p.get("cr"));
-        this.mutOper = Double.valueOf((String) p.get("mutoper"));
-        this.mutAdd = Double.valueOf((String) p.get("mutadd"));
-        this.prefAtribNum = Double.valueOf((String) p.get("prefatribnum"));
-        this.numPop = Integer.valueOf((String) p.get("npop"));
-        this.maxIter = Integer.valueOf((String) p.get("maxiter"));
+        this.cr = Double.valueOf(prop.getProperty("cr"));
+        this.mutOper = Double.valueOf(prop.getProperty("mutoper"));
+        this.mutAdd = Double.valueOf(prop.getProperty("mutadd"));
+        this.prefAtribNum = Double.valueOf(prop.getProperty("prefatribnum"));
+        this.numPop = Integer.valueOf(prop.getProperty("npop"));
+        this.maxIter = Integer.valueOf(prop.getProperty("maxiter"));
 
         carregaColunas();
         carregaTiposSaida();
