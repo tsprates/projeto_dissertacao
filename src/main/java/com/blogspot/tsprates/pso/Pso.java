@@ -565,8 +565,8 @@ public class Pso
         double probCond = prefAtribNum;
         Set<String> listaWhere = new HashSet<>();
 
-        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
-//        int maxWhere = (int) Math.log(RandomUtils.nextDouble(1, numCols)) + 1;
+//        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
+        int maxWhere = (int) Math.log(RandomUtils.nextDouble(1, numCols)) + 1;
         double decProb = (probCond - 0.3) / maxWhere;
 
         for (int i = 0; i < maxWhere; i++)
