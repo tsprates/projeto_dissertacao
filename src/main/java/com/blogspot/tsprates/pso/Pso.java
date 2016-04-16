@@ -5,8 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -75,7 +73,7 @@ public class Pso
 
     private final Fitness fitness;
 
-    private final DecimalFormat formatter;
+    private final Formatador format;
 
     private final Map<String, List<Double>> efetividade = new HashMap<>();
 
@@ -83,25 +81,26 @@ public class Pso
      * Construtor.
      *
      * @param c Conexão com banco de dados PostgreSQL.
-     * @param prop Propriedades de configuração.
+     * @param props Propriedades de configuração.
+     * @param f Formatador.
      */
-    public Pso(Connection c, Properties prop)
+    public Pso(Connection c, Properties props, Formatador f)
     {
         this.conexao = c;
-        this.tabela = (prop.getProperty("tabela"));
-        this.colSaida = prop.getProperty("saida");
-        this.colId = prop.getProperty("id");
+        this.tabela = (props.getProperty("tabela"));
+        this.colSaida = props.getProperty("saida");
+        this.colId = props.getProperty("id");
 
-        this.w = Double.valueOf(prop.getProperty("w"));
-        this.c1 = Double.valueOf(prop.getProperty("c1"));
-        this.c2 = Double.valueOf(prop.getProperty("c2"));
+        this.w = Double.valueOf(props.getProperty("w"));
+        this.c1 = Double.valueOf(props.getProperty("c1"));
+        this.c2 = Double.valueOf(props.getProperty("c2"));
 
-        this.cr = Double.valueOf(prop.getProperty("cr"));
-        this.mutOper = Double.valueOf(prop.getProperty("mutoper"));
-        this.mutAdd = Double.valueOf(prop.getProperty("mutadd"));
-        this.prefAtribNum = Double.valueOf(prop.getProperty("prefatribnum"));
-        this.numPop = Integer.valueOf(prop.getProperty("npop"));
-        this.maxIter = Integer.valueOf(prop.getProperty("maxiter"));
+        this.cr = Double.valueOf(props.getProperty("cr"));
+        this.mutOper = Double.valueOf(props.getProperty("mutoper"));
+        this.mutAdd = Double.valueOf(props.getProperty("mutadd"));
+        this.prefAtribNum = Double.valueOf(props.getProperty("prefatribnum"));
+        this.numPop = Integer.valueOf(props.getProperty("npop"));
+        this.maxIter = Integer.valueOf(props.getProperty("maxiter"));
 
         carregaColunas();
         carregaTiposSaida();
@@ -113,23 +112,10 @@ public class Pso
         // calcula fitness
         this.fitness = new Fitness(c, colId, tabela, saidas);
 
-        // numeric format ouput
-        formatter = getNumFormat();
+        // formata valor numérico
+        format = f;
 
         this.particulas = geraPopulacaoInicial();
-    }
-
-    /**
-     * Formata valor numérico.
-     *
-     * @return
-     */
-    private DecimalFormat getNumFormat()
-    {
-        // Decimal formatter
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
-        symbols.setDecimalSeparator(',');
-        return new DecimalFormat("0.000", symbols);
     }
     
     /**
@@ -141,16 +127,6 @@ public class Pso
     {
         return efetividade;
     }
-    
-    /**
-     * Retorna tipos saídas (classes).
-     *
-     * @return Tipos saídas.
-     */
-//    public Set<String> getTipoSaida()
-//    {
-//        return tipoSaidas;
-//    }
 
     /**
      * Cria GBest.
@@ -195,6 +171,7 @@ public class Pso
 
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
         System.out.println("Tempo decorrido: " + tempoDecorrido);
+        System.out.println();
     }
 
     /**
@@ -220,7 +197,7 @@ public class Pso
                 double[] d = part.fitness();
                 for (int i = 0, len = d.length; i < len; i++)
                 {
-                    builder.append("\t").append(formatter.format(d[i]));
+                    builder.append("\t").append(format.format(d[i]));
                 }
 
                 builder.append("\t").append(part.whereSql()).append("\n");
@@ -237,7 +214,9 @@ public class Pso
             double[] fit = part.fitness();
             efetividade.get(part.classe()).add(fit[1]);
         }
-
+        
+        builder.append("\n");
+        
         System.out.println(builder.toString());
     }
 
@@ -586,16 +565,14 @@ public class Pso
         double probCond = prefAtribNum;
         Set<String> listaWhere = new HashSet<>();
 
-//        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
-        int maxWhere = (int) Math.log(RandomUtils.nextDouble(1, numCols)) + 1;
+        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
+//        int maxWhere = (int) Math.log(RandomUtils.nextDouble(1, numCols)) + 1;
         double decProb = (probCond - 0.3) / maxWhere;
 
         for (int i = 0; i < maxWhere; i++)
         {
             String cond = criaCondicao(probCond);
-
             listaWhere.add(cond);
-
             probCond -= decProb;
         }
 

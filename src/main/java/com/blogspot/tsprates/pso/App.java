@@ -13,6 +13,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
 /**
  * Particles Swarm Optimization (PSO).
@@ -39,30 +42,28 @@ public class App
         {
             Connection conexaoDb = new DbFactory().conecta();
             Properties config = getConfigs(args[0]);
-//            Pso pso = new Pso(conexaoDb, config);
-//            pso.mostraPopulacao();
-//            pso.carrega();
+
+            final Formatador format = new Formatador();
 
             final String tituloGrafico = String.format("%s - %s Iteração",
                     config.getProperty("tabela"),
                     config.getProperty("maxiter"));
 
-            
-            final int exec = 30;
+            final int exec = 50;
             final Map<String, List<Double>> efetividadeMedia = new HashMap<>();
             Map<String, List<Double>> efetividade;
-            
-            for (int iter = 0; iter < exec; iter++) 
+
+            for (int iter = 0; iter < exec; iter++)
             {
                 System.out.println();
                 System.out.println("Execução: " + (iter + 1));
                 System.out.println();
-                
-                Pso pso = new Pso(conexaoDb, config);
+
+                Pso pso = new Pso(conexaoDb, config, format);
                 pso.carrega();
-                
+
                 efetividade = pso.getEfetividade();
-                
+
                 // Inicia efetividade média com valor zero.
                 if (iter == 0)
                 {
@@ -71,11 +72,10 @@ public class App
                         final int size = ent.getValue().size();
                         final List<Double> zeros = new ArrayList<>(Collections.nCopies(size, 0.0));
                         efetividadeMedia.put(ent.getKey(), zeros);
-                                        
+
                     }
                 }
-                
-                
+
                 // cada execução atualiza resultados da iteração anterior
                 for (Entry<String, List<Double>> ent : efetividade.entrySet())
                 {
@@ -88,24 +88,24 @@ public class App
                         efetMed.set(i, valorAtual + valor);
                     }
                 }
-                
-                
+
             }
 
-            // tira média
             Set<String> classes = efetividadeMedia.keySet();
             for (String classe : classes)
             {
                 for (int i = 0, len = efetividadeMedia.get(classe).size();
-                        i < len; i++) 
+                        i < len; i++)
                 {
                     final List<Double> results = efetividadeMedia.get(classe);
                     double valor = results.get(i);
                     efetividadeMedia.get(classe).set(i, valor / (double) exec);
                 }
             }
-            
-            mostraGrafico(tituloGrafico, efetividadeMedia);
+
+            graficoEfetividade(tituloGrafico, efetividadeMedia);
+
+            mostraMedia(classes, efetividadeMedia, format);
         }
         else
         {
@@ -115,12 +115,44 @@ public class App
     }
 
     /**
-     * Gráfico de resultados.
+     * 
+     * @param classes
+     * @param efetividadeMedia
+     * @param format
+     * @throws MathIllegalArgumentException 
+     */
+    private static void mostraMedia(Set<String> classes, final Map<String, 
+            List<Double>> efetividadeMedia, final Formatador format) 
+            throws MathIllegalArgumentException
+    {
+        StandardDeviation sd = new StandardDeviation();
+        Mean mean = new Mean();
+        
+        StringBuilder builder = new StringBuilder("Classe\tMédia\tDesvio\n");
+        for (String classe : classes)
+        {
+            List<Double> val = efetividadeMedia.get(classe);
+            double[] v = new double[val.size()];
+            for (int i = 0, len = val.size(); i < len; i++)
+            {
+                v[i] = val.get(i);
+            }
+            
+            double desvio = sd.evaluate(v);
+            double media = mean.evaluate(v);
+            builder.append(classe).append("\t").append(format.format(media))
+                    .append("\t").append(format.format(desvio)).append("\n");
+        }
+        System.out.println(builder.toString());
+    }
+
+    /**
+     * Gráfico de resultados de efetividade.
      *
      * @param tituloGrafico
      * @param pso
      */
-    private static void mostraGrafico(final String tituloGrafico,
+    private static void graficoEfetividade(final String tituloGrafico,
             Map<String, List<Double>> mapa)
     {
         final String eixoX = "População";
