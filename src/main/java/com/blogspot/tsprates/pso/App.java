@@ -49,9 +49,13 @@ public class App
                     config.getProperty("tabela"),
                     config.getProperty("maxiter"));
 
-            final int exec = 10;
+            final int exec = 2;
+            
             final Map<String, List<Double>> efetividadeMedia = new HashMap<>();
             Map<String, List<Double>> efetividade;
+            
+            final Map<String, List<Double>> acuraciaMedia = new HashMap<>();
+            Map<String, List<Double>> acuracia;
 
             for (int iter = 0; iter < exec; iter++)
             {
@@ -63,6 +67,7 @@ public class App
                 pso.carrega();
 
                 efetividade = pso.getEfetividade();
+                acuracia = pso.getAcuracia();
 
                 // Inicia efetividade média com valor zero.
                 if (iter == 0)
@@ -70,42 +75,68 @@ public class App
                     for (Entry<String, List<Double>> ent : efetividade.entrySet())
                     {
                         final int size = ent.getValue().size();
-                        final List<Double> zeros = new ArrayList<>(Collections.nCopies(size, 0.0));
-                        efetividadeMedia.put(ent.getKey(), zeros);
 
+                        final List<Double> zeros1 = new ArrayList<>(
+                                Collections.nCopies(size, 0.0));
+                        efetividadeMedia.put(ent.getKey(), zeros1);
+                        
+                        final List<Double> zeros2 = new ArrayList<>(
+                                Collections.nCopies(size, 0.0));
+                        acuraciaMedia.put(ent.getKey(), zeros2);
                     }
                 }
 
-                // cada execução atualiza resultados da iteração anterior
                 for (Entry<String, List<Double>> ent : efetividade.entrySet())
                 {
+                    final List<Double> lista1 = ent.getValue();
                     List<Double> efetMed = efetividadeMedia.get(ent.getKey());
-                    final List<Double> listaValores = ent.getValue();
-                    for (int i = 0, len = listaValores.size(); i < len; i++)
+                    
+                    for (int i = 0, len = lista1.size(); i < len; i++)
                     {
-                        double valor = listaValores.get(i);
-                        double valorAtual = efetMed.get(i);
-                        efetMed.set(i, valorAtual + valor);
+                        double valor1 = lista1.get(i);
+                        double valorAtual1 = efetMed.get(i);
+                        efetMed.set(i, valorAtual1 + valor1);
+                    }
+                }
+                
+                
+                for (Entry<String, List<Double>> ent : acuracia.entrySet())
+                {                    
+                    final List<Double> lista2 = ent.getValue();
+                    List<Double> acurMed = acuraciaMedia.get(ent.getKey());
+                    
+                    for (int i = 0, len = lista2.size(); i < len; i++)
+                    {                       
+                        double valor2 = lista2.get(i);
+                        double valorAtual2 = acurMed.get(i);
+                        acurMed.set(i, valorAtual2 + valor2);
                     }
                 }
 
             }
 
-            Set<String> classes = efetividadeMedia.keySet();
+            final Set<String> classes = efetividadeMedia.keySet();
+            
             for (String classe : classes)
             {
-                for (int i = 0, len = efetividadeMedia.get(classe).size();
-                        i < len; i++)
+                for (int i = 0, len = efetividadeMedia.get(classe).size(); i < len; i++)
                 {
-                    final List<Double> results = efetividadeMedia.get(classe);
-                    double valor = results.get(i);
+                    final List<Double> results1 = efetividadeMedia.get(classe);
+                    double valor = results1.get(i);
                     efetividadeMedia.get(classe).set(i, valor / (double) exec);
+                }
+                
+                for (int i = 0, len = acuraciaMedia.get(classe).size(); i < len; i++)
+                {
+                    final List<Double> results2 = acuraciaMedia.get(classe);
+                    double valor = results2.get(i);
+                    acuraciaMedia.get(classe).set(i, valor / (double) exec);
                 }
             }
 
             graficoEfetividade(tituloGrafico, efetividadeMedia);
 
-            mostraMedia(classes, efetividadeMedia, format);
+            mostraMedia(classes, acuraciaMedia, format);
         }
         else
         {
@@ -128,7 +159,7 @@ public class App
         StandardDeviation sd = new StandardDeviation();
         Mean mean = new Mean();
         
-        StringBuilder builder = new StringBuilder("Classe\tMédia\tDesvio\n");
+        StringBuilder builder = new StringBuilder("Classe\tMédia\tDesvio\n\n");
         for (String classe : classes)
         {
             List<Double> val = efetividadeMedia.get(classe);

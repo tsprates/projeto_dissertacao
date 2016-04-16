@@ -76,6 +76,8 @@ public class Pso
     private final Formatador format;
 
     private final Map<String, List<Double>> efetividade = new HashMap<>();
+    
+    private final Map<String, List<Double>> acuracia = new HashMap<>();
 
     /**
      * Construtor.
@@ -126,6 +128,16 @@ public class Pso
     public Map<String, List<Double>> getEfetividade()
     {
         return efetividade;
+    }
+
+    /**
+     * Retorna mapa das classes com a acuracia de cada partícula.
+     *
+     * @return Mapa das classes com a efetividade de cada partícula.
+     */
+    public Map<String, List<Double>> getAcuracia()
+    {
+        return acuracia;
     }
 
     /**
@@ -207,12 +219,14 @@ public class Pso
         for (String saida : tipoSaidas)
         {
             efetividade.put(saida, new ArrayList<Double>());
+            acuracia.put(saida, new ArrayList<Double>());
         }
 
         for (Particula part : particulas)
         {
             double[] fit = part.fitness();
             efetividade.get(part.classe()).add(fit[1]);
+            acuracia.get(part.classe()).add(fit[2]);
         }
         
         builder.append("\n");
