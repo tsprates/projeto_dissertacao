@@ -49,7 +49,7 @@ public class App
                     config.getProperty("tabela"),
                     config.getProperty("maxiter"));
 
-            final int exec = 2;
+            final int exec = 30;
             
             final Map<String, List<Double>> efetividadeMedia = new HashMap<>();
             Map<String, List<Double>> efetividade;
