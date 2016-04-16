@@ -1,5 +1,6 @@
 package com.blogspot.tsprates.pso;
 
+import com.sun.xml.internal.ws.util.StringUtils;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,9 +46,8 @@ public class App
 
             final Formatador format = new Formatador();
 
-            final String tituloGrafico = String.format("%s - %s Iteração",
-                    config.getProperty("tabela"),
-                    config.getProperty("maxiter"));
+            final String tituloGrafico = StringUtils
+                    .capitalize(config.getProperty("tabela"));
 
             final int exec = 30;
             
