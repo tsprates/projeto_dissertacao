@@ -8,4 +8,4 @@ c1=0.8
 c2=0.8
 cr=0.9
 mutoper=0.01
-mutadd=0.02
+mutadd=0.05
