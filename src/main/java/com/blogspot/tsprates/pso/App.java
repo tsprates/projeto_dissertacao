@@ -49,11 +49,11 @@ public class App
             final String tituloGrafico = StringUtils
                     .capitalize(config.getProperty("tabela"));
 
-            final int exec = 30;
-            
+            final int exec = 1;
+
             final Map<String, List<Double>> efetividadeMedia = new HashMap<>();
             Map<String, List<Double>> efetividade;
-            
+
             final Map<String, List<Double>> acuraciaMedia = new HashMap<>();
             Map<String, List<Double>> acuracia;
 
@@ -79,7 +79,7 @@ public class App
                         final List<Double> zeros1 = new ArrayList<>(
                                 Collections.nCopies(size, 0.0));
                         efetividadeMedia.put(ent.getKey(), zeros1);
-                        
+
                         final List<Double> zeros2 = new ArrayList<>(
                                 Collections.nCopies(size, 0.0));
                         acuraciaMedia.put(ent.getKey(), zeros2);
@@ -90,7 +90,7 @@ public class App
                 {
                     final List<Double> lista1 = ent.getValue();
                     List<Double> efetMed = efetividadeMedia.get(ent.getKey());
-                    
+
                     for (int i = 0, len = lista1.size(); i < len; i++)
                     {
                         double valor1 = lista1.get(i);
@@ -98,15 +98,14 @@ public class App
                         efetMed.set(i, valorAtual1 + valor1);
                     }
                 }
-                
-                
+
                 for (Entry<String, List<Double>> ent : acuracia.entrySet())
-                {                    
+                {
                     final List<Double> lista2 = ent.getValue();
                     List<Double> acurMed = acuraciaMedia.get(ent.getKey());
-                    
+
                     for (int i = 0, len = lista2.size(); i < len; i++)
-                    {                       
+                    {
                         double valor2 = lista2.get(i);
                         double valorAtual2 = acurMed.get(i);
                         acurMed.set(i, valorAtual2 + valor2);
@@ -116,7 +115,7 @@ public class App
             }
 
             final Set<String> classes = efetividadeMedia.keySet();
-            
+
             for (String classe : classes)
             {
                 for (int i = 0, len = efetividadeMedia.get(classe).size(); i < len; i++)
@@ -125,7 +124,7 @@ public class App
                     double valor = results1.get(i);
                     efetividadeMedia.get(classe).set(i, valor / (double) exec);
                 }
-                
+
                 for (int i = 0, len = acuraciaMedia.get(classe).size(); i < len; i++)
                 {
                     final List<Double> results2 = acuraciaMedia.get(classe);
@@ -134,9 +133,8 @@ public class App
                 }
             }
 
-            graficoEfetividade(tituloGrafico, efetividadeMedia);
-
-            mostraMedia(classes, acuraciaMedia, format);
+//            graficoEfetividade(tituloGrafico, efetividadeMedia);
+//            mostraMedia(classes, acuraciaMedia, format);
         }
         else
         {
@@ -146,36 +144,35 @@ public class App
     }
 
     /**
-     * 
+     *
      * @param classes
      * @param efetividadeMedia
      * @param format
-     * @throws MathIllegalArgumentException 
+     * @throws MathIllegalArgumentException
      */
-    private static void mostraMedia(Set<String> classes, final Map<String, 
-            List<Double>> efetividadeMedia, final Formatador format) 
-            throws MathIllegalArgumentException
-    {
-        StandardDeviation sd = new StandardDeviation();
-        Mean mean = new Mean();
-        
-        StringBuilder builder = new StringBuilder("Classe\tMédia\tDesvio\n\n");
-        for (String classe : classes)
-        {
-            List<Double> val = efetividadeMedia.get(classe);
-            double[] v = new double[val.size()];
-            for (int i = 0, len = val.size(); i < len; i++)
-            {
-                v[i] = val.get(i);
-            }
-            
-            double desvio = sd.evaluate(v);
-            double media = mean.evaluate(v);
-            builder.append(classe).append("\t").append(format.format(media))
-                    .append("\t").append(format.format(desvio)).append("\n");
-        }
-        System.out.println(builder.toString());
-    }
+//    private static void mostraMedia(Set<String> classes, final Map<String, List<Double>> efetividadeMedia, final Formatador format)
+//            throws MathIllegalArgumentException
+//    {
+//        StandardDeviation sd = new StandardDeviation();
+//        Mean mean = new Mean();
+//
+//        StringBuilder builder = new StringBuilder("Classe\tMédia\tDesvio\n\n");
+//        for (String classe : classes)
+//        {
+//            List<Double> val = efetividadeMedia.get(classe);
+//            double[] v = new double[val.size()];
+//            for (int i = 0, len = val.size(); i < len; i++)
+//            {
+//                v[i] = val.get(i);
+//            }
+//
+//            double desvio = sd.evaluate(v);
+//            double media = mean.evaluate(v);
+//            builder.append(classe).append("\t").append(format.format(media))
+//                    .append("\t").append(format.format(desvio)).append("\n");
+//        }
+//        System.out.println(builder.toString());
+//    }
 
     /**
      * Gráfico de resultados de efetividade.
@@ -183,18 +180,18 @@ public class App
      * @param tituloGrafico
      * @param pso
      */
-    private static void graficoEfetividade(final String tituloGrafico,
-            Map<String, List<Double>> mapa)
-    {
-        final String eixoX = "População";
-        final String eixoY = "Sensibilidade x Especificidade";
-        Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
-        for (Entry<String, List<Double>> ent : mapa.entrySet())
-        {
-            g.adicionaSerie(ent.getKey(), ent.getValue());
-        }
-        g.mostra();
-    }
+//    private static void graficoEfetividade(final String tituloGrafico,
+//            Map<String, List<Double>> mapa)
+//    {
+//        final String eixoX = "População";
+//        final String eixoY = "Sensibilidade x Especificidade";
+//        Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
+//        for (Entry<String, List<Double>> ent : mapa.entrySet())
+//        {
+//            g.adicionaSerie(ent.getKey(), ent.getValue());
+//        }
+//        g.mostra();
+//    }
 
     /**
      * Retorna arquivo de configurações.

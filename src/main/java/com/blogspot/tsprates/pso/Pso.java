@@ -69,14 +69,14 @@ public class Pso
 
     private final double w, c1, c2;
 
-    private final double cr, mutAdd, mutOper, prefAtribNum;
+    private final double cr, mutAdd, mutOper;
 
     private final Fitness fitness;
 
     private final Formatador format;
 
     private final Map<String, List<Double>> efetividade = new HashMap<>();
-    
+
     private final Map<String, List<Double>> acuracia = new HashMap<>();
 
     /**
@@ -100,7 +100,6 @@ public class Pso
         this.cr = Double.valueOf(props.getProperty("cr"));
         this.mutOper = Double.valueOf(props.getProperty("mutoper"));
         this.mutAdd = Double.valueOf(props.getProperty("mutadd"));
-        this.prefAtribNum = Double.valueOf(props.getProperty("prefatribnum"));
         this.numPop = Integer.valueOf(props.getProperty("npop"));
         this.maxIter = Integer.valueOf(props.getProperty("maxiter"));
 
@@ -119,7 +118,7 @@ public class Pso
 
         this.particulas = geraPopulacaoInicial();
     }
-    
+
     /**
      * Retorna mapa das classes com a efetividade de cada partícula.
      *
@@ -228,9 +227,9 @@ public class Pso
             efetividade.get(part.classe()).add(fit[1]);
             acuracia.get(part.classe()).add(fit[2]);
         }
-        
+
         builder.append("\n");
-        
+
         System.out.println(builder.toString());
     }
 
@@ -272,7 +271,7 @@ public class Pso
 
             if (Math.random() < mutAdd)
             {
-                pos.add(criaCond());
+                pos.add(criaCondicao());
             }
 
             p.setPosicao(pos);
@@ -338,7 +337,7 @@ public class Pso
 
     /**
      * Retorna um elemento dentro conjunto das partículas.
-     * 
+     *
      * @param s
      * @return
      */
@@ -576,18 +575,15 @@ public class Pso
     private Set<String> criaWhere()
     {
         int numCols = colunas.length;
-        double probCond = prefAtribNum;
         Set<String> listaWhere = new HashSet<>();
 
 //        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
         int maxWhere = (int) Math.log(RandomUtils.nextDouble(1, numCols)) + 1;
-        double decProb = (probCond - 0.3) / maxWhere;
 
         for (int i = 0; i < maxWhere; i++)
         {
-            String cond = criaCondicao(probCond);
+            String cond = criaCondicao();
             listaWhere.add(cond);
-            probCond -= decProb;
         }
 
         return listaWhere;
@@ -598,24 +594,15 @@ public class Pso
      *
      * @return
      */
-    private String criaCond()
-    {
-        return criaCondicao(prefAtribNum);
-    }
-
-    /**
-     * Cria condição para cláusula WHERE.
-     *
-     * @param prob
-     * @return
-     */
-    private String criaCondicao(double prob)
+    private String criaCondicao()
     {
         int numOper = LISTA_OPERADORES.length;
         int numCols = colunas.length;
 
         int colIndex = rand.nextInt(numCols);
         int operIndex = rand.nextInt(numOper);
+
+        double prob = Math.random();
 
         String valor;
 
@@ -656,7 +643,7 @@ public class Pso
             System.out.println(classe + ") " + c.size());
         }
         System.out.println();
-        
+
         System.out.println("População:");
         for (Particula p : particulas)
         {
