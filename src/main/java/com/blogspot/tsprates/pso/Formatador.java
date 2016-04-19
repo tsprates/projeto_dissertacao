@@ -6,7 +6,7 @@ import java.util.Locale;
 
 public class Formatador
 {
-    private DecimalFormat format;
+    private final DecimalFormat format;
     
     /**
      * 
@@ -15,7 +15,7 @@ public class Formatador
     {
         // Decimal formatter
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
-        symbols.setDecimalSeparator(',');
+        symbols.setDecimalSeparator('.');
         this.format = new DecimalFormat("0.0000", symbols);
     }
     
