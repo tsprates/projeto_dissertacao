@@ -65,7 +65,9 @@ public class Pso
 
     private int[] tipoColunas;
 
-    private double[] max, min;
+    private final Map<String, Double> max = new HashMap<>();
+    
+    private final Map<String, Double> min = new HashMap<>();
 
     private final double w, c1, c2;
 
@@ -281,7 +283,6 @@ public class Pso
         final Set<Particula> pBest = p.getPbest();
         final int pBestSize = pBest.size();
         final int pBestIndex = rand.nextInt(pBestSize);
-
         final Particula pBestPart = getRandomElement(pBest);
         final List<String> pBestPos = new ArrayList<>(pBestPart.posicao());
 
@@ -309,7 +310,6 @@ public class Pso
         final Set<Particula> gBest = gbest.get(p.classe());
         final int gBestSize = gBest.size();
         final int gBestIndex = rand.nextInt(gBestSize);
-
         final Particula gBestPart = getRandomElement(gBest);
         final List<String> gBestPos = new ArrayList<>(gBestPart.posicao());
 
@@ -371,7 +371,6 @@ public class Pso
         try (PreparedStatement ps = conexao.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery())
         {
-
             while (rs.next())
             {
                 String coluna = rs.getString(colSaida);
@@ -402,9 +401,6 @@ public class Pso
 
             colunas = new String[numCol - 2];
             tipoColunas = new int[numCol - 2];
-
-            max = new double[numCol - 2];
-            min = new double[numCol - 2];
 
             for (int i = 0, j = 0; i < numCol; i++)
             {
@@ -467,17 +463,18 @@ public class Pso
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery())
-        {
-            int numCols = colunas.length * 2;
+        {            
+            
             while (rs.next())
             {
-                for (int i = 0, j = 0; i < numCols; i += 2, j++)
+                int i = 0;
+                for (String entrada : colunas)
                 {
-                    max[j] = rs.getDouble(i + 1);
-                    min[j] = rs.getDouble(i + 2);
+                    max.put(entrada, rs.getDouble(i + 1));
+                    min.put(entrada, rs.getDouble(i + 2));
+                    i += 2;
                 }
             }
-
         }
         catch (SQLException e)
         {
@@ -596,21 +593,23 @@ public class Pso
      */
     private String criaCondicao()
     {
-        int numOper = LISTA_OPERADORES.length;
-        int numCols = colunas.length;
+        final int numOper = LISTA_OPERADORES.length;
+        final int numCols = colunas.length;
 
-        int colIndex = rand.nextInt(numCols);
-        int operIndex = rand.nextInt(numOper);
+        final int colIndex = rand.nextInt(numCols);
+        final int operIndex = rand.nextInt(numOper);
 
-        double prob = Math.random();
+        final double prob = 0.4;
 
         String valor;
 
-        // Verifica se comparação ocorrerá numericamente ou via coluna
+        // Verifica se a comparação ocorrerá campo constante (numérico) 
+        // ou com outra coluna
         if (rand.nextDouble() > prob)
         {
-            valor = String.format(Locale.ROOT, "%.2f",
-                    RandomUtils.nextDouble(min[colIndex], max[colIndex]));
+            valor = String.format(Locale.ROOT, "%.3f", RandomUtils.nextDouble(
+                    min.get(colunas[colIndex]), 
+                    max.get(colunas[colIndex])));
         }
         else
         {
