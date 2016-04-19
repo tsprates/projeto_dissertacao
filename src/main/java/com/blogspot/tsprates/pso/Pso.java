@@ -281,8 +281,8 @@ public class Pso
 
         // pbest
         final Set<Particula> pBest = p.getPbest();
-        final int pBestSize = pBest.size();
-        final int pBestIndex = rand.nextInt(pBestSize);
+//        final int pBestSize = pBest.size();
+//        final int pBestIndex = rand.nextInt(pBestSize);
         final Particula pBestPart = getRandomElement(pBest);
         final List<String> pBestPos = new ArrayList<>(pBestPart.posicao());
 
@@ -293,23 +293,26 @@ public class Pso
             int pBestPosSize = pBestPos.size();
             while (i < pBestPosSize)
             {
-                if (cr > Math.random() || pBestIndex == i)
+//                if (cr > Math.random() || pBestIndex == i)
+                if (cr > Math.random())
                 {
-                    nPosP.add(pBestPos.get(i));
+                    nPosP.add(pBestPos.get(RandomUtils.nextInt(0, pBestPosSize)));
+                    i++;
                 }
-                else if (i < posSize)
+                
+                if (i < posSize)
                 {
-                    nPosP.add(pos.get(i));
+                    nPosP.add(pos.get(RandomUtils.nextInt(0, posSize)));
+                    i++;
                 }
-                i++;
             }
             p.setPosicao(new HashSet<>(nPosP));
         }
 
         // gbest
         final Set<Particula> gBest = gbest.get(p.classe());
-        final int gBestSize = gBest.size();
-        final int gBestIndex = rand.nextInt(gBestSize);
+//        final int gBestSize = gBest.size();
+//        final int gBestIndex = rand.nextInt(gBestSize);
         final Particula gBestPart = getRandomElement(gBest);
         final List<String> gBestPos = new ArrayList<>(gBestPart.posicao());
 
@@ -320,15 +323,18 @@ public class Pso
             int gBestPosSize = gBestPos.size();
             while (i < gBestPosSize)
             {
-                if (cr > Math.random() || gBestIndex == i)
+//                if (cr > Math.random() || gBestIndex == i)
+                if (cr > Math.random())
                 {
-                    nPosG.add(gBestPos.get(i));
+                    nPosG.add(gBestPos.get(RandomUtils.nextInt(0, gBestPosSize)));
+                    i++;
                 }
-                else if (i < posSize)
+                
+                if (i < posSize)
                 {
-                    nPosG.add(pos.get(i));
+                    nPosG.add(pos.get(RandomUtils.nextInt(0, posSize)));
+                    i++;
                 }
-                i++;
             }
             p.setPosicao(new HashSet<>(nPosG));
         }
@@ -574,8 +580,8 @@ public class Pso
         int numCols = colunas.length;
         Set<String> listaWhere = new HashSet<>();
 
-//        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
-        int maxWhere = (int) Math.log(RandomUtils.nextDouble(1, numCols)) + 1;
+        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
+//        int maxWhere = (int) Math.log(RandomUtils.nextDouble(1, numCols)) + 1;
 
         for (int i = 0; i < maxWhere; i++)
         {
