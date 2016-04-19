@@ -264,6 +264,10 @@ public class Pso
                 pos.add(String.format(Locale.ROOT, "%s %s %.2f",
                         clausula[0], clausula[1], novoValor));
             }
+            else if (Math.random() < mutAdd)
+            {
+                pos.add(criaCondicao());
+            }
             else
             {
                 clausula[1] = LISTA_OPERADORES[rand.nextInt(operLen)];
@@ -271,10 +275,6 @@ public class Pso
                         clausula[0], clausula[1], clausula[2]));
             }
 
-            if (Math.random() < mutAdd)
-            {
-                pos.add(criaCondicao());
-            }
 
             p.setPosicao(pos);
         }

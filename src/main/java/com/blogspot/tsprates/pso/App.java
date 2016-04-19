@@ -49,7 +49,7 @@ public class App
             final String tituloGrafico = StringUtils
                     .capitalize(config.getProperty("tabela"));
 
-            final int exec = 1;
+            final int exec = 30;
 
             final Map<String, List<Double>> efetividadeMedia = new HashMap<>();
             Map<String, List<Double>> efetividade;
