@@ -14,8 +14,8 @@ interface InterfaceFitness
      * primeiro elemento é a acurácia da regra e o segundo sua complexidade
      * (número de nós) da cláusula WHERE.
      *
-     * @param p Partícula.
+     * @param part Partícula.
      * @return Fitness para MOPSO.
      */
-    public double[] calcula(final Particula p);
+    public double[] calcular(final Particula part);
 }

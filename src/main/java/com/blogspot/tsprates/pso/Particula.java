@@ -48,7 +48,7 @@ public class Particula implements Comparable<Particula>
         this.classe = classe;
         this.calculadorFitness = fit;
         final Particula that = this;
-        this.fitness = this.calculadorFitness.calcula(that);
+        this.fitness = this.calculadorFitness.calcular(that);
     }
 
     /**
@@ -79,7 +79,7 @@ public class Particula implements Comparable<Particula>
     {
         this.posicao = new HashSet<>(posicao);
         this.strPos = join(this.posicao);
-        this.fitness = this.calculadorFitness.calcula(this);
+        this.fitness = this.calculadorFitness.calcular(this);
     }
 
     /**
@@ -172,7 +172,7 @@ public class Particula implements Comparable<Particula>
      */
     public void atualizaPbest()
     {
-        fp.atualizaParticulasNaoDominadas(pbest, this);
+        fp.atualizarParticulasNaoDominadas(pbest, this);
     }
 
     @Override

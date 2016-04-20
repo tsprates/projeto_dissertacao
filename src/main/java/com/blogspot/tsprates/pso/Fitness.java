@@ -55,7 +55,7 @@ public class Fitness implements InterfaceFitness
      * Calcula fitness.
      */
     @Override
-    public double[] calcula(Particula p)
+    public double[] calcular(Particula p)
     {
         final double[] r = calc(p);
         final double[] result = new double[3];

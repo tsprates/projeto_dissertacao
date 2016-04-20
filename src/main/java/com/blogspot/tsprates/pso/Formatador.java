@@ -25,7 +25,7 @@ public class Formatador
      * @param d
      * @return
      */
-    public String format(double d)
+    public String formatar(double d)
     {
         return format.format(d);
     }

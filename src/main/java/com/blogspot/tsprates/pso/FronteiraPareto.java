@@ -12,7 +12,7 @@ public class FronteiraPareto
      * @param particulas Lista de partícula.
      * @param particula Partícula.
      */
-    public void atualizaParticulasNaoDominadas(Collection<Particula> particulas, Particula particula)
+    public void atualizarParticulasNaoDominadas(Collection<Particula> particulas, Particula particula)
     {
         double[] partFit = particula.fitness();
 
@@ -29,10 +29,10 @@ public class FronteiraPareto
             {
                 Particula p = it.next();
                 double[] pfit = p.fitness();
-                if (Double.compare(partFit[0], pfit[0]) >= 0 
+                if (Double.compare(partFit[0], pfit[0]) >= 0
                         && Double.compare(partFit[1], pfit[1]) >= 0
-                        && (Double.compare(partFit[0], pfit[0]) > 0 
-                            || Double.compare(partFit[1], pfit[1]) > 0))
+                        && (Double.compare(partFit[0], pfit[0]) > 0
+                        || Double.compare(partFit[1], pfit[1]) > 0))
                 {
                     removido = true;
                     it.remove();
@@ -50,10 +50,10 @@ public class FronteiraPareto
                 for (Particula p : particulas)
                 {
                     double[] pfit = p.fitness();
-                    if ((Double.compare(partFit[0], pfit[0]) > 0 
+                    if ((Double.compare(partFit[0], pfit[0]) > 0
                             && Double.compare(partFit[1], pfit[1]) >= 0)
-                            || (Double.compare(partFit[0], pfit[0]) >= 0 
-                                && Double.compare(partFit[1], pfit[1]) > 0))
+                            || (Double.compare(partFit[0], pfit[0]) >= 0
+                            && Double.compare(partFit[1], pfit[1]) > 0))
                     {
                         adiciona = true;
                         break;

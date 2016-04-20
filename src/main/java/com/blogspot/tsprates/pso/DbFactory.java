@@ -32,7 +32,7 @@ public class DbFactory {
      *
      * @return Connection
      */
-    public Connection conecta() {
+    public Connection conectar() {
 	try {
 	    return DriverManager.getConnection("jdbc:postgresql://localhost/"
 		    + DB_NAME, USERNAME, PASSWORD);

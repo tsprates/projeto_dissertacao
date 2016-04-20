@@ -6,7 +6,10 @@ import java.util.List;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
@@ -50,7 +53,7 @@ public class Grafico extends ApplicationFrame
 
         for (int i = 0, len = yData.size(); i < len; i++)
         {
-            serie.add((double) i, yData.get(i).doubleValue());
+            serie.add((double) i + 1, yData.get(i).doubleValue());
         }
 
         dataset.addSeries(serie);

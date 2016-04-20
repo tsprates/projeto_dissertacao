@@ -1,6 +1,5 @@
 package com.blogspot.tsprates.pso;
 
-import com.sun.xml.internal.ws.util.StringUtils;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,15 +7,11 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import org.apache.commons.math3.exception.MathIllegalArgumentException;
-import org.apache.commons.math3.stat.descriptive.moment.Mean;
-import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Particles Swarm Optimization (PSO).
@@ -41,8 +36,8 @@ public class App
 
         if (args.length > 0 && Files.exists(Paths.get(args[0])))
         {
-            Connection conexaoDb = new DbFactory().conecta();
-            Properties config = getConfigs(args[0]);
+            Connection conexaoDb = new DbFactory().conectar();
+            Properties config = carregarConfigArquivo(args[0]);
 
             final Formatador format = new Formatador();
 
@@ -51,11 +46,14 @@ public class App
 
             final int exec = 30;
 
-            final Map<String, List<Double>> efetividadeMedia = new HashMap<>();
-            Map<String, List<Double>> efetividade;
+            Pso pso = new Pso(conexaoDb, config, format);
+            final Set<String> classes = pso.getClasses();
 
-            final Map<String, List<Double>> acuraciaMedia = new HashMap<>();
+            Map<String, List<Double>> efetividade;
             Map<String, List<Double>> acuracia;
+
+            List<Double> efetividadeGlobal = new ArrayList<>();
+            List<Double> acuraciaGlobal = new ArrayList<>();
 
             for (int iter = 0; iter < exec; iter++)
             {
@@ -63,78 +61,21 @@ public class App
                 System.out.println("Execução: " + (iter + 1));
                 System.out.println();
 
-                Pso pso = new Pso(conexaoDb, config, format);
                 pso.carrega();
 
                 efetividade = pso.getEfetividade();
                 acuracia = pso.getAcuracia();
 
-                // Inicia efetividade média com valor zero.
-                if (iter == 0)
+                double soma = 0;
+                for (String c : classes)
                 {
-                    for (Entry<String, List<Double>> ent : efetividade.entrySet())
-                    {
-                        final int size = ent.getValue().size();
-
-                        final List<Double> zeros1 = new ArrayList<>(
-                                Collections.nCopies(size, 0.0));
-                        efetividadeMedia.put(ent.getKey(), zeros1);
-
-                        final List<Double> zeros2 = new ArrayList<>(
-                                Collections.nCopies(size, 0.0));
-                        acuraciaMedia.put(ent.getKey(), zeros2);
-                    }
+                    soma += Collections.max(efetividade.get(c));
                 }
-
-                for (Entry<String, List<Double>> ent : efetividade.entrySet())
-                {
-                    final List<Double> lista1 = ent.getValue();
-                    List<Double> efetMed = efetividadeMedia.get(ent.getKey());
-
-                    for (int i = 0, len = lista1.size(); i < len; i++)
-                    {
-                        double valor1 = lista1.get(i);
-                        double valorAtual1 = efetMed.get(i);
-                        efetMed.set(i, valorAtual1 + valor1);
-                    }
-                }
-
-                for (Entry<String, List<Double>> ent : acuracia.entrySet())
-                {
-                    final List<Double> lista2 = ent.getValue();
-                    List<Double> acurMed = acuraciaMedia.get(ent.getKey());
-
-                    for (int i = 0, len = lista2.size(); i < len; i++)
-                    {
-                        double valor2 = lista2.get(i);
-                        double valorAtual2 = acurMed.get(i);
-                        acurMed.set(i, valorAtual2 + valor2);
-                    }
-                }
+                acuraciaGlobal.add(soma / (double) classes.size());
 
             }
 
-            final Set<String> classes = efetividadeMedia.keySet();
-
-            for (String classe : classes)
-            {
-                for (int i = 0, len = efetividadeMedia.get(classe).size(); i < len; i++)
-                {
-                    final List<Double> results1 = efetividadeMedia.get(classe);
-                    double valor = results1.get(i);
-                    efetividadeMedia.get(classe).set(i, valor / (double) exec);
-                }
-
-                for (int i = 0, len = acuraciaMedia.get(classe).size(); i < len; i++)
-                {
-                    final List<Double> results2 = acuraciaMedia.get(classe);
-                    double valor = results2.get(i);
-                    acuraciaMedia.get(classe).set(i, valor / (double) exec);
-                }
-            }
-
-//            graficoEfetividade(tituloGrafico, efetividadeMedia);
-//            mostraMedia(classes, acuraciaMedia, format);
+            graficoAcuraciaGlobal(tituloGrafico, acuraciaGlobal);
         }
         else
         {
@@ -145,12 +86,27 @@ public class App
 
     /**
      *
+     * @param titulo
+     * @param valores
+     */
+    private static void graficoAcuraciaGlobal(final String titulo,
+            List<Double> valores)
+    {
+        final String eixoX = "População";
+        final String eixoY = "Sensibilidade x Especificidade";
+        Grafico g = new Grafico(titulo, eixoX, eixoY);
+        g.adicionaSerie("Mopso", valores);
+        g.mostra();
+    }
+
+    /**
+     *
      * @param classes
      * @param efetividadeMedia
      * @param format
      * @throws MathIllegalArgumentException
      */
-//    private static void mostraMedia(Set<String> classes, final Map<String, List<Double>> efetividadeMedia, final Formatador format)
+//    private static void mostraMedia(Set<String> classes, final Map<String, List<Double>> efetividadeMedia, final Formatador formatar)
 //            throws MathIllegalArgumentException
 //    {
 //        StandardDeviation sd = new StandardDeviation();
@@ -168,12 +124,11 @@ public class App
 //
 //            double desvio = sd.evaluate(v);
 //            double media = mean.evaluate(v);
-//            builder.append(classe).append("\t").append(format.format(media))
-//                    .append("\t").append(format.format(desvio)).append("\n");
+//            builder.append(classe).append("\t").append(formatar.formatar(media))
+//                    .append("\t").append(formatar.formatar(desvio)).append("\n");
 //        }
 //        System.out.println(builder.toString());
 //    }
-
     /**
      * Gráfico de resultados de efetividade.
      *
@@ -192,14 +147,13 @@ public class App
 //        }
 //        g.mostra();
 //    }
-
     /**
      * Retorna arquivo de configurações.
      *
      * @param configFile Configurations
      * @return Properties
      */
-    private static Properties getConfigs(String configFile)
+    private static Properties carregarConfigArquivo(String configFile)
     {
         try (FileInputStream fis = new FileInputStream(configFile))
         {
