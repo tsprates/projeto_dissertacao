@@ -517,6 +517,13 @@ public class Pso
         // a partir de cada objetivo
         gbest.get(tipo).add(new Particula(partobj1));
         gbest.get(tipo).add(new Particula(partobj2));
+        
+        for (Particula p : parts)
+        {
+            fronteiraPareto
+                    .atualizarParticulasNaoDominadas(gbest.get(tipo), new Particula(p));
+        }
+    
     }
 
     /**
