@@ -72,11 +72,11 @@ public class App
                 {
                     soma += Collections.max(efetividade.get(c));
                 }
-                acuraciaGlobal.add(soma / (double) classes.size());
+                efetividadeGlobal.add(soma / (double) classes.size());
 
             }
 
-            graficoAcuraciaGlobal(tituloGrafico, acuraciaGlobal);
+            graficoEfetividadeGlobal(tituloGrafico, efetividadeGlobal);
         }
         else
         {
@@ -90,7 +90,7 @@ public class App
      * @param titulo
      * @param valores
      */
-    private static void graficoAcuraciaGlobal(final String titulo,
+    private static void graficoEfetividadeGlobal(final String titulo,
             List<Double> valores)
     {
         final String eixoX = "População";
