@@ -45,7 +45,7 @@ public class App
             final String tituloGrafico = StringUtils
                     .capitalize(config.getProperty("tabela"));
 
-            final int exec = 10;
+            final int exec = 30;
 
             Pso pso = new Pso(conexaoDb, config, format);
             final Set<String> classes = pso.getClasses();
