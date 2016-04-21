@@ -60,7 +60,7 @@ public class Pso
 
     private final int maxIter;
 
-    private final int numPop;
+    private final int numParts;
 
     private String[] colunas;
 
@@ -105,14 +105,14 @@ public class Pso
         this.cr = Double.valueOf(props.getProperty("cr"));
         this.mutOper = Double.valueOf(props.getProperty("mutoper"));
         this.mutAdd = Double.valueOf(props.getProperty("mutadd"));
-        this.numPop = Integer.valueOf(props.getProperty("npop"));
+        this.numParts = Integer.valueOf(props.getProperty("npop"));
         this.maxIter = Integer.valueOf(props.getProperty("maxiter"));
 
         carregarColunas();
         carregarClassesDeSaida();
         criarMapaSaidaId();
         carregarMaxMinEntradas();
-        carregarTotalCadaNicho();
+        carregarTotalNichoEnxame();
 
         // calcular fitness
         this.fitness = new Fitness(c, colId, tabela, saidas);
@@ -126,17 +126,21 @@ public class Pso
     /**
      * Carrega PSO.
      */
-    public void carrega()
+    public void carregar()
     {
         resetGBest();
 
-        this.particulas = geraPopulacaoInicial();
+        this.particulas = getEnxameInicial();
+
+        final int turbulence = 3;
 
         long tempoInicial = System.nanoTime();
         for (int i = 0; i < maxIter; i++)
         {
-            for (Particula part : particulas)
+            for (int j = 0; j < numParts; j++)
             {
+                Particula part = particulas.get(j);
+
                 // gbest
                 String classe = part.classe();
                 Set<Particula> gbestParts = gbest.get(classe);
@@ -147,9 +151,16 @@ public class Pso
                 part.atualizaPbest();
 
                 atualizaPosicao(part);
+
+                // operador de turbulência
+                if ((j % turbulence) == 0)
+                {
+                    perturbar(part);
+                }
+
             }
 
-//            System.out.println("Iteração: " + (i + 1));
+            System.out.println("Iteração: " + (i + 1));
         }
 
         long tempoFinal = System.nanoTime();
@@ -159,108 +170,6 @@ public class Pso
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
         System.out.println("Tempo decorrido: " + tempoDecorrido);
         System.out.println();
-    }
-
-    /**
-     * Retorna tipos de saída.
-     *
-     * @return Tipos de saída.
-     */
-    public Set<String> getClasses()
-    {
-        return tipoSaidas;
-    }
-
-    /**
-     * Retorna mapa das classes com a efetividade de cada partícula.
-     *
-     * @return Mapa das classes com a efetividade de cada partícula.
-     */
-    public Map<String, List<Double>> getEfetividade()
-    {
-        return efetividade;
-    }
-
-    /**
-     * Retorna mapa das classes com a acuracia de cada partícula.
-     *
-     * @return Mapa das classes com a efetividade de cada partícula.
-     */
-    public Map<String, List<Double>> getAcuracia()
-    {
-        return acuracia;
-    }
-
-    /**
-     * Cria GBest.
-     */
-    private void criaGBest()
-    {
-        // Lista não dominados (gbest)
-        for (String cl : saidas.keySet())
-        {
-            gbest.put(cl, new HashSet<Particula>());
-        }
-    }
-
-    /**
-     * Cria GBest.
-     */
-    private void resetGBest()
-    {
-        // Lista não dominados (gbest)
-        for (String cl : saidas.keySet())
-        {
-            gbest.get(cl).clear();
-        }
-    }
-
-    /**
-     * Solução encontrada.
-     *
-     */
-    private void mostraResultados()
-    {
-        System.out.println();
-
-        StringBuilder builder = new StringBuilder(
-                "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
-
-        for (Entry<String, Set<Particula>> parts : gbest.entrySet())
-        {
-
-            String classe = parts.getKey();
-
-            for (Particula part : parts.getValue())
-            {
-                builder.append(classe);
-
-                double[] d = part.fitness();
-                for (int i = 0, len = d.length; i < len; i++)
-                {
-                    builder.append("\t").append(format.formatar(d[i]));
-                }
-
-                builder.append("\t").append(part.whereSql()).append("\n");
-            }
-        }
-
-        for (String saida : tipoSaidas)
-        {
-            efetividade.put(saida, new ArrayList<Double>());
-            acuracia.put(saida, new ArrayList<Double>());
-        }
-
-        for (Particula part : particulas)
-        {
-            double[] fit = part.fitness();
-            efetividade.get(part.classe()).add(fit[1]);
-            acuracia.get(part.classe()).add(fit[2]);
-        }
-
-        builder.append("\n");
-
-        System.out.println(builder.toString());
     }
 
     /**
@@ -295,21 +204,21 @@ public class Pso
     }
 
     /**
-     * Crossover.
-     * 
+     * Operador de crossover.
+     *
      * @param best
      * @param posSize
      * @param pos
-     * @param part 
+     * @param part
      */
-    private void recombinar(Set<Particula> best, 
-            final int posSize, 
-            List<String> pos, 
+    private void recombinar(Set<Particula> best,
+            final int posSize,
+            List<String> pos,
             Particula part)
     {
         final Particula bestPart = getCondAleatoria(best);
         final List<String> bestPos = new ArrayList<>(bestPart.posicao());
-        
+
         List<String> newPos = new ArrayList<>();
         int i = 0;
         int bestPosSize = bestPos.size();
@@ -331,11 +240,11 @@ public class Pso
     }
 
     /**
+     * Busca local.
      *
      * @param p
-     * @throws NumberFormatException
      */
-    private void perturbar(Particula p) throws NumberFormatException
+    private void perturbar(Particula p)
     {
         final int operLen = LISTA_OPERADORES.length;
         List<String> pos = new ArrayList<>(p.posicao());
@@ -370,15 +279,15 @@ public class Pso
     }
 
     /**
-     * Retorna um elemento dentro conjunto das partículas.
+     * Retorna uma partícula aleatória do enxame passado.
      *
-     * @param s
+     * @param enxame
      * @return
      */
-    private Particula getCondAleatoria(Set<Particula> s)
+    private Particula getCondAleatoria(Set<Particula> enxame)
     {
-        Iterator<Particula> it = s.iterator();
-        int i = 0, index = rand.nextInt(s.size());
+        Iterator<Particula> it = enxame.iterator();
+        int i = 0, index = rand.nextInt(enxame.size());
         while (it.hasNext())
         {
             if (i == index)
@@ -518,13 +427,13 @@ public class Pso
     }
 
     /**
-     *  Faz a divisão númerica de cada nicho (dependendo de cada classe).
+     * Faz a divisão númerica de cada nicho (dependendo de cada classe).
      */
-    private void carregarTotalCadaNicho()
+    private void carregarTotalNichoEnxame()
     {
         final int numSaidas = tipoSaidas.size();
-        final int numPopNicho = numPop / numSaidas;
-        int resto = numPop % numSaidas;
+        final int numPopNicho = numParts / numSaidas;
+        int resto = numParts % numSaidas;
 
         for (String i : tipoSaidas)
         {
@@ -545,7 +454,7 @@ public class Pso
      *
      * @return Lista contendo a população de partículas.
      */
-    private List<Particula> geraPopulacaoInicial()
+    private List<Particula> getEnxameInicial()
     {
         List<Particula> nParts = new ArrayList<>();
 
@@ -571,7 +480,7 @@ public class Pso
 
     /**
      * Carrega soluções não dominadas iniciais para cada objetivo.
-     * 
+     *
      * @param tipo
      * @param parts
      */
@@ -676,9 +585,121 @@ public class Pso
     }
 
     /**
+     * Retorna a população de partículas
+     *
+     * @return
+     */
+    public List<Particula> getEnxame()
+    {
+        return particulas;
+    }
+
+    /**
+     * Retorna tipos de saída.
+     *
+     * @return Tipos de saída.
+     */
+    public Set<String> getClasses()
+    {
+        return tipoSaidas;
+    }
+
+    /**
+     * Retorna mapa das classes com a efetividade de cada partícula.
+     *
+     * @return Mapa das classes com a efetividade de cada partícula.
+     */
+    public Map<String, List<Double>> getEfetividade()
+    {
+        return efetividade;
+    }
+
+    /**
+     * Retorna mapa das classes com a acuracia de cada partícula.
+     *
+     * @return Mapa das classes com a efetividade de cada partícula.
+     */
+    public Map<String, List<Double>> getAcuracia()
+    {
+        return acuracia;
+    }
+
+    /**
+     * Cria GBest.
+     */
+    private void criaGBest()
+    {
+        // Lista não dominados (gbest)
+        for (String cl : saidas.keySet())
+        {
+            gbest.put(cl, new HashSet<Particula>());
+        }
+    }
+
+    /**
+     * Cria GBest.
+     */
+    private void resetGBest()
+    {
+        // Lista não dominados (gbest)
+        for (String cl : saidas.keySet())
+        {
+            gbest.get(cl).clear();
+        }
+    }
+
+    /**
+     * Solução encontrada.
+     *
+     */
+    private void mostraResultados()
+    {
+        System.out.println();
+
+        StringBuilder builder = new StringBuilder(
+                "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
+
+        for (Entry<String, Set<Particula>> parts : gbest.entrySet())
+        {
+
+            String classe = parts.getKey();
+
+            for (Particula part : parts.getValue())
+            {
+                builder.append(classe);
+
+                double[] d = part.fitness();
+                for (int i = 0, len = d.length; i < len; i++)
+                {
+                    builder.append("\t").append(format.formatar(d[i]));
+                }
+
+                builder.append("\t").append(part.whereSql()).append("\n");
+            }
+        }
+
+        for (String saida : tipoSaidas)
+        {
+            efetividade.put(saida, new ArrayList<Double>());
+            acuracia.put(saida, new ArrayList<Double>());
+        }
+
+        for (Particula part : particulas)
+        {
+            double[] fit = part.fitness();
+            efetividade.get(part.classe()).add(fit[1]);
+            acuracia.get(part.classe()).add(fit[2]);
+        }
+
+        builder.append("\n");
+
+        System.out.println(builder.toString());
+    }
+
+    /**
      * Lista toda a população.
      */
-    public void mostrarPopulacao()
+    public void mostrarEnxame()
     {
         System.out.println("Classe:");
         for (String classe : saidas.keySet())

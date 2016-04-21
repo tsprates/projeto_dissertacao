@@ -62,7 +62,7 @@ public class App
                 System.out.println("Execução: " + (iter + 1));
                 System.out.println();
 
-                pso.carrega();
+                pso.carregar();
 
                 efetividade = pso.getEfetividade();
                 acuracia = pso.getAcuracia();
