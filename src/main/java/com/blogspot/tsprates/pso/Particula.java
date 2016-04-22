@@ -17,7 +17,9 @@ import org.apache.commons.lang3.StringUtils;
 public class Particula implements Comparable<Particula>
 {
 
-    private Set<String> posicao = new HashSet<>();
+    private Set<String> posicao = new LinkedHashSet<>();
+
+    private String strPos = null;
 
     private String classe;
 
@@ -41,6 +43,7 @@ public class Particula implements Comparable<Particula>
             FronteiraPareto fp)
     {
         this.posicao = new HashSet<>(posicao);
+        this.strPos = join(this.posicao);
         this.fp = fp;
         this.classe = classe;
         this.calculadorFitness = fit;
@@ -75,6 +78,7 @@ public class Particula implements Comparable<Particula>
     public void setPosicao(Collection<String> posicao)
     {
         this.posicao = new HashSet<>(posicao);
+        this.strPos = join(this.posicao);
         this.fitness = this.calculadorFitness.calcular(this);
     }
 
@@ -85,7 +89,7 @@ public class Particula implements Comparable<Particula>
      */
     public String whereSql()
     {
-        return join(posicao);
+        return strPos;
     }
 
     /**
@@ -142,7 +146,7 @@ public class Particula implements Comparable<Particula>
     @Override
     public String toString()
     {
-        return join(this.posicao);
+        return strPos;
     }
 
     /**
@@ -160,7 +164,7 @@ public class Particula implements Comparable<Particula>
      */
     public void setPbest(List<Particula> pbest)
     {
-        this.pbest = new HashSet<>(pbest);
+        this.pbest = new LinkedHashSet<>(pbest);
     }
 
     /**
@@ -175,7 +179,7 @@ public class Particula implements Comparable<Particula>
     public int hashCode()
     {
         int hash = 5;
-        hash = 41 * hash + Objects.hashCode(this.posicao);
+        hash = 11 * hash + Objects.hashCode(this.posicao);
         return hash;
     }
 
@@ -186,44 +190,19 @@ public class Particula implements Comparable<Particula>
         {
             return false;
         }
-
         if (getClass() != obj.getClass())
         {
             return false;
         }
-
         final Particula other = (Particula) obj;
-
-        return Objects.equals(this.posicao, other.posicao);
+        return Objects.equals(this.strPos, other.strPos);
     }
 
     @Override
-    public int compareTo(Particula part)
+    public int compareTo(Particula t)
     {
-        double[] pfit = part.fitness();
-        if (fitness[0] == pfit[0])
-        {
-            if (fitness[1] < pfit[1])
-            {
-                return 1;
-            }
-            else if (fitness[1] < pfit[1])
-            {
-                return 0;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-        else if (fitness[0] < pfit[0])
-        {
-            return 0;
-        }
-        else
-        {
-            return -1;
-        }
+        double[] fit = t.fitness();
+        return (int) (fitness[0] - fit[0] + (fitness[1] - fit[1]) * 2);
     }
 
 }
