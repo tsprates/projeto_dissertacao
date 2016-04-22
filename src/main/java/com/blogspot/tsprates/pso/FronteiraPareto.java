@@ -39,7 +39,8 @@ public class FronteiraPareto
                 }
             }
 
-            if (removido)
+            boolean contem = particulas.contains(particula);
+            if (removido && !contem)
             {
                 particulas.add(new Particula(particula));
             }
@@ -50,17 +51,15 @@ public class FronteiraPareto
                 for (Particula p : particulas)
                 {
                     double[] pfit = p.fitness();
-                    if ((Double.compare(partFit[0], pfit[0]) > 0 
-                                && Double.compare(partFit[1], pfit[1]) >= 0) 
-                            || (Double.compare(partFit[0], pfit[0]) >= 0 
-                                && Double.compare(partFit[1], pfit[1]) > 0))
+                    if ((Double.compare(partFit[0], pfit[0]) > 0) 
+                            || (Double.compare(partFit[1], pfit[1]) > 0))
                     {
                         adiciona = true;
                         break;
                     }
                 }
 
-                if (adiciona)
+                if (adiciona && !contem)
                 {
                     particulas.add(new Particula(particula));
                 }

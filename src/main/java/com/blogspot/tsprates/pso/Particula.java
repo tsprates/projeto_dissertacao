@@ -1,8 +1,8 @@
 package com.blogspot.tsprates.pso;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -16,8 +16,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Particula implements Comparable<Particula>
 {
-
-    private Set<String> posicao = new LinkedHashSet<>();
+    private Set<String> posicao = new HashSet<>();
 
     private String strPos = null;
 
@@ -29,7 +28,7 @@ public class Particula implements Comparable<Particula>
 
     private final InterfaceFitness calculadorFitness;
 
-    private Set<Particula> pbest = new LinkedHashSet<>();
+    private List<Particula> pbest = new ArrayList<>();
 
     /**
      * Construtor.
@@ -43,7 +42,7 @@ public class Particula implements Comparable<Particula>
             FronteiraPareto fp)
     {
         this.posicao = new HashSet<>(posicao);
-        this.strPos = join(this.posicao);
+        this.strPos = join(posicao);
         this.fp = fp;
         this.classe = classe;
         this.calculadorFitness = fit;
@@ -73,7 +72,8 @@ public class Particula implements Comparable<Particula>
     /**
      * Seta nova posição da partícula.
      *
-     * @param posicao Lista de String WHERE de nova posição.
+     * @param posicao
+     *            Lista de String WHERE de nova posição.
      */
     public void setPosicao(Collection<String> posicao)
     {
@@ -105,7 +105,8 @@ public class Particula implements Comparable<Particula>
     /**
      * Seta a classe da partícula.
      *
-     * @param classe Classe da partícula.
+     * @param classe
+     *            Classe da partícula.
      */
     public void setClasse(String classe)
     {
@@ -153,7 +154,7 @@ public class Particula implements Comparable<Particula>
      *
      * @return
      */
-    public Set<Particula> getPbest()
+    public List<Particula> getPbest()
     {
         return pbest;
     }
@@ -164,7 +165,7 @@ public class Particula implements Comparable<Particula>
      */
     public void setPbest(List<Particula> pbest)
     {
-        this.pbest = new LinkedHashSet<>(pbest);
+        this.pbest = new ArrayList<Particula>(pbest);
     }
 
     /**
@@ -179,7 +180,7 @@ public class Particula implements Comparable<Particula>
     public int hashCode()
     {
         int hash = 5;
-        hash = 11 * hash + Objects.hashCode(this.posicao);
+        hash = 41 * hash + Objects.hashCode(this.strPos);
         return hash;
     }
 
@@ -199,10 +200,32 @@ public class Particula implements Comparable<Particula>
     }
 
     @Override
-    public int compareTo(Particula t)
+    public int compareTo(Particula part)
     {
-        double[] fit = t.fitness();
-        return (int) (fitness[0] - fit[0] + (fitness[1] - fit[1]) * 2);
+        double[] pfit = part.fitness();
+        if (fitness[0] == pfit[0])
+        {
+            if (fitness[1] < pfit[1])
+            {
+                return 1;
+            }
+            else if (fitness[1] < pfit[1])
+            {
+                return 0;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+        else if (fitness[0] < pfit[0])
+        {
+            return 0;
+        }
+        else
+        {
+            return -1;
+        }
     }
 
 }

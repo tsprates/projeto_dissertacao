@@ -7,9 +7,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -36,11 +36,8 @@ public class Pso
     // ALTER TABLE wine ADD PRIMARY KEY (id);
     private final Connection conexao;
 
-    private final static String[] LISTA_OPERADORES =
-    {
-        "=", "!=", ">", ">=",
-        "<", ">="
-    };
+    private final static String[] LISTA_OPERADORES = { "=", "!=", ">", ">=",
+            "<", ">=" };
 
     private final Random rand = new Random();
 
@@ -50,7 +47,7 @@ public class Pso
 
     private final Map<String, Set<String>> saidas = new HashMap<>();
 
-    private final Map<String, Set<Particula>> gbest = new HashMap<>();
+    private final Map<String, List<Particula>> gbest = new HashMap<>();
 
     private final FronteiraPareto fronteiraPareto = new FronteiraPareto();
 
@@ -87,9 +84,12 @@ public class Pso
     /**
      * Construtor.
      *
-     * @param c Conexão com banco de dados PostgreSQL.
-     * @param props Propriedades de configuração.
-     * @param f Formatador.
+     * @param c
+     *            Conexão com banco de dados PostgreSQL.
+     * @param props
+     *            Propriedades de configuração.
+     * @param f
+     *            Formatador.
      */
     public Pso(Connection c, Properties props, Formatador f)
     {
@@ -143,9 +143,9 @@ public class Pso
 
                 // gbest
                 String classe = part.classe();
-                Set<Particula> gbestParts = gbest.get(classe);
-                fronteiraPareto
-                        .atualizarParticulasNaoDominadas(gbestParts, part);
+                List<Particula> gbestParts = gbest.get(classe);
+                fronteiraPareto.atualizarParticulasNaoDominadas(gbestParts,
+                        part);
 
                 // pbest
                 part.atualizaPbest();
@@ -175,7 +175,8 @@ public class Pso
     /**
      * Atualiza posição.
      *
-     * @param p Partícula.
+     * @param p
+     *            Partícula.
      */
     private void atualizaPosicao(Particula p)
     {
@@ -188,14 +189,14 @@ public class Pso
         }
 
         // pbest
-        final Set<Particula> pBest = p.getPbest();
+        final List<Particula> pBest = p.getPbest();
         if (c1 > Math.random())
         {
             recombinar(pBest, posSize, pos, p);
         }
 
         // gbest
-        final Set<Particula> gBest = gbest.get(p.classe());
+        final List<Particula> gBest = gbest.get(p.classe());
         if (c2 > Math.random())
         {
             recombinar(gBest, posSize, pos, p);
@@ -206,17 +207,15 @@ public class Pso
     /**
      * Operador de crossover.
      *
-     * @param best
+     * @param pBest
      * @param posSize
      * @param pos
      * @param part
      */
-    private void recombinar(final Set<Particula> best,
-            final int posSize,
-            List<String> pos,
-            Particula part)
+    private void recombinar(final List<Particula> pBest, final int posSize,
+            List<String> pos, Particula part)
     {
-        final Particula bestPart = getCondAleatoria(best);
+        final Particula bestPart = torneio(pBest);
         final List<String> bestPos = new ArrayList<>(bestPart.posicao());
 
         List<String> newPos = new ArrayList<>();
@@ -226,13 +225,13 @@ public class Pso
         {
             if (cr > Math.random())
             {
-                newPos.add(bestPos.get(RandomUtils.nextInt(0, bestPosSize)));
+                newPos.add(bestPos.get(rand.nextInt(bestPosSize)));
                 i++;
             }
 
             if (i < posSize)
             {
-                newPos.add(pos.get(RandomUtils.nextInt(0, posSize)));
+                newPos.add(pos.get(rand.nextInt(posSize)));
                 i++;
             }
         }
@@ -263,8 +262,8 @@ public class Pso
             double novoValor = Double.parseDouble(clausula[1])
                     + RandomUtils.nextDouble(-1, 1);
 
-            pos.add(String.format(Locale.ROOT, "%s %s %.3f",
-                    clausula[0], clausula[1], novoValor));
+            pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0],
+                    clausula[1], novoValor));
         }
         else if (Math.random() < mutAdd)
         {
@@ -274,8 +273,8 @@ public class Pso
         {
             clausula[1] = LISTA_OPERADORES[rand.nextInt(operLen)];
 
-            pos.add(String.format(Locale.ROOT, "%s %s %s",
-                    clausula[0], clausula[1], clausula[2]));
+            pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0],
+                    clausula[1], clausula[2]));
 
         }
 
@@ -288,19 +287,22 @@ public class Pso
      * @param enxame
      * @return
      */
-    private Particula getCondAleatoria(Set<Particula> enxame)
+    private Particula torneio(List<Particula> enxame)
     {
-        Iterator<Particula> it = enxame.iterator();
-        int i = 0, index = rand.nextInt(enxame.size());
-        while (it.hasNext())
+        int size = enxame.size();
+        int i1 = rand.nextInt(size);
+        int i2 = rand.nextInt(size);
+        Particula p1 = enxame.get(i1);
+        Particula p2 = enxame.get(i2);
+        
+        if (Math.random() > 0.5)
         {
-            if (i == index)
-            {
-                return it.next();
-            }
-            i++;
+            return p1;
         }
-        return null;
+        else
+        {
+            return p2;
+        }
     }
 
     /**
@@ -313,7 +315,8 @@ public class Pso
             saidas.put(s, new HashSet<String>());
         }
 
-        String sql = "SELECT " + colSaida + ", " + colId + " AS col_id FROM " + tabela;
+        String sql = "SELECT " + colSaida + ", " + colId + " AS col_id FROM "
+                + tabela;
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery())
@@ -465,22 +468,21 @@ public class Pso
         for (String cls : popNicho.keySet())
         {
             List<Particula> nichoParticulas = new ArrayList<>();
-            
+
             for (int i = 0, len = popNicho.get(cls); i < len; i++)
             {
                 Set<String> pos = criarWhere();
-                
+
                 Particula particula = new Particula(pos, cls, fitness,
                         fronteiraPareto);
-                
-                
+
                 nichoParticulas.add(particula);
-                
+
             }
-            
+
             // seta o gbest para cada nicho
             adicionarInicialGbest(cls, nichoParticulas);
-            
+
             // adiciona novas particulas com o novo nicho
             newParts.addAll(nichoParticulas);
         }
@@ -498,8 +500,8 @@ public class Pso
     {
         for (Particula p : parts)
         {
-            fronteiraPareto
-                    .atualizarParticulasNaoDominadas(gbest.get(tipo), new Particula(p));
+            fronteiraPareto.atualizarParticulasNaoDominadas(gbest.get(tipo),
+                    new Particula(p));
         }
 
     }
@@ -514,7 +516,8 @@ public class Pso
         int numCols = colunas.length;
         Set<String> listaWhere = new HashSet<>();
 
-        int maxWhere = (int) FastMath.log(2.0, RandomUtils.nextDouble(1, numCols)) + 1;
+        int maxWhere = (int) FastMath.log(2.0,
+                RandomUtils.nextDouble(1, numCols)) + 1;
 
         for (int i = 0; i < maxWhere; i++)
         {
@@ -542,13 +545,15 @@ public class Pso
 
         String valor;
 
-        // Verifica se a comparação ocorrerá campo constante (numérico) 
+        // Verifica se a comparação ocorrerá campo constante (numérico)
         // ou com outra coluna
         if (rand.nextDouble() > prob)
         {
-            valor = String.format(Locale.ROOT, "%.3f", RandomUtils.nextDouble(
-                    min.get(colunas[colIndex]),
-                    max.get(colunas[colIndex])));
+            valor = String.format(
+                    Locale.ROOT,
+                    "%.3f",
+                    RandomUtils.nextDouble(min.get(colunas[colIndex]),
+                            max.get(colunas[colIndex])));
         }
         else
         {
@@ -617,7 +622,7 @@ public class Pso
         // Lista não dominados (gbest)
         for (String cl : saidas.keySet())
         {
-            gbest.put(cl, new HashSet<Particula>());
+            gbest.put(cl, new ArrayList<Particula>());
         }
     }
 
@@ -644,12 +649,16 @@ public class Pso
         StringBuilder builder = new StringBuilder(
                 "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
 
-        for (Entry<String, Set<Particula>> parts : gbest.entrySet())
+        for (Entry<String, List<Particula>> parts : gbest.entrySet())
         {
 
             String classe = parts.getKey();
 
-            for (Particula part : parts.getValue())
+            List<Particula> gbest = parts.getValue();
+
+            Collections.sort(gbest);
+
+            for (Particula part : gbest)
             {
                 builder.append(classe);
 
