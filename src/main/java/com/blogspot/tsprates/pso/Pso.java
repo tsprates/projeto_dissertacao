@@ -211,7 +211,7 @@ public class Pso
      * @param pos
      * @param part
      */
-    private void recombinar(Set<Particula> best,
+    private void recombinar(final Set<Particula> best,
             final int posSize,
             List<String> pos,
             Particula part)
@@ -220,8 +220,8 @@ public class Pso
         final List<String> bestPos = new ArrayList<>(bestPart.posicao());
 
         List<String> newPos = new ArrayList<>();
-        int i = 0;
         int bestPosSize = bestPos.size();
+        int i = 0;
         while (i < bestPosSize)
         {
             if (cr > Math.random())
@@ -236,6 +236,7 @@ public class Pso
                 i++;
             }
         }
+
         part.setPosicao(new HashSet<>(newPos));
     }
 
@@ -247,6 +248,7 @@ public class Pso
     private void perturbar(Particula p)
     {
         final int operLen = LISTA_OPERADORES.length;
+
         List<String> pos = new ArrayList<>(p.posicao());
         final int index = rand.nextInt(pos.size());
         String[] clausula = pos.get(index).split(" ");
@@ -261,7 +263,7 @@ public class Pso
             double novoValor = Double.parseDouble(clausula[1])
                     + RandomUtils.nextDouble(-1, 1);
 
-            pos.add(String.format(Locale.ROOT, "%s %s %.2f",
+            pos.add(String.format(Locale.ROOT, "%s %s %.3f",
                     clausula[0], clausula[1], novoValor));
         }
         else if (Math.random() < mutAdd)
@@ -271,8 +273,10 @@ public class Pso
         else
         {
             clausula[1] = LISTA_OPERADORES[rand.nextInt(operLen)];
+
             pos.add(String.format(Locale.ROOT, "%s %s %s",
                     clausula[0], clausula[1], clausula[2]));
+
         }
 
         p.setPosicao(pos);
@@ -456,26 +460,32 @@ public class Pso
      */
     private List<Particula> getEnxameInicial()
     {
-        List<Particula> nParts = new ArrayList<>();
+        List<Particula> newParts = new ArrayList<>();
 
-        for (String tipo : popNicho.keySet())
+        for (String cls : popNicho.keySet())
         {
-            for (int i = 0, len = popNicho.get(tipo); i < len; i++)
+            List<Particula> nichoParticulas = new ArrayList<>();
+            
+            for (int i = 0, len = popNicho.get(cls); i < len; i++)
             {
                 Set<String> pos = criarWhere();
-                String classe = tipo;
-                Particula particula = new Particula(pos, classe, fitness,
+                
+                Particula particula = new Particula(pos, cls, fitness,
                         fronteiraPareto);
-                nParts.add(particula);
+                
+                
+                nichoParticulas.add(particula);
+                
             }
+            
+            // seta o gbest para cada nicho
+            adicionarInicialGbest(cls, nichoParticulas);
+            
+            // adiciona novas particulas com o novo nicho
+            newParts.addAll(nichoParticulas);
         }
 
-        for (String cls : tipoSaidas)
-        {
-            adicionarInicialGbest(cls, nParts);
-        }
-
-        return nParts;
+        return newParts;
     }
 
     /**
@@ -486,44 +496,12 @@ public class Pso
      */
     private void adicionarInicialGbest(String tipo, List<Particula> parts)
     {
-        Particula partobj1 = null;
-        Particula partobj2 = null;
-
-        double[] pfitobj1 = null;
-        double[] pfitobj2 = null;
-
-        for (Particula particula : parts)
-        {
-            double[] pfit = particula.fitness();
-            String cl = particula.classe();
-
-            if (tipo.equals(cl))
-            {
-                if (partobj1 == null || pfit[0] > pfitobj1[0])
-                {
-                    partobj1 = particula;
-                    pfitobj1 = particula.fitness();
-                }
-
-                if (partobj2 == null || pfit[1] > pfitobj2[1])
-                {
-                    partobj2 = particula;
-                    pfitobj2 = particula.fitness();
-                }
-            }
-        }
-
-        // adiciona os melhores indíduos
-        // a partir de cada objetivo
-        gbest.get(tipo).add(new Particula(partobj1));
-        gbest.get(tipo).add(new Particula(partobj2));
-        
         for (Particula p : parts)
         {
             fronteiraPareto
                     .atualizarParticulasNaoDominadas(gbest.get(tipo), new Particula(p));
         }
-    
+
     }
 
     /**
