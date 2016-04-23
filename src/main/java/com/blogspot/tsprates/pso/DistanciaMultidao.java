@@ -8,27 +8,27 @@ import java.util.Map;
 
 public class DistanciaMultidao implements Comparator<Particula>
 {
-    public Map<Particula, Double> rank = new HashMap<>();
+
+    public Map<Particula, Double> ranking = new HashMap<>();
 
     public void atualiza(List<Particula> parts)
     {
         List<Particula> tempPart = new ArrayList<>(parts);
         int numParts = tempPart.size();
 
-        // setup
         for (int i = 0; i < numParts; i++)
         {
-            rank.put(tempPart.get(i), 0.0);
+            ranking.put(tempPart.get(i), 0.0);
         }
 
         if (numParts == 1)
         {
-            rank.put(tempPart.get(0), Double.MAX_VALUE);
+            ranking.put(tempPart.get(0), Double.MAX_VALUE);
         }
 
         if (numParts == 2)
         {
-            rank.put(tempPart.get(numParts - 1), Double.MAX_VALUE);
+            ranking.put(tempPart.get(numParts - 1), Double.MAX_VALUE);
         }
 
         if (numParts > 2)
@@ -51,7 +51,7 @@ public class DistanciaMultidao implements Comparator<Particula>
                             / (objMax[i] - objMin[i] + Double.MIN_VALUE);
                 }
 
-                rank.put(particula, d);
+                ranking.put(particula, d);
             }
         }
 
@@ -60,9 +60,9 @@ public class DistanciaMultidao implements Comparator<Particula>
     @Override
     public int compare(Particula p1, Particula p2)
     {
-        Double temp1 = rank.get(p1);
-        Double temp2 = rank.get(p2);
-                
+        Double temp1 = ranking.get(p1);
+        Double temp2 = ranking.get(p2);
+
         double soma = temp1 - temp2;
 
         if (soma == 0)

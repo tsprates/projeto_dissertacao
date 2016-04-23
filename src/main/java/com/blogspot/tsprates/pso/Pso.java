@@ -36,8 +36,11 @@ public class Pso
     // ALTER TABLE wine ADD PRIMARY KEY (id);
     private final Connection conexao;
 
-    private final static String[] LISTA_OPERADORES = { "=", "!=", ">", ">=",
-            "<", ">=" };
+    private final static String[] LISTA_OPERADORES =
+    {
+        "=", "!=", ">", ">=",
+        "<", ">="
+    };
 
     private final Random rand = new Random();
 
@@ -86,12 +89,9 @@ public class Pso
     /**
      * Construtor.
      *
-     * @param c
-     *            Conexão com banco de dados PostgreSQL.
-     * @param props
-     *            Propriedades de configuração.
-     * @param f
-     *            Formatador.
+     * @param c Conexão com banco de dados PostgreSQL.
+     * @param props Propriedades de configuração.
+     * @param f Formatador.
      */
     public Pso(Connection c, Properties props, Formatador f)
     {
@@ -142,13 +142,13 @@ public class Pso
 
             for (int j = 0; j < numParts; j++)
             {
-                Particula part = particulas.get(j);
-                String classe = part.classe();
+                Particula p = particulas.get(j);
+                String classe = p.classe();
                 List<Particula> gbestParts = gbest.get(classe);
-                fronteiraPareto.atualizarParticulasNaoDominadas(gbestParts,
-                        part);
+                fronteiraPareto.atualizarParticulasNaoDominadas(gbestParts, p);
             }
 
+            // atualiza ranking de partículas não dominadas
             for (String tipo : tipoSaidas)
             {
                 comparador.atualiza(gbest.get(tipo));
@@ -156,14 +156,14 @@ public class Pso
 
             for (int j = 0; j < numParts; j++)
             {
-                Particula part = particulas.get(j);
-                part.atualizaPbest();
-                atualizaPosicao(part);
+                Particula p = particulas.get(j);
+                p.atualizaPbest();
+                atualizaPosicao(p);
 
                 // operador de turbulência
                 if ((j % turbulence) == 0)
                 {
-                    perturbar(part);
+                    perturbar(p);
                 }
 
             }
@@ -183,8 +183,7 @@ public class Pso
     /**
      * Atualiza posição.
      *
-     * @param p
-     *            Partícula.
+     * @param p Partícula.
      */
     private void atualizaPosicao(Particula p)
     {
@@ -200,14 +199,16 @@ public class Pso
         final List<Particula> pBest = p.getPbest();
         if (c1 > Math.random())
         {
-            recombinar(pBest, posSize, pos, p, false);
+            Particula pBestPart = pBest.get(rand.nextInt(pBest.size()));
+            recombinar(pBestPart, posSize, pos, p);
         }
 
         // gbest
         final List<Particula> gBest = gbest.get(p.classe());
         if (c2 > Math.random())
         {
-            recombinar(gBest, posSize, pos, p, true);
+            Particula gbestPart = torneio(gBest);
+            recombinar(gbestPart, posSize, pos, p);
         }
 
     }
@@ -220,24 +221,15 @@ public class Pso
      * @param pos
      * @param part
      */
-    private void recombinar(final List<Particula> best, final int posSize,
-            List<String> pos, Particula part, boolean utilizaRank)
+    private void recombinar(Particula best, int posSize,
+            List<String> pos, Particula part)
     {
-        final Particula bestPart;
-
-        if (utilizaRank)
-        {
-            bestPart = torneio(best);
-        }
-        else
-        {
-            bestPart = best.get(rand.nextInt(best.size()));
-        }
-
-        final List<String> bestPos = new ArrayList<>(bestPart.posicao());
+        final List<String> bestPos = new ArrayList<>(best.posicao());
 
         List<String> newPos = new ArrayList<>();
+
         int bestPosSize = bestPos.size();
+
         int i = 0;
         while (i < bestPosSize)
         {
