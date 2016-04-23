@@ -203,29 +203,31 @@ public class Particula implements Comparable<Particula>
     public int compareTo(Particula part)
     {
         double[] pfit = part.fitness();
+
         if (fitness[0] == pfit[0])
         {
-            if (fitness[1] < pfit[1])
-            {
-                return 1;
-            }
-            else if (fitness[1] < pfit[1])
+            if (fitness[1] == pfit[1])
             {
                 return 0;
             }
-            else
+            else if (fitness[1] < pfit[1])
             {
                 return -1;
+            }
+            else
+            {
+                return 1;
             }
         }
         else if (fitness[0] < pfit[0])
         {
-            return 0;
+            return 1;
         }
         else
         {
             return -1;
         }
+
     }
 
 }
