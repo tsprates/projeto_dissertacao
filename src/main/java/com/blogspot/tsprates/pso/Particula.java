@@ -2,6 +2,7 @@ package com.blogspot.tsprates.pso;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -144,12 +145,6 @@ public class Particula implements Comparable<Particula>
         return "(" + StringUtils.join(l, ") AND (") + ")";
     }
 
-    @Override
-    public String toString()
-    {
-        return strPos;
-    }
-
     /**
      *
      * @return
@@ -174,6 +169,7 @@ public class Particula implements Comparable<Particula>
     public void atualizaPbest()
     {
         fp.atualizarParticulasNaoDominadas(pbest, this);
+        Collections.sort(pbest);
     }
 
     @Override
