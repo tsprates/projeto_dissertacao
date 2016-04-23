@@ -81,6 +81,8 @@ public class Pso
 
     private final Map<String, Integer> popNicho = new HashMap<>();
 
+    private final DistanciaMultidao comparador = new DistanciaMultidao();
+
     /**
      * Construtor.
      *
@@ -137,19 +139,25 @@ public class Pso
         long tempoInicial = System.nanoTime();
         for (int i = 0; i < maxIter; i++)
         {
+
             for (int j = 0; j < numParts; j++)
             {
                 Particula part = particulas.get(j);
-
-                // gbest
                 String classe = part.classe();
                 List<Particula> gbestParts = gbest.get(classe);
                 fronteiraPareto.atualizarParticulasNaoDominadas(gbestParts,
                         part);
+            }
 
-                // pbest
+            for (String tipo : tipoSaidas)
+            {
+                comparador.atualiza(gbest.get(tipo));
+            }
+
+            for (int j = 0; j < numParts; j++)
+            {
+                Particula part = particulas.get(j);
                 part.atualizaPbest();
-
                 atualizaPosicao(part);
 
                 // operador de turbulência
@@ -192,14 +200,14 @@ public class Pso
         final List<Particula> pBest = p.getPbest();
         if (c1 > Math.random())
         {
-            recombinar(pBest, posSize, pos, p);
+            recombinar(pBest, posSize, pos, p, false);
         }
 
         // gbest
         final List<Particula> gBest = gbest.get(p.classe());
         if (c2 > Math.random())
         {
-            recombinar(gBest, posSize, pos, p);
+            recombinar(gBest, posSize, pos, p, true);
         }
 
     }
@@ -207,15 +215,25 @@ public class Pso
     /**
      * Operador de crossover.
      *
-     * @param pBest
+     * @param best
      * @param posSize
      * @param pos
      * @param part
      */
-    private void recombinar(final List<Particula> pBest, final int posSize,
-            List<String> pos, Particula part)
+    private void recombinar(final List<Particula> best, final int posSize,
+            List<String> pos, Particula part, boolean utilizaRank)
     {
-        final Particula bestPart = torneio(pBest);
+        final Particula bestPart;
+
+        if (utilizaRank)
+        {
+            bestPart = torneio(best);
+        }
+        else
+        {
+            bestPart = best.get(rand.nextInt(best.size()));
+        }
+
         final List<String> bestPos = new ArrayList<>(bestPart.posicao());
 
         List<String> newPos = new ArrayList<>();
@@ -290,12 +308,14 @@ public class Pso
     private Particula torneio(List<Particula> enxame)
     {
         int size = enxame.size();
+
         int i1 = rand.nextInt(size);
         int i2 = rand.nextInt(size);
+
         Particula p1 = enxame.get(i1);
         Particula p2 = enxame.get(i2);
-        
-        if (Math.random() > 0.5)
+
+        if (comparador.compare(p1, p2) > 0)
         {
             return p1;
         }
