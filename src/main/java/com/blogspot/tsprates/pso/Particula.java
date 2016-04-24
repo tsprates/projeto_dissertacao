@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Particula implements Comparable<Particula>
 {
+
     private Set<String> posicao = new HashSet<>();
 
     private String strPos = null;
@@ -73,8 +74,7 @@ public class Particula implements Comparable<Particula>
     /**
      * Seta nova posição da partícula.
      *
-     * @param posicao
-     *            Lista de String WHERE de nova posição.
+     * @param posicao Lista de String WHERE de nova posição.
      */
     public void setPosicao(Collection<String> posicao)
     {
@@ -106,8 +106,7 @@ public class Particula implements Comparable<Particula>
     /**
      * Seta a classe da partícula.
      *
-     * @param classe
-     *            Classe da partícula.
+     * @param classe Classe da partícula.
      */
     public void setClasse(String classe)
     {
@@ -155,20 +154,22 @@ public class Particula implements Comparable<Particula>
     }
 
     /**
-     *
+     * Seta pbest.
+     * 
      * @param pbest
      */
     public void setPbest(List<Particula> pbest)
     {
-        this.pbest = new ArrayList<Particula>(pbest);
+        this.pbest = new ArrayList<>(pbest);
     }
 
     /**
-     *
+     * Atualiza pbest (memória da partícula).
+     * 
      */
     public void atualizaPbest()
     {
-        fp.atualizarParticulasNaoDominadas(pbest, this);
+        fp.atualizarParticulas(pbest, this);
         Collections.sort(pbest);
     }
 
@@ -200,13 +201,13 @@ public class Particula implements Comparable<Particula>
     {
         double[] pfit = part.fitness();
 
-        if (fitness[0] == pfit[0])
+        if (fitness[1] == pfit[1])
         {
-            if (fitness[1] == pfit[1])
+            if (fitness[0] == pfit[0])
             {
                 return 0;
             }
-            else if (fitness[1] < pfit[1])
+            else if (fitness[0] < pfit[0])
             {
                 return -1;
             }
@@ -215,13 +216,13 @@ public class Particula implements Comparable<Particula>
                 return 1;
             }
         }
-        else if (fitness[0] < pfit[0])
+        else if (fitness[1] < pfit[1])
         {
-            return 1;
+            return -1;
         }
         else
         {
-            return -1;
+            return 1;
         }
 
     }

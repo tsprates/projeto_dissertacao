@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,17 +24,17 @@ import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.FastMath;
 
+// ALTER TABLE wine ADD COLUMN id SERIAL;
+// UPDATE wine SET id = nextval(pg_get_serial_sequence('wine','id'));
+// ALTER TABLE wine ADD PRIMARY KEY (id);
 /**
- * Classe PSO (Particles Swarm Optimization).
+ * PSO (Particles Swarm Optimization).
  *
  * @author thiago
  */
 public class Pso
 {
 
-    // ALTER TABLE wine ADD COLUMN id SERIAL;
-    // UPDATE wine SET id = nextval(pg_get_serial_sequence('wine','id'));
-    // ALTER TABLE wine ADD PRIMARY KEY (id);
     private final Connection conexao;
 
     private final static String[] LISTA_OPERADORES =
@@ -50,7 +51,9 @@ public class Pso
 
     private final Map<String, Set<String>> saidas = new HashMap<>();
 
-    private final Map<String, List<Particula>> gbest = new HashMap<>();
+    private final Map<String, List<Particula>> repositorio = new HashMap<>();
+
+    private final Map<String, List<Particula>> solucoesNaoDominadas = new HashMap<>();
 
     private final FronteiraPareto fronteiraPareto = new FronteiraPareto();
 
@@ -72,7 +75,7 @@ public class Pso
 
     private final double w, c1, c2;
 
-    private final double cr, mutAdd, mutOper;
+    private final double cr, mut;
 
     private final Fitness fitness;
 
@@ -84,18 +87,20 @@ public class Pso
 
     private final Map<String, Integer> popNicho = new HashMap<>();
 
-    private final DistanciaMultidao comparador = new DistanciaMultidao();
+    private final DistanciaMultidao distMultComp = new DistanciaMultidao();
+
+    private final Comparator<Particula> comp = new Comparador();
 
     /**
      * Construtor.
      *
-     * @param c Conexão com banco de dados PostgreSQL.
+     * @param conexao Conexão com banco de dados PostgreSQL.
      * @param props Propriedades de configuração.
-     * @param f Formatador.
+     * @param formatador Formatador de casas decimais.
      */
-    public Pso(Connection c, Properties props, Formatador f)
+    public Pso(Connection conexao, Properties props, Formatador formatador)
     {
-        this.conexao = c;
+        this.conexao = conexao;
         this.tabela = (props.getProperty("tabela"));
         this.colSaida = props.getProperty("saida");
         this.colId = props.getProperty("id");
@@ -105,8 +110,7 @@ public class Pso
         this.c2 = Double.valueOf(props.getProperty("c2"));
 
         this.cr = Double.valueOf(props.getProperty("cr"));
-        this.mutOper = Double.valueOf(props.getProperty("mutoper"));
-        this.mutAdd = Double.valueOf(props.getProperty("mutadd"));
+        this.mut = Double.valueOf(props.getProperty("mut"));
         this.numParts = Integer.valueOf(props.getProperty("npop"));
         this.maxIter = Integer.valueOf(props.getProperty("maxiter"));
 
@@ -116,13 +120,11 @@ public class Pso
         carregarMaxMinEntradas();
         carregarTotalNichoEnxame();
 
-        // calcular fitness
-        this.fitness = new Fitness(c, colId, tabela, saidas);
+        this.fitness = new Fitness(conexao, colId, tabela, saidas);
 
-        // formata valor numérico
-        format = f;
+        format = formatador;
 
-        criaGBest();
+        criaRepositorio();
     }
 
     /**
@@ -130,7 +132,7 @@ public class Pso
      */
     public void carregar()
     {
-        resetGBest();
+        resetRepositorio();
 
         this.particulas = getEnxameInicial();
 
@@ -144,14 +146,14 @@ public class Pso
             {
                 Particula p = particulas.get(j);
                 String classe = p.classe();
-                List<Particula> gbestParts = gbest.get(classe);
-                fronteiraPareto.atualizarParticulasNaoDominadas(gbestParts, p);
+                List<Particula> gbestParts = repositorio.get(classe);
+                fronteiraPareto.atualizarParticulas(gbestParts, p);
             }
 
-            // atualiza ranking de partículas não dominadas
+            // atualizar ranking de partículas não dominadas
             for (String tipo : tipoSaidas)
             {
-                comparador.atualiza(gbest.get(tipo));
+                distMultComp.atualizar(repositorio.get(tipo));
             }
 
             for (int j = 0; j < numParts; j++)
@@ -163,7 +165,7 @@ public class Pso
                 // operador de turbulência
                 if ((j % turbulence) == 0)
                 {
-                    perturbar(p);
+                    perturbar(p, mut);
                 }
 
             }
@@ -190,10 +192,7 @@ public class Pso
         List<String> pos = new ArrayList<>(p.posicao());
         final int posSize = pos.size();
 
-        if (w > Math.random())
-        {
-            perturbar(p);
-        }
+        perturbar(p, w);
 
         // pbest
         final List<Particula> pBest = p.getPbest();
@@ -204,7 +203,7 @@ public class Pso
         }
 
         // gbest
-        final List<Particula> gBest = gbest.get(p.classe());
+        final List<Particula> gBest = repositorio.get(p.classe());
         if (c2 > Math.random())
         {
             Particula gbestPart = torneio(gBest);
@@ -253,42 +252,46 @@ public class Pso
      * Busca local.
      *
      * @param p
+     * @param pm
      */
-    private void perturbar(Particula p)
+    private void perturbar(Particula p, double pm)
     {
         final int operLen = LISTA_OPERADORES.length;
 
-        List<String> pos = new ArrayList<>(p.posicao());
-        final int index = rand.nextInt(pos.size());
-        String[] clausula = pos.get(index).split(" ");
+        final double sorteio = Math.random();
 
-        if (StringUtils.isNumeric(clausula[2]))
+        if (sorteio < pm)
         {
-            if (Math.random() < mutOper)
+            List<String> pos = new ArrayList<>(p.posicao());
+            final int i = rand.nextInt(pos.size());
+            String[] clausula = pos.get(i).split(" ");
+            
+            if (StringUtils.isNumeric(clausula[2]))
             {
-                clausula[1] = LISTA_OPERADORES[rand.nextInt(operLen)];
+                double novoValor = Double.parseDouble(clausula[1])
+                        + RandomUtils.nextDouble(-1, 1);
+
+                pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0],
+                        clausula[1], novoValor));
             }
+            else 
+            {
+                if (Math.random() < 0.5)
+                {
+                    pos.add(criarCond());
+                }
+                else
+                {
+                    clausula[1] = LISTA_OPERADORES[rand.nextInt(operLen)];
+                    pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0],
+                            clausula[1], clausula[2]));
 
-            double novoValor = Double.parseDouble(clausula[1])
-                    + RandomUtils.nextDouble(-1, 1);
+                }
+            }               
 
-            pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0],
-                    clausula[1], novoValor));
-        }
-        else if (Math.random() < mutAdd)
-        {
-            pos.add(criarCond());
-        }
-        else
-        {
-            clausula[1] = LISTA_OPERADORES[rand.nextInt(operLen)];
-
-            pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0],
-                    clausula[1], clausula[2]));
-
+            p.setPosicao(pos);
         }
 
-        p.setPosicao(pos);
     }
 
     /**
@@ -307,7 +310,7 @@ public class Pso
         Particula p1 = enxame.get(i1);
         Particula p2 = enxame.get(i2);
 
-        if (comparador.compare(p1, p2) > 0)
+        if (distMultComp.compare(p1, p2) > 0)
         {
             return p1;
         }
@@ -493,7 +496,7 @@ public class Pso
             }
 
             // seta o gbest para cada nicho
-            adicionarInicialGbest(cls, nichoParticulas);
+            inicializaRepositorio(cls, nichoParticulas);
 
             // adiciona novas particulas com o novo nicho
             newParts.addAll(nichoParticulas);
@@ -503,17 +506,16 @@ public class Pso
     }
 
     /**
-     * Carrega soluções não dominadas iniciais para cada objetivo.
+     * Carrega soluções iniciais para cada objetivo.
      *
-     * @param tipo
-     * @param parts
+     * @param classe
+     * @param particulas
      */
-    private void adicionarInicialGbest(String tipo, List<Particula> parts)
+    private void inicializaRepositorio(String classe, List<Particula> particulas)
     {
-        for (Particula p : parts)
+        for (Particula p : particulas)
         {
-            fronteiraPareto.atualizarParticulasNaoDominadas(gbest.get(tipo),
-                    new Particula(p));
+            fronteiraPareto.atualizarParticulas(repositorio.get(classe), new Particula(p));
         }
 
     }
@@ -629,24 +631,24 @@ public class Pso
     /**
      * Cria GBest.
      */
-    private void criaGBest()
+    private void criaRepositorio()
     {
         // Lista não dominados (gbest)
         for (String cl : saidas.keySet())
         {
-            gbest.put(cl, new ArrayList<Particula>());
+            repositorio.put(cl, new ArrayList<Particula>());
         }
     }
 
     /**
      * Cria GBest.
      */
-    private void resetGBest()
+    private void resetRepositorio()
     {
         // Lista não dominados (gbest)
         for (String cl : saidas.keySet())
         {
-            gbest.get(cl).clear();
+            repositorio.get(cl).clear();
         }
     }
 
@@ -658,19 +660,21 @@ public class Pso
     {
         System.out.println();
 
+//        criaRepositorioSolucoesNaoDominadas();
         StringBuilder builder = new StringBuilder(
                 "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
 
-        for (Entry<String, List<Particula>> parts : gbest.entrySet())
+        for (Entry<String, List<Particula>> parts
+                : repositorio.entrySet())
         {
 
             String classe = parts.getKey();
 
-            List<Particula> gbest = parts.getValue();
+            List<Particula> resultado = parts.getValue();
 
-            Collections.sort(gbest);
+            Collections.sort(resultado, comp);
 
-            for (Particula part : gbest)
+            for (Particula part : resultado)
             {
                 builder.append(classe);
 
@@ -700,6 +704,23 @@ public class Pso
         builder.append("\n");
 
         System.out.println(builder.toString());
+    }
+
+    private void criaRepositorioSolucoesNaoDominadas()
+    {
+        for (String cl : saidas.keySet())
+        {
+            solucoesNaoDominadas.put(cl, new ArrayList<Particula>());
+        }
+
+        for (String cl : saidas.keySet())
+        {
+            for (Particula p : repositorio.get(cl))
+            {
+                fronteiraPareto.atualizarParticulasNaoDominadas(
+                        solucoesNaoDominadas.get(cl), p);
+            }
+        }
     }
 
     /**

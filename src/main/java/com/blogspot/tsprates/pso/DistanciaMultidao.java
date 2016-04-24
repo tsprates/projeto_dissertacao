@@ -6,14 +6,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Operador da distância de multidão. Baseado no NSGA-II.
+ *
+ * @author thiago
+ */
 public class DistanciaMultidao implements Comparator<Particula>
 {
 
     public Map<Particula, Double> ranking = new HashMap<>();
 
-    public void atualiza(List<Particula> parts)
+    /**
+     * Atualiza os resultado de multidão para cada partícula.
+     *
+     * @param particulas
+     */
+    public void atualizar(List<Particula> particulas)
     {
-        List<Particula> tempPart = new ArrayList<>(parts);
+        List<Particula> tempPart = new ArrayList<>(particulas);
         int numParts = tempPart.size();
 
         for (int i = 0; i < numParts; i++)
