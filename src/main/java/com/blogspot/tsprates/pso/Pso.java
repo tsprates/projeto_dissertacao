@@ -158,13 +158,14 @@ public class Pso
             {
                 Particula p = particulas.get(j);
                 p.atualizaPbest();
-                atualizaPosicao(p);
 
                 // operador de turbulência
                 if ((j % turbulence) == 0)
                 {
                     perturbar(p, mut);
                 }
+
+                atualizaPosicao(p);
 
             }
 
@@ -263,7 +264,7 @@ public class Pso
             List<String> pos = new ArrayList<>(p.posicao());
             final int i = rand.nextInt(pos.size());
             String[] clausula = pos.get(i).split(" ");
-            
+
             if (StringUtils.isNumeric(clausula[2]))
             {
                 double novoValor = Double.parseDouble(clausula[1])
@@ -272,7 +273,7 @@ public class Pso
                 pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0],
                         clausula[1], novoValor));
             }
-            else 
+            else
             {
                 if (Math.random() < 0.5)
                 {
@@ -285,7 +286,7 @@ public class Pso
                             clausula[1], clausula[2]));
 
                 }
-            }               
+            }
 
             p.setPosicao(pos);
         }
@@ -659,7 +660,7 @@ public class Pso
         System.out.println();
 
         Map<String, List<Particula>> solucoesNaoDominadas = getSolucoesNaoDominadas();
-        
+
         StringBuilder builder = new StringBuilder(
                 "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
 
@@ -707,8 +708,8 @@ public class Pso
 
     /**
      * Soluções não dominadas.
-     * 
-     * @return 
+     *
+     * @return
      */
     private Map<String, List<Particula>> getSolucoesNaoDominadas()
     {
@@ -722,7 +723,7 @@ public class Pso
         {
             solucoesNaoDominadas.put(cl, FronteiraPareto.getParticulasNaoDominadas(
                     repositorio.get(cl)));
-            
+
         }
         return solucoesNaoDominadas;
     }
