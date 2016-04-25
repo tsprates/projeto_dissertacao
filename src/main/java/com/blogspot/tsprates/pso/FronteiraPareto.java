@@ -13,38 +13,13 @@ public class FronteiraPareto
 {
 
     /**
-     * Atualiza as partícula.
-     *
-     * @param particulas
-     * @param particula
-     */
-    public void atualizarParticulas(List<Particula> particulas,
-            Particula particula)
-    {
-        atualizarParticulas(particulas, particula, false);
-    }
-
-    /**
-     * Atualiza as partícula não dominadas.
-     *
-     * @param particulas
-     * @param particula
-     */
-    public void atualizarParticulasNaoDominadas(List<Particula> particulas,
-            Particula particula)
-    {
-        atualizarParticulas(particulas, particula, true);
-    }
-
-    /**
      * Adiciona partículas não dominadas.
      *
      * @param particulas Lista de partícula.
      * @param particula Partícula.
-     * @param naoDominadas
      */
-    private void atualizarParticulas(List<Particula> particulas,
-            Particula particula, boolean naoDominadas)
+    public void atualizarParticulas(List<Particula> particulas,
+            Particula particula)
     {
         double[] partFit = particula.fitness();
 
@@ -80,17 +55,7 @@ public class FronteiraPareto
                 for (Particula p : particulas)
                 {
                     double[] pfit = p.fitness();
-                    final boolean testeIf;
-
-                    if (!naoDominadas)
-                    {
-                        testeIf = testarSolucoesInteressantes(partFit, pfit);
-                    }
-                    else
-                    {
-                        testeIf = testarParticulaNaoDominada(partFit, pfit);
-                    }
-
+                    boolean testeIf = testarSolucoesInteressantes(partFit, pfit);
                     if (testeIf)
                     {
                         adiciona = true;
@@ -134,16 +99,5 @@ public class FronteiraPareto
                 && Double.compare(fitPa[1], fitPb[1]) >= 0
                 && (Double.compare(fitPa[0], fitPb[0]) > 0
                 || Double.compare(fitPa[1], fitPb[1]) > 0);
-    }
-
-    /**
-     *
-     * @param partFit
-     * @param pfit
-     */
-    private boolean testarParticulaNaoDominada(double[] partFit, double[] pfit)
-    {
-        return Double.compare(partFit[0], pfit[0]) >= 0
-                && Double.compare(partFit[1], pfit[1]) >= 0;
     }
 }
