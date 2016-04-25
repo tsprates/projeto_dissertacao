@@ -53,8 +53,6 @@ public class Pso
 
     private final Map<String, List<Particula>> repositorio = new HashMap<>();
 
-    private final Map<String, List<Particula>> solucoesNaoDominadas = new HashMap<>();
-
     private final FronteiraPareto fronteiraPareto = new FronteiraPareto();
 
     private final String tabela;
@@ -660,12 +658,13 @@ public class Pso
     {
         System.out.println();
 
-//        criaRepositorioSolucoesNaoDominadas();
+        Map<String, List<Particula>> solucoesNaoDominadas = getSolucoesNaoDominadas();
+        
         StringBuilder builder = new StringBuilder(
                 "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
 
         for (Entry<String, List<Particula>> parts
-                : repositorio.entrySet())
+                : solucoesNaoDominadas.entrySet())
         {
 
             String classe = parts.getKey();
@@ -706,8 +705,14 @@ public class Pso
         System.out.println(builder.toString());
     }
 
-    private void criaRepositorioSolucoesNaoDominadas()
+    /**
+     * Soluções não dominadas.
+     * 
+     * @return 
+     */
+    private Map<String, List<Particula>> getSolucoesNaoDominadas()
     {
+        Map<String, List<Particula>> solucoesNaoDominadas = new HashMap<>();
         for (String cl : saidas.keySet())
         {
             solucoesNaoDominadas.put(cl, new ArrayList<Particula>());
@@ -715,12 +720,11 @@ public class Pso
 
         for (String cl : saidas.keySet())
         {
-            for (Particula p : repositorio.get(cl))
-            {
-                fronteiraPareto.atualizarParticulasNaoDominadas(
-                        solucoesNaoDominadas.get(cl), p);
-            }
+            solucoesNaoDominadas.put(cl, FronteiraPareto.getParticulasNaoDominadas(
+                    repositorio.get(cl)));
+            
         }
+        return solucoesNaoDominadas;
     }
 
     /**

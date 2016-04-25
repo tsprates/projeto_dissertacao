@@ -1,5 +1,6 @@
 package com.blogspot.tsprates.pso;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -87,7 +88,7 @@ public class FronteiraPareto
     }
 
     /**
-     * Testa se o fitness da partícula A domina o fitness da partícula B.
+     * Testa se a partícula A domina a partícula B.
      *
      * @param fitPa Fitness da partícula A.
      * @param fitPb Fitness da partícula B.
@@ -99,5 +100,38 @@ public class FronteiraPareto
                 && Double.compare(fitPa[1], fitPb[1]) >= 0
                 && (Double.compare(fitPa[0], fitPb[0]) > 0
                 || Double.compare(fitPa[1], fitPb[1]) > 0);
+    }
+
+    /**
+     * Soluções não dominadas.
+     * 
+     * @param particulas
+     * @return 
+     */
+    public static List<Particula> getParticulasNaoDominadas(List<Particula> particulas)
+    {
+        List<Particula> particulasNaoDominadas = new ArrayList<>(particulas);
+
+        for (int i = 0, len = particulas.size(); i < len; i++)
+        {
+            Particula part = particulas.get(i);
+            double[] partfit = part.fitness();
+            String partwhere = part.whereSql();
+
+            Iterator<Particula> it = particulasNaoDominadas.iterator();
+            while (it.hasNext())
+            {
+                Particula p = it.next();
+                double[] pfit = p.fitness();
+                String pwhere = p.whereSql();
+
+                if (testarSeParticulaDominaOutra(partfit, pfit)
+                        && !partwhere.equals(pwhere))
+                {
+                    it.remove();
+                }
+            }
+        }
+        return particulasNaoDominadas;
     }
 }
