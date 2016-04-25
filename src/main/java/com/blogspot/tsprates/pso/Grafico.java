@@ -1,5 +1,6 @@
 package com.blogspot.tsprates.pso;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.List;
 
@@ -7,6 +8,8 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
@@ -20,6 +23,8 @@ public class Grafico extends ApplicationFrame
     private final String titulo, eixoX, eixoY;
 
     private final XYSeriesCollection dataset = new XYSeriesCollection();
+
+    private int numSeries = 0;
 
     public Grafico(String titulo, String tituloX, String tituloY)
     {
@@ -55,6 +60,8 @@ public class Grafico extends ApplicationFrame
 
         dataset.addSeries(serie);
 
+        numSeries++;
+
         return this;
     }
 
@@ -63,19 +70,31 @@ public class Grafico extends ApplicationFrame
         JFreeChart chart = ChartFactory.createXYLineChart(titulo,
                 eixoX, eixoY, dataset,
                 PlotOrientation.VERTICAL, true, true, false);
-//        XYPlot plot = setBackground(chart);
+        XYPlot plot = chart.getXYPlot();
+        setBackground(plot);
+        setLineRenderer(plot);
         createChart(chart);
     }
 
-//    private XYPlot setBackground(JFreeChart chart)
-//    {
-//        XYPlot plot = chart.getXYPlot();
-//        plot.setBackgroundPaint(Color.WHITE);
-//        plot.setDomainGridlinePaint(Color.GRAY);
-//        plot.setRangeGridlinePaint(Color.GRAY);
-//        return plot;
-//    }
-    
+    private void setLineRenderer(XYPlot plot)
+    {
+
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        for (int i = 0; i < numSeries; i++)
+        {
+            renderer.setSeriesLinesVisible(i, true);
+            renderer.setSeriesShapesVisible(i, true);
+        }
+        plot.setRenderer(renderer);
+    }
+
+    private void setBackground(XYPlot plot)
+    {
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setDomainGridlinePaint(Color.GRAY);
+        plot.setRangeGridlinePaint(Color.GRAY);
+    }
+
     private void createChart(JFreeChart chart)
     {
         ChartPanel chartPanel = new ChartPanel(chart);
