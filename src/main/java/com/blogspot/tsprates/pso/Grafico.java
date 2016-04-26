@@ -7,6 +7,8 @@ import java.util.List;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
@@ -70,10 +72,22 @@ public class Grafico extends ApplicationFrame
         JFreeChart chart = ChartFactory.createXYLineChart(titulo,
                 eixoX, eixoY, dataset,
                 PlotOrientation.VERTICAL, true, true, false);
+
         XYPlot plot = chart.getXYPlot();
+
         setBackground(plot);
+        setEixoY(plot);
         setLineRenderer(plot);
+
+        chart.setAntiAlias(true);
         createChart(chart);
+    }
+
+    private void setEixoY(XYPlot plot)
+    {
+        NumberAxis range = (NumberAxis) plot.getRangeAxis();
+        range.setRange(0.0, 1.0);
+        range.setTickUnit(new NumberTickUnit(0.1));
     }
 
     private void setLineRenderer(XYPlot plot)
