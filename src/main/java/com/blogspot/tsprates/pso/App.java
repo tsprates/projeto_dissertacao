@@ -51,10 +51,8 @@ public class App
             final Set<String> classes = pso.getClasses();
 
             Map<String, List<Double>> efetividade;
-            Map<String, List<Double>> acuracia;
 
             List<Double> efetividadeGlobal = new ArrayList<>();
-            List<Double> acuraciaGlobal = new ArrayList<>();
 
             for (int iter = 0; iter < exec; iter++)
             {
@@ -65,7 +63,6 @@ public class App
                 pso.carregar();
 
                 efetividade = pso.getEfetividade();
-                acuracia = pso.getAcuracia();
 
                 double soma = 0;
                 for (String c : classes)
