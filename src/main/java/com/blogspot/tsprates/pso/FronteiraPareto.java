@@ -83,8 +83,7 @@ public class FronteiraPareto
      */
     private static boolean testarDominancia(double[] pafit, double[] pbfit)
     {
-        return (Double.compare(pafit[0], pbfit[0]) > 0)
-                || (Double.compare(pafit[1], pbfit[1]) > 0);
+        return (pafit[0] > pbfit[0] || pafit[1] > pbfit[1]);
     }
 
     /**
@@ -96,13 +95,10 @@ public class FronteiraPareto
      *            Fitness da partícula B.
      * @return
      */
-    private static boolean testarSeParticulaDomina(double[] pafit,
-            double[] pbfit)
+    private static boolean testarSeParticulaDomina(double[] pafit, double[] pbfit)
     {
-        return Double.compare(pafit[0], pbfit[0]) >= 0
-                && Double.compare(pafit[1], pbfit[1]) >= 0
-                && (Double.compare(pafit[0], pbfit[0]) > 0 || Double.compare(
-                        pafit[1], pbfit[1]) > 0);
+        return (pafit[0] >= pbfit[0] && pafit[1] >= pbfit[1]
+                && (pafit[0] > pbfit[0] || pafit[1] > pbfit[1]));
     }
 
     /**
