@@ -42,9 +42,6 @@ public class App
 
             final Formatador format = new Formatador();
 
-            final String tituloGrafico = StringUtils
-                    .capitalize(config.getProperty("tabela"));
-
             final int exec = 30;
 
             Pso pso = new Pso(conexaoDb, config, format);
@@ -73,82 +70,27 @@ public class App
 
             }
 
-            graficoEfetividadeGlobal(tituloGrafico, efetividadeGlobal);
+            final String tituloGrafico = StringUtils.capitalize(config
+                    .getProperty("tabela"));
+            final String eixoX = "Execução";
+            final String eixoY = "Sensibilidade x Especificidade";
+            Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
+            g.adicionaSerie("MOPSO", efetividadeGlobal);
+            g.mostra();
         }
         else
         {
-            System.err.println("É necessário definir um arquivo de configuração.");
+            System.err
+                    .println("É necessário definir um arquivo de configuração.");
         }
 
     }
 
     /**
-     *
-     * @param titulo
-     * @param valores
-     */
-    private static void graficoEfetividadeGlobal(final String titulo,
-            List<Double> valores)
-    {
-        final String eixoX = "População";
-        final String eixoY = "Sensibilidade x Especificidade";
-        Grafico g = new Grafico(titulo, eixoX, eixoY);
-        g.adicionaSerie("Mopso", valores);
-        g.mostra();
-    }
-
-    /**
-     *
-     * @param classes
-     * @param efetividadeMedia
-     * @param format
-     * @throws MathIllegalArgumentException
-     */
-//    private static void mostraMedia(Set<String> classes, final Map<String, List<Double>> efetividadeMedia, final Formatador formatar)
-//            throws MathIllegalArgumentException
-//    {
-//        StandardDeviation sd = new StandardDeviation();
-//        Mean mean = new Mean();
-//
-//        StringBuilder builder = new StringBuilder("Classe\tMédia\tDesvio\n\n");
-//        for (String classe : classes)
-//        {
-//            List<Double> val = efetividadeMedia.get(classe);
-//            double[] v = new double[val.size()];
-//            for (int i = 0, len = val.size(); i < len; i++)
-//            {
-//                v[i] = val.get(i);
-//            }
-//
-//            double desvio = sd.evaluate(v);
-//            double media = mean.evaluate(v);
-//            builder.append(classe).append("\t").append(formatar.formatar(media))
-//                    .append("\t").append(formatar.formatar(desvio)).append("\n");
-//        }
-//        System.out.println(builder.toString());
-//    }
-    /**
-     * Gráfico de resultados de efetividade.
-     *
-     * @param tituloGrafico
-     * @param pso
-     */
-//    private static void graficoEfetividade(final String tituloGrafico,
-//            Map<String, List<Double>> mapa)
-//    {
-//        final String eixoX = "População";
-//        final String eixoY = "Sensibilidade x Especificidade";
-//        Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
-//        for (Entry<String, List<Double>> ent : mapa.entrySet())
-//        {
-//            g.adicionaSerie(ent.getKey(), ent.getValue());
-//        }
-//        g.mostra();
-//    }
-    /**
      * Retorna arquivo de configurações.
      *
-     * @param configFile Configurations
+     * @param configFile
+     *            Configurations
      * @return Properties
      */
     private static Properties carregarConfigArquivo(String configFile)

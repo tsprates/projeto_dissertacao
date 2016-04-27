@@ -2,6 +2,7 @@ package com.blogspot.tsprates.pso;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.text.DecimalFormat;
 import java.util.List;
 
 import org.jfree.chart.ChartFactory;
@@ -88,6 +89,9 @@ public class Grafico extends ApplicationFrame
         NumberAxis range = (NumberAxis) plot.getRangeAxis();
         range.setRange(0.0, 1.0);
         range.setTickUnit(new NumberTickUnit(0.05));
+        
+        DecimalFormat df = new DecimalFormat("0.00");
+        range.setNumberFormatOverride(df);
     }
 
     private void setLineRenderer(XYPlot plot)
