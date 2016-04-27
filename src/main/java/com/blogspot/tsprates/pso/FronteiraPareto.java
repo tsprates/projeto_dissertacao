@@ -16,8 +16,10 @@ public class FronteiraPareto
     /**
      * Adiciona partículas não dominadas.
      *
-     * @param particulas Lista de partícula.
-     * @param particula Partícula.
+     * @param particulas
+     *            Lista de partícula.
+     * @param particula
+     *            Partícula.
      */
     public void atualizarParticulas(List<Particula> particulas,
             Particula particula)
@@ -37,7 +39,7 @@ public class FronteiraPareto
             {
                 Particula p = it.next();
                 double[] pfit = p.fitness();
-                if (testarSeParticulaDominaOutra(partFit, pfit))
+                if (testarSeParticulaDomina(partFit, pfit))
                 {
                     removido = true;
                     it.remove();
@@ -56,8 +58,7 @@ public class FronteiraPareto
                 for (Particula p : particulas)
                 {
                     double[] pfit = p.fitness();
-                    boolean testeIf = testarSolucoesInteressantes(partFit, pfit);
-                    if (testeIf)
+                    if (testarDominancia(partFit, pfit))
                     {
                         adiciona = true;
                         break;
@@ -75,40 +76,44 @@ public class FronteiraPareto
     }
 
     /**
-     * Testar por soluções interessantes.
+     * Testar por soluções eficientes.
      *
-     * @param partFit
-     * @param pfit
+     * @param pafit
+     * @param pbfit
      * @return
      */
-    private static boolean testarSolucoesInteressantes(double[] partFit, double[] pfit)
+    private static boolean testarDominancia(double[] pafit, double[] pbfit)
     {
-        return Double.compare(partFit[0], pfit[0]) > 0
-                || Double.compare(partFit[1], pfit[1]) > 0;
+        return (Double.compare(pafit[0], pbfit[0]) > 0)
+                || (Double.compare(pafit[1], pbfit[1]) > 0);
     }
 
     /**
      * Testa se a partícula A domina a partícula B.
      *
-     * @param fitPa Fitness da partícula A.
-     * @param fitPb Fitness da partícula B.
+     * @param pafit
+     *            Fitness da partícula A.
+     * @param pbfit
+     *            Fitness da partícula B.
      * @return
      */
-    private static boolean testarSeParticulaDominaOutra(double[] fitPa, double[] fitPb)
+    private static boolean testarSeParticulaDomina(double[] pafit,
+            double[] pbfit)
     {
-        return Double.compare(fitPa[0], fitPb[0]) >= 0
-                && Double.compare(fitPa[1], fitPb[1]) >= 0
-                && (Double.compare(fitPa[0], fitPb[0]) > 0
-                || Double.compare(fitPa[1], fitPb[1]) > 0);
+        return Double.compare(pafit[0], pbfit[0]) >= 0
+                && Double.compare(pafit[1], pbfit[1]) >= 0
+                && (Double.compare(pafit[0], pbfit[0]) > 0 || Double.compare(
+                        pafit[1], pbfit[1]) > 0);
     }
 
     /**
      * Soluções não dominadas.
      * 
      * @param particulas
-     * @return 
+     * @return Retorna as soluções eficientes.
      */
-    public static List<Particula> getParticulasNaoDominadas(List<Particula> particulas)
+    public static List<Particula> getParticulasNaoDominadas(
+            List<Particula> particulas)
     {
         List<Particula> particulasNaoDominadas = new ArrayList<>(particulas);
 
@@ -121,12 +126,12 @@ public class FronteiraPareto
             Iterator<Particula> it = particulasNaoDominadas.iterator();
             while (it.hasNext())
             {
-                Particula p = it.next();
-                double[] pfit = p.fitness();
-                String pwhere = p.whereSql();
+                Particula pi = it.next();
+                double[] pifit = pi.fitness();
+                String piwhere = pi.whereSql();
 
-                if (testarSeParticulaDominaOutra(partfit, pfit)
-                        && !partwhere.equals(pwhere))
+                if (testarSeParticulaDomina(partfit, pifit)
+                        && !partwhere.equals(piwhere))
                 {
                     it.remove();
                 }
@@ -134,4 +139,5 @@ public class FronteiraPareto
         }
         return particulasNaoDominadas;
     }
+
 }
