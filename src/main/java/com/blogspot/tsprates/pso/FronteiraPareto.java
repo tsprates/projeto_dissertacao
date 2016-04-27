@@ -46,8 +46,7 @@ public class FronteiraPareto
                 }
             }
 
-            boolean contem = particulas.contains(particula);
-            if (removido && !contem)
+            if (removido && !particulas.contains(particula))
             {
                 particulas.add(new Particula(particula));
             }
@@ -65,7 +64,7 @@ public class FronteiraPareto
                     }
                 }
 
-                if (adiciona && !contem)
+                if (adiciona && !particulas.contains(particula))
                 {
                     particulas.add(new Particula(particula));
                 }
