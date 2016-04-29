@@ -42,7 +42,7 @@ public class App
 
             final Formatador format = new Formatador();
 
-            final int exec = 3;
+            final int exec = 30;
 
             Pso pso = new Pso(conexaoDb, config, format);
             final Set<String> classes = pso.getClasses();
@@ -70,6 +70,8 @@ public class App
 
             }
 
+            
+            // mostra o gráfico
             final String tituloGrafico = StringUtils.capitalize(config
                     .getProperty("tabela"));
             final String eixoX = "Execução";

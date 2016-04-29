@@ -23,7 +23,7 @@ public class FronteiraPareto
     public void atualizarParticulas(Collection<Particula> particulas,
             Particula particula)
     {
-        double[] partFit = particula.fitness();
+        double[] partfit = particula.fitness();
 
         if (particulas.isEmpty())
         {
@@ -36,16 +36,16 @@ public class FronteiraPareto
             Iterator<Particula> it = particulas.iterator();
             while (it.hasNext())
             {
-                Particula p = it.next();
-                double[] pfit = p.fitness();
-                if (testarDominancia(partFit, pfit))
+                Particula pi = it.next();
+                double[] pifit = pi.fitness();
+                if (testarDominancia(partfit, pifit))
                 {
                     removido = true;
                     it.remove();
                 }
             }
 
-            if (removido && !particulas.contains(particula))
+            if (removido == true && !particulas.contains(particula))
             {
                 particulas.add(new Particula(particula));
             }
@@ -55,15 +55,15 @@ public class FronteiraPareto
                 boolean adiciona = false;
                 for (Particula p : particulas)
                 {
-                    double[] pfit = p.fitness();
-                    if (testarNaoDominancia(partFit, pfit))
+                    double[] pifit = p.fitness();
+                    if (testarNaoDominancia(partfit, pifit))
                     {
                         adiciona = true;
                         break;
                     }
                 }
 
-                if (adiciona && !particulas.contains(particula))
+                if (adiciona == true && !particulas.contains(particula))
                 {
                     particulas.add(new Particula(particula));
                 }

@@ -140,24 +140,24 @@ public class Pso
 
             for (int j = 0; j < numParts; j++)
             {
-                Particula p = particulas.get(j);
-                String classe = p.classe();
+                Particula particula = particulas.get(j);
+                String classe = particula.classe();
                 List<Particula> gbestParts = repositorio.get(classe);
 
                 // remove partículas não dominadas
-                fronteiraPareto.atualizarParticulas(gbestParts, p);
-                final Collection<Particula> particulasNaoDominadas = FronteiraPareto.getParticulasNaoDominadas(repositorio.get(classe));
+                fronteiraPareto.atualizarParticulas(gbestParts, particula);
+                Collection<Particula> particulasNaoDominadas = FronteiraPareto.getParticulasNaoDominadas(gbestParts);
                 repositorio.put(classe, new ArrayList<>(particulasNaoDominadas));
 
                 // operador de turbulência
                 if ((j % turbulence) == 0)
                 {
-                    perturbar(p, mut);
+                    perturbar(particula, mut);
                 }
 
-                p.atualizaPbest();
+                particula.atualizaPbest();
 
-                atualizaPosicao(p);
+                atualizaPosicao(particula);
 
             }
 
