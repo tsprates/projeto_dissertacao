@@ -1,6 +1,7 @@
 package com.blogspot.tsprates.pso;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -16,12 +17,10 @@ public class FronteiraPareto
     /**
      * Adiciona partículas não dominadas.
      *
-     * @param particulas
-     *            Lista de partícula.
-     * @param particula
-     *            Partícula.
+     * @param particulas Lista de partícula.
+     * @param particula Partícula.
      */
-    public void atualizarParticulas(List<Particula> particulas,
+    public void atualizarParticulas(Collection<Particula> particulas,
             Particula particula)
     {
         double[] partFit = particula.fitness();
@@ -39,7 +38,7 @@ public class FronteiraPareto
             {
                 Particula p = it.next();
                 double[] pfit = p.fitness();
-                if (testarSeParticulaDomina(partFit, pfit))
+                if (testarDominancia(partFit, pfit))
                 {
                     removido = true;
                     it.remove();
@@ -57,7 +56,7 @@ public class FronteiraPareto
                 for (Particula p : particulas)
                 {
                     double[] pfit = p.fitness();
-                    if (testarDominancia(partFit, pfit))
+                    if (testarNaoDominancia(partFit, pfit))
                     {
                         adiciona = true;
                         break;
@@ -70,8 +69,6 @@ public class FronteiraPareto
                 }
             }
         }
-
-        Collections.sort(particulas);
     }
 
     /**
@@ -81,7 +78,7 @@ public class FronteiraPareto
      * @param pbfit
      * @return
      */
-    private static boolean testarDominancia(double[] pafit, double[] pbfit)
+    private static boolean testarNaoDominancia(double[] pafit, double[] pbfit)
     {
         return (pafit[0] > pbfit[0] || pafit[1] > pbfit[1]);
     }
@@ -89,13 +86,11 @@ public class FronteiraPareto
     /**
      * Testa se a partícula A domina a partícula B.
      *
-     * @param pafit
-     *            Fitness da partícula A.
-     * @param pbfit
-     *            Fitness da partícula B.
+     * @param pafit Fitness da partícula A.
+     * @param pbfit Fitness da partícula B.
      * @return
      */
-    private static boolean testarSeParticulaDomina(double[] pafit, double[] pbfit)
+    private static boolean testarDominancia(double[] pafit, double[] pbfit)
     {
         return (pafit[0] >= pbfit[0] && pafit[1] >= pbfit[1]
                 && (pafit[0] > pbfit[0] || pafit[1] > pbfit[1]));
@@ -103,18 +98,17 @@ public class FronteiraPareto
 
     /**
      * Soluções não dominadas.
-     * 
+     *
      * @param particulas
-     * @return Retorna as soluções eficientes.
+     * @return
      */
-    public static List<Particula> getParticulasNaoDominadas(
-            List<Particula> particulas)
+    public static Collection<Particula> getParticulasNaoDominadas(
+            Collection<Particula> particulas)
     {
         List<Particula> particulasNaoDominadas = new ArrayList<>(particulas);
 
-        for (int i = 0, len = particulas.size(); i < len; i++)
+        for (Particula part : particulas)
         {
-            Particula part = particulas.get(i);
             double[] partfit = part.fitness();
             String partwhere = part.whereSql();
 
@@ -125,13 +119,16 @@ public class FronteiraPareto
                 double[] pifit = pi.fitness();
                 String piwhere = pi.whereSql();
 
-                if (testarSeParticulaDomina(partfit, pifit)
+                if (testarDominancia(partfit, pifit)
                         && !partwhere.equals(piwhere))
                 {
                     it.remove();
                 }
             }
         }
+
+        Collections.sort(particulasNaoDominadas);
+
         return particulasNaoDominadas;
     }
 

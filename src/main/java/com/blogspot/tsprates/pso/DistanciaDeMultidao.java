@@ -1,6 +1,7 @@
 package com.blogspot.tsprates.pso;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Map;
  *
  * @author thiago
  */
-public class DistanciaMultidao implements Comparator<Particula>
+public class DistanciaDeMultidao implements Comparator<Particula>
 {
 
     public Map<Particula, Double> ranking = new HashMap<>();
@@ -25,6 +26,10 @@ public class DistanciaMultidao implements Comparator<Particula>
     {
         List<Particula> tempPart = new ArrayList<>(particulas);
         int numParts = tempPart.size();
+
+        Collections.sort(tempPart);
+
+        ranking = new HashMap<>();
 
         for (int i = 0; i < numParts; i++)
         {
@@ -47,12 +52,12 @@ public class DistanciaMultidao implements Comparator<Particula>
             double[] objMax = tempPart.get(0).fitness();
             double[] objMin = tempPart.get(numParts - 1).fitness();
 
-            for (int j = 1, len = numParts - 1; j < len; j++)
+            for (int k = 1, len = numParts - 1; k < len; k++)
             {
-                double[] a = tempPart.get(j + 1).fitness();
-                double[] b = tempPart.get(j - 1).fitness();
+                double[] a = tempPart.get(k + 1).fitness();
+                double[] b = tempPart.get(k - 1).fitness();
 
-                Particula particula = tempPart.get(j);
+                Particula particula = tempPart.get(k);
 
                 double d = 0.0;
                 for (int i = 0; i < 2; i++)

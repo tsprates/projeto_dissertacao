@@ -7,8 +7,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -85,9 +85,7 @@ public class Pso
 
     private final Map<String, Integer> popNicho = new HashMap<>();
 
-    private final DistanciaMultidao distMultComp = new DistanciaMultidao();
-
-    private final Comparator<Particula> comp = new Comparador();
+    private final DistanciaDeMultidao distMultComparator = new DistanciaDeMultidao();
 
     /**
      * Construtor.
@@ -145,25 +143,19 @@ public class Pso
                 Particula p = particulas.get(j);
                 String classe = p.classe();
                 List<Particula> gbestParts = repositorio.get(classe);
+
+                // remove partículas não dominadas
                 fronteiraPareto.atualizarParticulas(gbestParts, p);
-            }
-
-            // atualizar ranking de partículas não dominadas
-            for (String tipo : tipoSaidas)
-            {
-                distMultComp.atualizar(repositorio.get(tipo));
-            }
-
-            for (int j = 0; j < numParts; j++)
-            {
-                Particula p = particulas.get(j);
-                p.atualizaPbest();
+                final Collection<Particula> particulasNaoDominadas = FronteiraPareto.getParticulasNaoDominadas(repositorio.get(classe));
+                repositorio.put(classe, new ArrayList<>(particulasNaoDominadas));
 
                 // operador de turbulência
                 if ((j % turbulence) == 0)
                 {
                     perturbar(p, mut);
                 }
+
+                p.atualizaPbest();
 
                 atualizaPosicao(p);
 
@@ -194,15 +186,17 @@ public class Pso
         perturbar(p, w);
 
         // pbest
-        final List<Particula> pBest = p.getPbest();
+        final List<Particula> pBest = new ArrayList<>(p.getPbest());
         if (c1 > Math.random())
         {
-            Particula pBestPart = pBest.get(rand.nextInt(pBest.size()));
+            final int index = rand.nextInt(pBest.size());
+            Particula pBestPart = pBest.get(index);
             recombinar(pBestPart, posSize, pos, p);
         }
 
         // gbest
         final List<Particula> gBest = repositorio.get(p.classe());
+        distMultComparator.atualizar(gBest);
         if (c2 > Math.random())
         {
             Particula gbestPart = torneio(gBest);
@@ -309,7 +303,7 @@ public class Pso
         Particula p1 = enxame.get(i1);
         Particula p2 = enxame.get(i2);
 
-        if (distMultComp.compare(p1, p2) > 0)
+        if (distMultComparator.compare(p1, p2) > 0)
         {
             return p1;
         }
@@ -514,7 +508,7 @@ public class Pso
     {
         for (Particula p : particulas)
         {
-            fronteiraPareto.atualizarParticulas(repositorio.get(classe), new Particula(p));
+            fronteiraPareto.atualizarParticulas(repositorio.get(classe), p);
         }
 
     }
@@ -633,9 +627,9 @@ public class Pso
     private void criaRepositorio()
     {
         // Lista não dominados (gbest)
-        for (String cl : saidas.keySet())
+        for (String classe : tipoSaidas)
         {
-            repositorio.put(cl, new ArrayList<Particula>());
+            repositorio.put(classe, new ArrayList<Particula>());
         }
     }
 
@@ -645,9 +639,9 @@ public class Pso
     private void resetRepositorio()
     {
         // Lista não dominados (gbest)
-        for (String cl : saidas.keySet())
+        for (String classe : tipoSaidas)
         {
-            repositorio.get(cl).clear();
+            repositorio.get(classe).clear();
         }
     }
 
@@ -659,7 +653,7 @@ public class Pso
     {
         System.out.println();
 
-        Map<String, List<Particula>> solucoesNaoDominadas = getSolucoesNaoDominadas();
+        Map<String, List<Particula>> solucoesNaoDominadas = repositorio;
 
         StringBuilder builder = new StringBuilder(
                 "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
@@ -672,7 +666,7 @@ public class Pso
 
             List<Particula> resultado = parts.getValue();
 
-            Collections.sort(resultado, comp);
+            Collections.sort(resultado);
 
             for (Particula part : resultado)
             {
@@ -704,28 +698,6 @@ public class Pso
         builder.append("\n");
 
         System.out.println(builder.toString());
-    }
-
-    /**
-     * Soluções não dominadas.
-     *
-     * @return
-     */
-    private Map<String, List<Particula>> getSolucoesNaoDominadas()
-    {
-        Map<String, List<Particula>> solucoesNaoDominadas = new HashMap<>();
-        for (String cl : saidas.keySet())
-        {
-            solucoesNaoDominadas.put(cl, new ArrayList<Particula>());
-        }
-
-        for (String cl : saidas.keySet())
-        {
-            solucoesNaoDominadas.put(cl, FronteiraPareto.getParticulasNaoDominadas(
-                    repositorio.get(cl)));
-
-        }
-        return solucoesNaoDominadas;
     }
 
     /**

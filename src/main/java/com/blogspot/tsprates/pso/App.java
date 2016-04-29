@@ -42,7 +42,7 @@ public class App
 
             final Formatador format = new Formatador();
 
-            final int exec = 30;
+            final int exec = 3;
 
             Pso pso = new Pso(conexaoDb, config, format);
             final Set<String> classes = pso.getClasses();

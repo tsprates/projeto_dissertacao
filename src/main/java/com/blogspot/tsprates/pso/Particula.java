@@ -2,7 +2,6 @@ package com.blogspot.tsprates.pso;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +29,7 @@ public class Particula implements Comparable<Particula>
 
     private final InterfaceFitness calculadorFitness;
 
-    private List<Particula> pbest = new ArrayList<>();
+    private Set<Particula> pbest;
 
     /**
      * Construtor.
@@ -47,9 +46,11 @@ public class Particula implements Comparable<Particula>
         this.strPos = join(posicao);
         this.fp = fp;
         this.classe = classe;
+        this.pbest = new HashSet<>();
+        
         this.calculadorFitness = fit;
         final Particula that = this;
-        this.fitness = this.calculadorFitness.calcular(that);
+        this.fitness = calculadorFitness.calcular(that);
     }
 
     /**
@@ -80,7 +81,7 @@ public class Particula implements Comparable<Particula>
     {
         this.posicao = new HashSet<>(posicao);
         this.strPos = join(this.posicao);
-        this.fitness = this.calculadorFitness.calcular(this);
+        this.fitness = calculadorFitness.calcular(this);
     }
 
     /**
@@ -89,6 +90,12 @@ public class Particula implements Comparable<Particula>
      * @return String WHERE SQL.
      */
     public String whereSql()
+    {
+        return strPos;
+    }
+    
+    @Override
+    public String toString()
     {
         return strPos;
     }
@@ -148,7 +155,7 @@ public class Particula implements Comparable<Particula>
      *
      * @return
      */
-    public List<Particula> getPbest()
+    public Collection<Particula> getPbest()
     {
         return pbest;
     }
@@ -160,7 +167,7 @@ public class Particula implements Comparable<Particula>
      */
     public void setPbest(List<Particula> pbest)
     {
-        this.pbest = new ArrayList<>(pbest);
+        this.pbest = new HashSet<>(pbest);
     }
 
     /**
@@ -170,7 +177,7 @@ public class Particula implements Comparable<Particula>
     public void atualizaPbest()
     {
         fp.atualizarParticulas(pbest, this);
-        Collections.sort(pbest);
+        this.pbest = new HashSet<>(FronteiraPareto.getParticulasNaoDominadas(pbest));
     }
 
     @Override
