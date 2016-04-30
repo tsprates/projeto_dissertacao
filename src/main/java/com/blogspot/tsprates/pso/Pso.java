@@ -199,7 +199,20 @@ public class Pso
         distMultComparator.atualizar(gBest);
         if (c2 > Math.random())
         {
-            Particula gbestPart = torneio(gBest);
+            Particula gbestPart;
+            final int size = gBest.size();
+            Particula p1 = gBest.get(rand.nextInt(size));
+            Particula p2 = gBest.get(rand.nextInt(size));
+
+            if (distMultComparator.compare(p1, p2) > 0)
+            {
+                gbestPart = p1;
+            }
+            else
+            {
+                gbestPart = p2;
+            }
+
             recombinar(gbestPart, posSize, pos, p);
         }
 
@@ -285,32 +298,6 @@ public class Pso
             p.setPosicao(pos);
         }
 
-    }
-
-    /**
-     * Retorna uma partícula aleatória do enxame passado.
-     *
-     * @param enxame
-     * @return
-     */
-    private Particula torneio(List<Particula> enxame)
-    {
-        int size = enxame.size();
-
-        int i1 = rand.nextInt(size);
-        int i2 = rand.nextInt(size);
-
-        Particula p1 = enxame.get(i1);
-        Particula p2 = enxame.get(i2);
-
-        if (distMultComparator.compare(p1, p2) > 0)
-        {
-            return p1;
-        }
-        else
-        {
-            return p2;
-        }
     }
 
     /**
