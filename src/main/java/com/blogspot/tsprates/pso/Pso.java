@@ -144,8 +144,8 @@ public class Pso
                 String classe = particula.classe();
                 List<Particula> gbestParts = repositorio.get(classe);
 
-                // remove partículas não dominadas
                 fronteiraPareto.atualizarParticulas(gbestParts, particula);
+                // remove partículas não dominadas
                 Collection<Particula> particulasNaoDominadas = FronteiraPareto.getParticulasNaoDominadas(gbestParts);
                 repositorio.put(classe, new ArrayList<>(particulasNaoDominadas));
 
@@ -163,10 +163,21 @@ public class Pso
 
             System.out.println("Iteração: " + (i + 1));
         }
+        
+        for (String saida : tipoSaidas)
+        {
+            efetividade.put(saida, new ArrayList<Double>());
+            acuracia.put(saida, new ArrayList<Double>());
+        }
+
+        for (Particula part : particulas)
+        {
+            double[] fit = part.fitness();
+            efetividade.get(part.classe()).add(fit[1]);
+            acuracia.get(part.classe()).add(fit[2]);
+        }
 
         long tempoFinal = System.nanoTime();
-
-        mostraResultados();
 
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
         System.out.println("Tempo decorrido: " + tempoDecorrido);
@@ -636,7 +647,7 @@ public class Pso
      * Solução encontrada.
      *
      */
-    private void mostraResultados()
+    public void mostrarResultados()
     {
         System.out.println();
 
@@ -668,20 +679,7 @@ public class Pso
                 builder.append("\t").append(part.whereSql()).append("\n");
             }
         }
-
-        for (String saida : tipoSaidas)
-        {
-            efetividade.put(saida, new ArrayList<Double>());
-            acuracia.put(saida, new ArrayList<Double>());
-        }
-
-        for (Particula part : particulas)
-        {
-            double[] fit = part.fitness();
-            efetividade.get(part.classe()).add(fit[1]);
-            acuracia.get(part.classe()).add(fit[2]);
-        }
-
+        
         builder.append("\n");
 
         System.out.println(builder.toString());

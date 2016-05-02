@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +49,7 @@ public class App
             Pso pso = new Pso(conexaoDb, config, format);
             final Set<String> classes = pso.getClasses();
 
-            Map<String, List<Double>> efetividade;
+            Map<String, List<Double>> efetividade = null;
 
             List<Double> efetividadeGlobal = new ArrayList<>();
 
@@ -58,32 +60,31 @@ public class App
                 System.out.println();
 
                 pso.carregar();
+                pso.mostrarResultados();
 
                 efetividade = pso.getEfetividade();
-
                 double soma = 0;
                 for (String c : classes)
                 {
                     soma += Collections.max(efetividade.get(c));
                 }
                 efetividadeGlobal.add(soma / (double) classes.size());
-
             }
 
-            
             // mostra o gráfico
-            final String tituloGrafico = StringUtils.capitalize(config
-                    .getProperty("tabela"));
+            final String tituloGrafico = StringUtils
+                    .capitalize(config.getProperty("tabela"));
             final String eixoX = "Execução";
             final String eixoY = "Sensibilidade x Especificidade";
             Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
             g.adicionaSerie("MOPSO", efetividadeGlobal);
             g.mostra();
+
         }
         else
         {
-            System.err
-                    .println("É necessário definir um arquivo de configuração.");
+            System.err.println(
+                    "É necessário definir um arquivo de configuração.");
         }
 
     }
