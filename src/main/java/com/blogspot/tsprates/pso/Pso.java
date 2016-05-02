@@ -284,7 +284,7 @@ public class Pso
             {
                 if (Math.random() < 0.5)
                 {
-                    pos.add(criarCond());
+                    pos.add(criarCondicao());
                 }
                 else
                 {
@@ -510,12 +510,12 @@ public class Pso
         int numCols = colunas.length;
         Set<String> listaWhere = new HashSet<>();
 
-        int maxWhere = (int) FastMath.log(2.0,
-                RandomUtils.nextDouble(1, numCols)) + 1;
+        int maxWhere = (int) Math.ceil(FastMath.log(2.0, 
+                RandomUtils.nextDouble(2, numCols))) + 1;
 
         for (int i = 0; i < maxWhere; i++)
         {
-            String cond = criarCond();
+            String cond = criarCondicao();
             listaWhere.add(cond);
         }
 
@@ -527,7 +527,7 @@ public class Pso
      *
      * @return
      */
-    private String criarCond()
+    private String criarCondicao()
     {
         final int numOper = LISTA_OPERADORES.length;
         final int numCols = colunas.length;

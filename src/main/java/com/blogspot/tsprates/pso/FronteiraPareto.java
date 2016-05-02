@@ -74,8 +74,8 @@ public class FronteiraPareto
     /**
      * Testar por soluções eficientes.
      *
-     * @param pafit
-     * @param pbfit
+     * @param pafit Partícula A.
+     * @param pbfit Partícula B.
      * @return
      */
     private static boolean testarNaoDominancia(double[] pafit, double[] pbfit)

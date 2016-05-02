@@ -35,10 +35,11 @@ public class Particula implements Comparable<Particula>
      *
      * @param posicao
      * @param classe
-     * @param fit
+     * @param fitness
      * @param fp
      */
-    public Particula(Set<String> posicao, String classe, Fitness fit, FronteiraPareto fp)
+    public Particula(Set<String> posicao, String classe, Fitness fitness, 
+            FronteiraPareto fp)
     {
         this.posicao = new HashSet<>(posicao);
         this.strPos = join(posicao);
@@ -46,7 +47,8 @@ public class Particula implements Comparable<Particula>
         this.classe = classe;
         this.pbest = new HashSet<>();
         
-        this.calculadorFitness = fit;
+        this.calculadorFitness = fitness;
+        
         final Particula that = this;
         this.fitness = calculadorFitness.calcular(that);
     }
