@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +47,7 @@ public class App
             Pso pso = new Pso(conexaoDb, config, format);
             final Set<String> classes = pso.getClasses();
 
-            Map<String, List<Double>> efetividade = null;
+            Map<String, List<Double>> efetividade;
 
             List<Double> efetividadeGlobal = new ArrayList<>();
 
