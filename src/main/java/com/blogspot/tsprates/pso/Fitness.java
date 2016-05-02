@@ -14,7 +14,7 @@ import java.util.Set;
  *
  * @author thiago
  */
-public class Fitness implements InterfaceFitness
+public class Fitness
 {
 
     private final Connection conexao;
@@ -54,7 +54,6 @@ public class Fitness implements InterfaceFitness
     /**
      * Calcula fitness.
      */
-    @Override
     public double[] calcular(Particula p)
     {
         final double[] r = calc(p);

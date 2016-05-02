@@ -26,7 +26,7 @@ public class Particula implements Comparable<Particula>
 
     private double[] fitness;
 
-    private final InterfaceFitness calculadorFitness;
+    private final Fitness calculadorFitness;
 
     private Set<Particula> pbest;
 
@@ -38,8 +38,7 @@ public class Particula implements Comparable<Particula>
      * @param fit
      * @param fp
      */
-    public Particula(Set<String> posicao, String classe, InterfaceFitness fit,
-            FronteiraPareto fp)
+    public Particula(Set<String> posicao, String classe, Fitness fit, FronteiraPareto fp)
     {
         this.posicao = new HashSet<>(posicao);
         this.strPos = join(posicao);
