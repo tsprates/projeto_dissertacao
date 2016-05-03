@@ -86,6 +86,8 @@ public class Pso
     private final Map<String, Integer> popNicho = new HashMap<>();
 
     private final DistanciaDeMultidao distMultComparator = new DistanciaDeMultidao();
+    
+    private final double turbulencia = 3; // 30% 
 
     /**
      * Construtor.
@@ -129,17 +131,21 @@ public class Pso
     public void carregar()
     {
         resetRepositorio();
+        
+        fitness.setNumAvaliacao(0);
 
         this.particulas = getEnxameInicial();
-
-        final int turbulence = 3;
+        
 
         long tempoInicial = System.nanoTime();
-        for (int i = 0; i < maxIter; i++)
+        int i = 0;
+//        for (int i = 0; i < maxIter; i++)
+        while (fitness.getNumAvaliacao() < maxIter)
         {
 
             for (int j = 0; j < numParts; j++)
             {
+                // gbest
                 Particula particula = particulas.get(j);
                 String classe = particula.classe();
                 List<Particula> gbestParts = repositorio.get(classe);
@@ -150,18 +156,17 @@ public class Pso
                 repositorio.put(classe, new ArrayList<>(particulasNaoDominadas));
 
                 // operador de turbulência
-                if ((j % turbulence) == 0)
-                {
-                    perturbar(particula, mut);
-                }
+                turbulencia(j, particula);
 
+                // pbest
                 particula.atualizaPbest();
 
+                // atualiza posição da partícula
                 atualizaPosicao(particula);
-
             }
 
             System.out.println("Iteração: " + (i + 1));
+            i++;
         }
         
         for (String saida : tipoSaidas)
@@ -177,11 +182,27 @@ public class Pso
             acuracia.get(part.classe()).add(fit[2]);
         }
 
-        long tempoFinal = System.nanoTime();
 
+        long tempoFinal = System.nanoTime();
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
+        
+        System.out.println();
         System.out.println("Tempo decorrido: " + tempoDecorrido);
         System.out.println();
+    }
+
+    /**
+     * Operador de turbulência.
+     * 
+     * @param iter
+     * @param particula 
+     */
+    private void turbulencia(double iter, Particula particula)
+    {
+        if ((iter % turbulencia) == 0)
+        {
+            perturbar(particula, mut);
+        }
     }
 
     /**
@@ -210,21 +231,18 @@ public class Pso
         distMultComparator.atualizar(gBest);
         if (c2 > Math.random())
         {
-            Particula gbestPart;
             final int size = gBest.size();
             Particula p1 = gBest.get(rand.nextInt(size));
             Particula p2 = gBest.get(rand.nextInt(size));
 
             if (distMultComparator.compare(p1, p2) > 0)
             {
-                gbestPart = p1;
+                recombinar(p1, posSize, pos, p);
             }
             else
             {
-                gbestPart = p2;
+                recombinar(p2, posSize, pos, p);
             }
-
-            recombinar(gbestPart, posSize, pos, p);
         }
 
     }
@@ -312,7 +330,8 @@ public class Pso
     }
 
     /**
-     * Mapia de todas as saídas (classes) possíves para cada id da tupla.
+     * Mapeia de todas as saídas (classes) possíves para cada id da tupla.
+     * 
      */
     private void criarMapaSaidaId()
     {

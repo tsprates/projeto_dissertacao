@@ -28,6 +28,8 @@ public class Fitness
     private List<String> resultado;
 
     private int totalSize = 0;
+    
+    private long numAvaliacao = 0;
 
     /**
      * Construtor.
@@ -53,10 +55,13 @@ public class Fitness
 
     /**
      * Calcula fitness.
+     * 
+     * @param p Partículas.
+     * @return Array contendo complexidade WHERE, efetividade e acurácia.
      */
     public double[] calcular(Particula p)
     {
-        final double[] r = calc(p);
+        final double[] r = realizarCalc(p);
         final double[] result = new double[3];
         result[0] = 1.0 / p.numWhere();
         result[1] = r[0];
@@ -100,7 +105,7 @@ public class Fitness
      * @param p Partícula.
      * @return Retorna o valor da acurácia obtido.
      */
-    private double[] calc(Particula p)
+    private double[] realizarCalc(Particula p)
     {
         Set<String> listaVerdadeiros = classesSaida.get(p.classe());
 
@@ -127,10 +132,33 @@ public class Fitness
         double acuracia = (tp + tn) / (tp + tn + fp + fn);
 
         double efetividade = especificidade * sensibilidade;
+        
+        // atualiza o número de avaliação
+        numAvaliacao += 1;
 
         return new double[]
         {
             efetividade, acuracia
         };
+    }
+    
+    /**
+     * Retorna o número de avaliação do fitness.
+     * 
+     * @return Número de avaliação do fitness.
+     */
+    public long getNumAvaliacao()
+    {
+        return numAvaliacao;
+    }
+
+    /**
+     * Reset o número de avaliação do fitness.
+     * 
+     * @param n Número de avaliações.
+     */
+    public void setNumAvaliacao(int n)
+    {
+        this.numAvaliacao = n;
     }
 }
