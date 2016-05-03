@@ -7,7 +7,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -152,8 +151,8 @@ public class Pso
 
                 fronteiraPareto.atualizarParticulas(gbestParts, particula);
                 // remove partículas não dominadas
-                Collection<Particula> particulasNaoDominadas = FronteiraPareto.getParticulasNaoDominadas(gbestParts);
-                repositorio.put(classe, new ArrayList<>(particulasNaoDominadas));
+                repositorio.put(classe, new ArrayList<>(
+                        FronteiraPareto.getParticulasNaoDominadas(gbestParts)));
 
                 // operador de turbulência
                 turbulencia(j, particula);
@@ -530,6 +529,72 @@ public class Pso
 
     }
 
+
+    /**
+     * Solução encontrada.
+     *
+     */
+    public void mostrarResultados()
+    {
+        System.out.println();
+
+        Map<String, List<Particula>> solucoesNaoDominadas = repositorio;
+
+        StringBuilder builder = new StringBuilder(
+                "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
+
+        for (Entry<String, List<Particula>> parts
+                : solucoesNaoDominadas.entrySet())
+        {
+
+            String classe = parts.getKey();
+
+            List<Particula> resultado = parts.getValue();
+
+            Collections.sort(resultado);
+
+            for (Particula part : resultado)
+            {
+                builder.append(classe);
+
+                double[] d = part.fitness();
+                for (int i = 0, len = d.length; i < len; i++)
+                {
+                    builder.append("\t").append(format.formatar(d[i]));
+                }
+
+                builder.append("\t").append(part.whereSql()).append("\n");
+            }
+        }
+        
+        builder.append("\n");
+
+        System.out.println(builder.toString());
+    }
+
+    /**
+     * Lista toda a população.
+     */
+    public void mostrarEnxame()
+    {
+        System.out.println("Classe:");
+        for (String classe : saidas.keySet())
+        {
+            Set<String> c = saidas.get(classe);
+            System.out.println(classe + ") " + c.size());
+        }
+        System.out.println();
+
+        System.out.println("População:");
+        for (Particula p : particulas)
+        {
+            System.out.println(Arrays.toString(p.fitness()) + " : "
+                    + p.whereSql());
+        }
+        System.out.println();
+    }
+    
+
     /**
      * Retorna uma lista com clásulas WHERE.
      *
@@ -660,69 +725,5 @@ public class Pso
         {
             repositorio.get(classe).clear();
         }
-    }
-
-    /**
-     * Solução encontrada.
-     *
-     */
-    public void mostrarResultados()
-    {
-        System.out.println();
-
-        Map<String, List<Particula>> solucoesNaoDominadas = repositorio;
-
-        StringBuilder builder = new StringBuilder(
-                "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
-
-        for (Entry<String, List<Particula>> parts
-                : solucoesNaoDominadas.entrySet())
-        {
-
-            String classe = parts.getKey();
-
-            List<Particula> resultado = parts.getValue();
-
-            Collections.sort(resultado);
-
-            for (Particula part : resultado)
-            {
-                builder.append(classe);
-
-                double[] d = part.fitness();
-                for (int i = 0, len = d.length; i < len; i++)
-                {
-                    builder.append("\t").append(format.formatar(d[i]));
-                }
-
-                builder.append("\t").append(part.whereSql()).append("\n");
-            }
-        }
-        
-        builder.append("\n");
-
-        System.out.println(builder.toString());
-    }
-
-    /**
-     * Lista toda a população.
-     */
-    public void mostrarEnxame()
-    {
-        System.out.println("Classe:");
-        for (String classe : saidas.keySet())
-        {
-            Set<String> c = saidas.get(classe);
-            System.out.println(classe + ") " + c.size());
-        }
-        System.out.println();
-
-        System.out.println("População:");
-        for (Particula p : particulas)
-        {
-            System.out.println(Arrays.toString(p.fitness()) + " : "
-                    + p.whereSql());
-        }
-        System.out.println();
     }
 }

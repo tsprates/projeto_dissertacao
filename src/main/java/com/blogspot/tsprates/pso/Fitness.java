@@ -57,16 +57,20 @@ public class Fitness
      * Calcula fitness.
      * 
      * @param p Partículas.
-     * @return Array contendo complexidade WHERE, efetividade e acurácia.
+     * @return Array contendo a complexidade WHERE, efetividade e acurácia.
      */
     public double[] calcular(Particula p)
     {
-        final double[] r = realizarCalc(p);
-        final double[] result = new double[3];
-        result[0] = 1.0 / p.numWhere();
-        result[1] = r[0];
-        result[2] = r[1];
-        return result;
+        // atualiza o número de avaliação
+        numAvaliacao += 1;
+        
+        final double[] r = realizarCalculo(p);
+        final double[] resultado = new double[3];
+        resultado[0] = 1.0 / p.numWhere();
+        resultado[1] = r[0];
+        resultado[2] = r[1];
+        
+        return resultado;
     }
 
     /**
@@ -105,7 +109,7 @@ public class Fitness
      * @param p Partícula.
      * @return Retorna o valor da acurácia obtido.
      */
-    private double[] realizarCalc(Particula p)
+    private double[] realizarCalculo(Particula p)
     {
         Set<String> listaVerdadeiros = classesSaida.get(p.classe());
 
@@ -133,9 +137,6 @@ public class Fitness
 
         double efetividade = especificidade * sensibilidade;
         
-        // atualiza o número de avaliação
-        numAvaliacao += 1;
-
         return new double[]
         {
             efetividade, acuracia
