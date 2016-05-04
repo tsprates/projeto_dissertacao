@@ -21,7 +21,6 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math3.util.FastMath;
 
 // ALTER TABLE wine ADD COLUMN id SERIAL;
 // UPDATE wine SET id = nextval(pg_get_serial_sequence('wine','id'));
@@ -85,7 +84,9 @@ public class Pso
     private final Map<String, Integer> popNicho = new HashMap<>();
 
     private final DistanciaDeMultidao distMultComparator = new DistanciaDeMultidao();
-    
+
+    private final SolucoesNaoDominadas solucoesNaoDominadas;
+
     private final double turbulencia = 3; // 30% 
 
     /**
@@ -119,6 +120,8 @@ public class Pso
 
         this.fitness = new Fitness(conexao, colId, tabela, saidas);
 
+        this.solucoesNaoDominadas = new SolucoesNaoDominadas(conexao, tabela, tipoSaidas);
+
         format = formatador;
 
         criaRepositorio();
@@ -130,11 +133,10 @@ public class Pso
     public void carregar()
     {
         resetRepositorio();
-        
+
         fitness.setNumAvaliacao(0);
 
         this.particulas = getEnxameInicial();
-        
 
         long tempoInicial = System.nanoTime();
         int i = 0;
@@ -147,12 +149,12 @@ public class Pso
                 // gbest
                 Particula particula = particulas.get(j);
                 String classe = particula.classe();
-                List<Particula> gbestParts = repositorio.get(classe);
+                List<Particula> gbestLista = repositorio.get(classe);
 
-                fronteiraPareto.atualizarParticulas(gbestParts, particula);
+                fronteiraPareto.atualizarParticulas(gbestLista, particula);
                 // remove partículas não dominadas
                 repositorio.put(classe, new ArrayList<>(
-                        FronteiraPareto.getParticulasNaoDominadas(gbestParts)));
+                        FronteiraPareto.getParticulasNaoDominadas(gbestLista)));
 
                 // operador de turbulência
                 turbulencia(j, particula);
@@ -167,7 +169,7 @@ public class Pso
             System.out.println("Iteração: " + (i + 1));
             i++;
         }
-        
+
         for (String saida : tipoSaidas)
         {
             efetividade.put(saida, new ArrayList<Double>());
@@ -181,20 +183,21 @@ public class Pso
             acuracia.get(part.classe()).add(fit[2]);
         }
 
-
         long tempoFinal = System.nanoTime();
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
-        
+
         System.out.println();
         System.out.println("Tempo decorrido: " + tempoDecorrido);
         System.out.println();
+
+        solucoesNaoDominadas.salvar(repositorio);
     }
 
     /**
      * Operador de turbulência.
-     * 
+     *
      * @param iter
-     * @param particula 
+     * @param particula
      */
     private void turbulencia(double iter, Particula particula)
     {
@@ -217,23 +220,24 @@ public class Pso
         perturbar(p, w);
 
         // pbest
-        final List<Particula> pBest = new ArrayList<>(p.getPbest());
+        final List<Particula> pbest = new ArrayList<>(p.getPbest());
         if (c1 > Math.random())
         {
-            final int index = rand.nextInt(pBest.size());
-            Particula pBestPart = pBest.get(index);
+            final int index = rand.nextInt(pbest.size());
+            Particula pBestPart = pbest.get(index);
             recombinar(pBestPart, posSize, pos, p);
         }
 
         // gbest
-        final List<Particula> gBest = repositorio.get(p.classe());
-        distMultComparator.atualizar(gBest);
         if (c2 > Math.random())
         {
-            final int size = gBest.size();
-            Particula p1 = gBest.get(rand.nextInt(size));
-            Particula p2 = gBest.get(rand.nextInt(size));
+            final List<Particula> gbest = repositorio.get(p.classe());
 
+            final int size = gbest.size();
+            Particula p1 = gbest.get(rand.nextInt(size));
+            Particula p2 = gbest.get(rand.nextInt(size));
+
+            distMultComparator.atualizar(gbest);
             if (distMultComparator.compare(p1, p2) > 0)
             {
                 recombinar(p1, posSize, pos, p);
@@ -330,7 +334,7 @@ public class Pso
 
     /**
      * Mapeia de todas as saídas (classes) possíves para cada id da tupla.
-     * 
+     *
      */
     private void criarMapaSaidaId()
     {
@@ -529,7 +533,6 @@ public class Pso
 
     }
 
-
     /**
      * Solução encontrada.
      *
@@ -566,7 +569,7 @@ public class Pso
                 builder.append("\t").append(part.whereSql()).append("\n");
             }
         }
-        
+
         builder.append("\n");
 
         System.out.println(builder.toString());
@@ -593,7 +596,6 @@ public class Pso
         }
         System.out.println();
     }
-    
 
     /**
      * Retorna uma lista com clásulas WHERE.
@@ -605,8 +607,9 @@ public class Pso
         int numCols = colunas.length;
         Set<String> listaWhere = new HashSet<>();
 
-        int maxWhere = (int) Math.ceil(FastMath.log(2.0, 
-                RandomUtils.nextDouble(2, numCols))) + 1;
+//        int maxWhere = (int) Math.ceil(FastMath.log(2.0,
+//                RandomUtils.nextDouble(2, numCols))) + 1;
+        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
 
         for (int i = 0; i < maxWhere; i++)
         {
@@ -630,12 +633,11 @@ public class Pso
         final int colIndex = rand.nextInt(numCols);
         final int operIndex = rand.nextInt(numOper);
 
-        final double prob = 0.6;
+        final double prob = 0.7;
 
         String valor;
 
-        // Verifica se a comparação ocorrerá campo constante (numérico)
-        // ou com outra coluna
+        // verifica se a condição ocorrerá com o campo constante ou valor numérico
         if (rand.nextDouble() > prob)
         {
             valor = String.format(
@@ -726,4 +728,5 @@ public class Pso
             repositorio.get(classe).clear();
         }
     }
+
 }
