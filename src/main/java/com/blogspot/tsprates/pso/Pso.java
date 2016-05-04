@@ -21,6 +21,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.FastMath;
 
 // ALTER TABLE wine ADD COLUMN id SERIAL;
 // UPDATE wine SET id = nextval(pg_get_serial_sequence('wine','id'));
@@ -541,13 +542,13 @@ public class Pso
     {
         System.out.println();
 
-        Map<String, List<Particula>> solucoesNaoDominadas = repositorio;
+        Map<String, List<Particula>> solucoes = repositorio;
 
         StringBuilder builder = new StringBuilder(
                 "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
 
         for (Entry<String, List<Particula>> parts
-                : solucoesNaoDominadas.entrySet())
+                : solucoes.entrySet())
         {
 
             String classe = parts.getKey();
@@ -607,9 +608,9 @@ public class Pso
         int numCols = colunas.length;
         Set<String> listaWhere = new HashSet<>();
 
-//        int maxWhere = (int) Math.ceil(FastMath.log(2.0,
-//                RandomUtils.nextDouble(2, numCols))) + 1;
-        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
+        int maxWhere = (int) Math.ceil(FastMath.log(2.0,
+                RandomUtils.nextDouble(2, numCols))) + 1;
+//        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
 
         for (int i = 0; i < maxWhere; i++)
         {
@@ -633,7 +634,7 @@ public class Pso
         final int colIndex = rand.nextInt(numCols);
         final int operIndex = rand.nextInt(numOper);
 
-        final double prob = 0.7;
+        final double prob = 0.6;
 
         String valor;
 
