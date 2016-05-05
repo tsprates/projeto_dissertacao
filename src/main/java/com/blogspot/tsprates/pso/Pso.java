@@ -86,7 +86,7 @@ public class Pso
 
     private final Map<String, Integer> popNicho = new HashMap<>();
 
-    private final DistanciaDeMultidao distMultComparator = new DistanciaDeMultidao();
+    private final DistanciaDeMultidao distMultComp = new DistanciaDeMultidao();
 
     private final SolucoesNaoDominadas solucoesNaoDominadas;
 
@@ -207,18 +207,31 @@ public class Pso
         fronteiraPareto.atualizarParticulas(gbestLista, particula);
         
         // remove partículas não dominadas
-        repositorio.put(classe, new ArrayList<>(
-                FronteiraPareto.getParticulasNaoDominadas(gbestLista)));
+        List<Particula> rep = new ArrayList<>(
+                FronteiraPareto.getParticulasNaoDominadas(gbestLista));
         
-        // limita o tamanho do repositório de soluções dominadas para 100 partículas
-        List<Particula> rep = repositorio.get(classe);
+        repositorio.put(classe, rep);
+        
+        distMultComp.atualizar(rep);
+                
+        // limita o tamanho do repositório de soluções dominadas
+        // realizado por meio da distância de aglomeração
         Collections.sort(rep);
         final int repSize = rep.size();
         if (repSize > LIMITE_REPO) 
         {
             while (rep.size() > LIMITE_REPO)
             {
-                rep.remove(rep.size() - 1);
+                int index = rep.size() - 1;
+                for (int k = rep.size() - 1; k >= 0; k--)
+                {
+                    if (distMultComp.compare(rep.get(index), rep.get(k)) > 0)
+                    {
+                        index = k;
+                    }
+                
+                }
+                rep.remove(index);
             }
         }
     }
@@ -266,9 +279,8 @@ public class Pso
             final int size = gbest.size();
             Particula p1 = gbest.get(rand.nextInt(size));
             Particula p2 = gbest.get(rand.nextInt(size));
-
-            distMultComparator.atualizar(gbest);
-            if (distMultComparator.compare(p1, p2) > 0)
+            
+            if (distMultComp.compare(p1, p2) > 0)
             {
                 recombinar(p1, posSize, pos, p);
             }
