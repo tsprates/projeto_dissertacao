@@ -98,7 +98,8 @@ public class SolucoesNaoDominadas
 
         PreparedStatement pstmt;
 
-        String sql = "DO $do$\n"
+        String sql = "BEGIN;"
+                + "DO $do$\n"
                 + "DECLARE r frontpareto_" + tabela + "%ROWTYPE;\n"
                 + "BEGIN\n"
                 + "FOR r IN SELECT * FROM frontpareto_" + tabela + "\n"
@@ -110,7 +111,8 @@ public class SolucoesNaoDominadas
                 + "         AND fp.classe=r.classe;\n"
                 + " END LOOP;\n "
                 + "END\n"
-                + "$do$;";
+                + "$do$;"
+                + "COMMIT;";
 
         try
         {
