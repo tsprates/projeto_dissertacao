@@ -48,7 +48,6 @@ public class Grafico extends ApplicationFrame
         }
 
         dataset.addSeries(serie);
-
         return this;
     }
 
@@ -62,7 +61,6 @@ public class Grafico extends ApplicationFrame
         }
 
         dataset.addSeries(serie);
-
         numSeries++;
 
         return this;
@@ -89,14 +87,13 @@ public class Grafico extends ApplicationFrame
         NumberAxis range = (NumberAxis) plot.getRangeAxis();
         range.setRange(0.0, 1.0);
         range.setTickUnit(new NumberTickUnit(0.05));
-        
+
         DecimalFormat df = new DecimalFormat("0.00");
         range.setNumberFormatOverride(df);
     }
 
     private void setLineRenderer(XYPlot plot)
     {
-
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
         for (int i = 0; i < numSeries; i++)
         {

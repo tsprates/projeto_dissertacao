@@ -56,21 +56,19 @@ public class Fitness
     /**
      * Calcula fitness.
      * 
-     * @param p Partículas.
+     * @param p Partícula.
      * @return Array contendo a complexidade WHERE, efetividade e acurácia.
      */
     public double[] calcular(Particula p)
-    {
-        // atualiza o número de avaliação
-        numAvaliacao += 1;
-        
+    {        
         final double[] r = realizarCalculo(p);
-        final double[] resultado = new double[3];
-        resultado[0] = 1.0 / p.numWhere();
-        resultado[1] = r[0];
-        resultado[2] = r[1];
         
-        return resultado;
+        final double[] arr = new double[3];
+        arr[0] = 1.0 / p.numWhere();
+        arr[1] = r[0];
+        arr[2] = r[1];
+        
+        return arr;
     }
 
     /**
@@ -82,7 +80,8 @@ public class Fitness
     private List<String> consultaSql(String where)
     {
         List<String> l = new ArrayList<>();
-        String sql = "SELECT " + colId + " AS id FROM " + tabela + " "
+        String sql = "SELECT " + colId + " AS id "
+                + "FROM " + tabela + " "
                 + "WHERE " + where;
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
@@ -136,6 +135,9 @@ public class Fitness
         double acuracia = (tp + tn) / (tp + tn + fp + fn);
 
         double efetividade = especificidade * sensibilidade;
+        
+        // atualiza o número de avaliação
+        numAvaliacao += 1;
         
         return new double[]
         {
