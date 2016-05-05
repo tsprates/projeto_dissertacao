@@ -45,8 +45,9 @@ public class SolucoesNaoDominadas
 
         PreparedStatement pstmt;
 
-        String sql = "INSERT INTO " + tabela + "_fronteira(classe, complexidade, efetividade) "
-                + "VALUES(?,?,?)";
+        String sql = "INSERT "
+                + "INTO frontpareto_" + tabela + "(classe, complexidade, efetividade) "
+                + "VALUES(?, ?, ?)";
 
         try
         {
@@ -98,15 +99,15 @@ public class SolucoesNaoDominadas
         PreparedStatement pstmt;
 
         String sql = "DO $do$\n"
-                + "DECLARE r " + tabela + "_fronteira%ROWTYPE;\n"
+                + "DECLARE r frontpareto_" + tabela + "%ROWTYPE;\n"
                 + "BEGIN\n"
                 + "FOR r IN SELECT * FROM " + tabela + "_fronteira\n"
                 + " LOOP\n"
-                + "     DELETE FROM " + tabela + "_fronteira AS w "
-                + "     WHERE w.complexidade <= r.complexidade "
-                + "         AND w.efetividade <= r.efetividade "
-                + "         AND (w.complexidade < r.complexidade OR w.efetividade < r.efetividade) "
-                + "         AND w.classe=r.classe;\n"
+                + "     DELETE FROM frontpareto_" + tabela + " AS fp "
+                + "     WHERE fp.complexidade <= r.complexidade "
+                + "         AND fp.efetividade <= r.efetividade "
+                + "         AND (fp.complexidade < r.complexidade OR fp.efetividade < r.efetividade) "
+                + "         AND fp.classe=r.classe;\n"
                 + " END LOOP;\n "
                 + "END\n"
                 + "$do$;";
@@ -132,13 +133,13 @@ public class SolucoesNaoDominadas
 
         PreparedStatement pstmt;
 
-        String sql = "CREATE TABLE IF NOT EXISTS " + tabela + "_fronteira\n"
+        String sql = "CREATE TABLE IF NOT EXISTS frontpareto_" + tabela + "\n"
                 + "(\n"
-                + "  id serial NOT NULL,\n"
-                + "  classe \"char\",\n"
-                + "  complexidade double precision,\n"
-                + "  efetividade double precision,\n"
-                + "  CONSTRAINT " + tabela + "_fronteira_pk_id PRIMARY KEY (id)\n"
+                + "     id serial NOT NULL,\n"
+                + "     classe \"char\",\n"
+                + "     complexidade double precision,\n"
+                + "     efetividade double precision,\n"
+                + "     CONSTRAINT frontpareto_" + tabela + "_pk_id PRIMARY KEY (id)\n"
                 + ");";
 
         try
