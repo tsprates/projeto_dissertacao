@@ -85,8 +85,11 @@ public class SolucoesNaoDominadas
             }
 
         }
+        finally
+        {
+            limparSolucoesDominadasSalvas();
+        }
         
-        limparSolucoesDominadasSalvas();
     }
 
     /**
@@ -101,7 +104,7 @@ public class SolucoesNaoDominadas
         String sql = "DO $do$\n"
                 + "DECLARE r frontpareto_" + tabela + "%ROWTYPE;\n"
                 + "BEGIN\n"
-                + "FOR r IN SELECT * FROM " + tabela + "_fronteira\n"
+                + "FOR r IN SELECT * FROM frontpareto_" + tabela + "\n"
                 + " LOOP\n"
                 + "     DELETE FROM frontpareto_" + tabela + " AS fp "
                 + "     WHERE fp.complexidade <= r.complexidade "
@@ -116,7 +119,7 @@ public class SolucoesNaoDominadas
         {
             pstmt = conexao.prepareStatement(sql);
             pstmt.execute();
-            System.err.println("Resultados dominados atualizado com sucesso!");
+            System.err.println("Resultados dominados atualizados com sucesso!");
         }
         catch (SQLException e)
         {
