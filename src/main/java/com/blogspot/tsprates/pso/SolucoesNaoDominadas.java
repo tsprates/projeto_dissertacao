@@ -118,7 +118,8 @@ public class SolucoesNaoDominadas
         {
             pstmt = conexao.prepareStatement(sql);
             pstmt.execute();
-            System.err.println("Resultados dominados atualizados com sucesso!");
+            
+            System.out.println("Resultados dominados atualizados com sucesso!");
         }
         catch (SQLException e)
         {
@@ -148,8 +149,9 @@ public class SolucoesNaoDominadas
         {
             pstmt = conexao.prepareStatement(sql);
             pstmt.execute();
+            
             System.out.println();
-            System.err.println("Tabela de soluções não dominadas inicializada com sucesso!");
+            System.out.println("Tabela de soluções não dominadas inicializada com sucesso!");
         }
         catch (SQLException e)
         {

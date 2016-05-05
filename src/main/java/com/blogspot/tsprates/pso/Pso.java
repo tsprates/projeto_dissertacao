@@ -42,6 +42,8 @@ public class Pso
         "<", ">="
     };
 
+    private final static int LIMITE_REPO = 100;
+
     private final Random rand = new Random();
 
     private List<Particula> particulas = new ArrayList<>();
@@ -88,7 +90,7 @@ public class Pso
 
     private final SolucoesNaoDominadas solucoesNaoDominadas;
 
-    private final double turbulencia = 3; // 30% 
+    private final double turbulencia = 3;
 
     /**
      * Construtor.
@@ -145,20 +147,15 @@ public class Pso
         while (fitness.getNumAvaliacao() < maxIter)
         {
 
-            for (int j = 0; j < numParts; j++)
+            for (int pi = 0; pi < numParts; pi++)
             {
-                // gbest
-                Particula particula = particulas.get(j);
-                String classe = particula.classe();
-                List<Particula> gbestLista = repositorio.get(classe);
+                Particula particula = particulas.get(pi);
 
-                fronteiraPareto.atualizarParticulas(gbestLista, particula);
-                // remove partículas não dominadas
-                repositorio.put(classe, new ArrayList<>(
-                        FronteiraPareto.getParticulasNaoDominadas(gbestLista)));
+                // gbest
+                atualizarRepositorio(particula);
 
                 // operador de turbulência
-                turbulencia(j, particula);
+                aplicarTurbulencia(pi, particula);
 
                 // pbest
                 particula.atualizaPbest();
@@ -196,12 +193,43 @@ public class Pso
     }
 
     /**
+     * Atualiza repositório de partículas não dominadas.
+     * 
+     * @param particula
+     * @param classe
+     * @param gbestLista
+     */
+    private void atualizarRepositorio(Particula particula)
+    {
+        String classe = particula.classe();
+        List<Particula> gbestLista = repositorio.get(classe);
+        
+        fronteiraPareto.atualizarParticulas(gbestLista, particula);
+        
+        // remove partículas não dominadas
+        repositorio.put(classe, new ArrayList<>(
+                FronteiraPareto.getParticulasNaoDominadas(gbestLista)));
+        
+        // limita o tamanho do repositório de soluções dominadas para 100 partículas
+        List<Particula> rep = repositorio.get(classe);
+        Collections.sort(rep);
+        final int repSize = rep.size();
+        if (repSize > LIMITE_REPO) 
+        {
+            while (rep.size() > LIMITE_REPO)
+            {
+                rep.remove(rep.size() - 1);
+            }
+        }
+    }
+
+    /**
      * Operador de turbulência.
      *
      * @param iter
      * @param particula
      */
-    private void turbulencia(double iter, Particula particula)
+    private void aplicarTurbulencia(double iter, Particula particula)
     {
         if ((iter % turbulencia) == 0)
         {
@@ -308,11 +336,11 @@ public class Pso
 
             if (StringUtils.isNumeric(clausula[2]))
             {
-                double novoValor = Double.parseDouble(clausula[1])
+                double newValor = Double.parseDouble(clausula[1])
                         + RandomUtils.nextDouble(-1, 1);
 
                 pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0],
-                        clausula[1], novoValor));
+                        clausula[1], newValor));
             }
             else
             {
@@ -345,8 +373,8 @@ public class Pso
             saidas.put(s, new HashSet<String>());
         }
 
-        String sql = "SELECT " + colSaida + ", " + colId + " AS col_id FROM "
-                + tabela;
+        String sql = "SELECT " + colSaida + ", " + colId + " AS col_id "
+                + "FROM " + tabela;
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery())

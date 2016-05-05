@@ -2,7 +2,6 @@ package com.blogspot.tsprates.pso;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,8 +16,10 @@ public class FronteiraPareto
     /**
      * Adiciona partículas não dominadas.
      *
-     * @param particulas Lista de partícula.
-     * @param particula Partícula.
+     * @param particulas
+     *            Lista de partícula.
+     * @param particula
+     *            Partícula.
      */
     public void atualizarParticulas(Collection<Particula> particulas,
             Particula particula)
@@ -74,8 +75,10 @@ public class FronteiraPareto
     /**
      * Testar por soluções eficientes.
      *
-     * @param pafit Partícula A.
-     * @param pbfit Partícula B.
+     * @param pafit
+     *            Partícula A.
+     * @param pbfit
+     *            Partícula B.
      * @return
      */
     private static boolean testarNaoDominancia(double[] pafit, double[] pbfit)
@@ -86,8 +89,10 @@ public class FronteiraPareto
     /**
      * Testa se a partícula A domina a partícula B.
      *
-     * @param pafit Fitness da partícula A.
-     * @param pbfit Fitness da partícula B.
+     * @param pafit
+     *            Fitness da partícula A.
+     * @param pbfit
+     *            Fitness da partícula B.
      * @return
      */
     private static boolean testarDominancia(double[] pafit, double[] pbfit)
@@ -126,8 +131,6 @@ public class FronteiraPareto
                 }
             }
         }
-
-        Collections.sort(particulasNaoDominadas);
 
         return particulasNaoDominadas;
     }
