@@ -192,6 +192,7 @@ public class Pso
         System.out.println();
 
         solucoesNaoDominadas.salvar(repositorio);
+        solucoesNaoDominadas.limparSolucoesDominadasSalvas();
     }
 
     /**

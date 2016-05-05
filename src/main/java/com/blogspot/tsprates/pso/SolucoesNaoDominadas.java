@@ -13,32 +13,34 @@ import java.util.Set;
  */
 public class SolucoesNaoDominadas
 {
+
     private final Connection conexao;
-    
+
     private final String tabela;
-    
+
     private final Set<String> tipoSaidas;
-    
+
     /**
      * Construtor
-     * 
+     *
      * @param conexao
      * @param tabela
-     * @param tipoSaidas 
+     * @param tipoSaidas
      */
     public SolucoesNaoDominadas(Connection conexao, String tabela, Set<String> tipoSaidas)
     {
         this.conexao = conexao;
         this.tabela = tabela;
         this.tipoSaidas = tipoSaidas;
-        
+
         criarTabelaSolucoesNaoDominadas();
     }
-    
+
     /**
      * Salva resultado no banco de dados.
      *
-     * @param repositorio Repositório contendo as soluções não dominadas encontradas.
+     * @param repositorio Repositório soluções não dominadas
+     * encontradas.
      */
     public void salvar(Map<String, List<Particula>> repositorio)
     {
@@ -85,18 +87,13 @@ public class SolucoesNaoDominadas
             }
 
         }
-        finally
-        {
-            limparSolucoesDominadasSalvas();
-        }
-        
     }
 
     /**
      * Remove soluções dominadas do banco de dados.
      *
      */
-    private void limparSolucoesDominadasSalvas()
+    public void limparSolucoesDominadasSalvas()
     {
 
         PreparedStatement pstmt;
