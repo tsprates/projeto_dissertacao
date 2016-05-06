@@ -137,7 +137,7 @@ public class SolucoesNaoDominadas
         PreparedStatement pstmt;
 
         String sql = "CREATE TABLE IF NOT EXISTS frontpareto_" + tabela + "(\n"
-                + "     classe integer,\n"
+                + "     classe \"char\",\n"
                 + "     complexidade double precision,\n"
                 + "     efetividade double precision\n"
                 + ");";
