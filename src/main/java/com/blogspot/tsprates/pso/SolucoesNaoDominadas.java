@@ -136,13 +136,10 @@ public class SolucoesNaoDominadas
 
         PreparedStatement pstmt;
 
-        String sql = "CREATE TABLE IF NOT EXISTS frontpareto_" + tabela + "\n"
-                + "(\n"
-                + "     id serial NOT NULL,\n"
-                + "     classe \"char\",\n"
+        String sql = "CREATE TABLE IF NOT EXISTS frontpareto_" + tabela + "(\n"
+                + "     classe integer,\n"
                 + "     complexidade double precision,\n"
-                + "     efetividade double precision,\n"
-                + "     CONSTRAINT frontpareto_" + tabela + "_pk_id PRIMARY KEY (id)\n"
+                + "     efetividade double precision\n"
                 + ");";
 
         try
