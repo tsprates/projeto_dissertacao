@@ -185,8 +185,8 @@ public class Pso
         System.out.println("Tempo decorrido: " + tempoDecorrido);
         System.out.println();
 
-        solucoesNaoDominadas.salvar(repositorio);
-        solucoesNaoDominadas.limparSolucoesDominadasSalvas();
+//        solucoesNaoDominadas.salvar(repositorio);
+//        solucoesNaoDominadas.limparSolucoesDominadasSalvas();
     }
 
     /**
@@ -368,7 +368,7 @@ public class Pso
                 final double R;
                 if (uniformDistribution)
                 {
-                    R = RandomUtils.nextDouble(-alfa, alfa);
+                    R = RandomUtils.nextDouble(-alfa, alfa) * valor;
                 }
                 else
                 {
