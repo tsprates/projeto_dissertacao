@@ -22,11 +22,11 @@ public class Particula implements Comparable<Particula>
 
     private String classe;
 
-    private final FronteiraPareto fp;
-
     private double[] fitness;
 
     private final Fitness calculadorFitness;
+
+    private final DistanciaDeMultidao distanciaDeMultidao;
 
     private Set<Particula> pbest;
 
@@ -36,21 +36,22 @@ public class Particula implements Comparable<Particula>
      * @param posicao
      * @param classe
      * @param fitness
-     * @param fp
+     * @param distanciaDeMultidao Distância de Multidão.
      */
-    public Particula(Set<String> posicao, String classe, Fitness fitness, 
-            FronteiraPareto fp)
+    public Particula(Set<String> posicao, String classe, Fitness fitness,
+            DistanciaDeMultidao distanciaDeMultidao)
     {
         this.posicao = new HashSet<>(posicao);
         this.strPos = join(posicao);
-        this.fp = fp;
         this.classe = classe;
         this.pbest = new HashSet<>();
-        
+
         this.calculadorFitness = fitness;
-        
+
         final Particula that = this;
         this.fitness = calculadorFitness.calcular(that);
+
+        this.distanciaDeMultidao = distanciaDeMultidao;
     }
 
     /**
@@ -59,7 +60,7 @@ public class Particula implements Comparable<Particula>
      */
     public Particula(Particula p)
     {
-        this(p.posicao, p.classe, p.calculadorFitness, p.fp);
+        this(p.posicao, p.classe, p.calculadorFitness, p.distanciaDeMultidao);
     }
 
     /**
@@ -93,7 +94,7 @@ public class Particula implements Comparable<Particula>
     {
         return strPos;
     }
-    
+
     @Override
     public String toString()
     {
@@ -162,7 +163,7 @@ public class Particula implements Comparable<Particula>
 
     /**
      * Seta pbest.
-     * 
+     *
      * @param pbest
      */
     public void setPbest(List<Particula> pbest)
@@ -172,12 +173,13 @@ public class Particula implements Comparable<Particula>
 
     /**
      * Atualiza pbest (memória da partícula).
-     * 
+     *
      */
     public void atualizaPbest()
     {
-        fp.atualizarParticulas(pbest, this);
+        FronteiraPareto.atualizarParticulas(pbest, this);
         this.pbest = new HashSet<>(FronteiraPareto.getParticulasNaoDominadas(pbest));
+        FronteiraPareto.verificarTamanhoDoRepositorio(this.pbest, distanciaDeMultidao);
     }
 
     @Override

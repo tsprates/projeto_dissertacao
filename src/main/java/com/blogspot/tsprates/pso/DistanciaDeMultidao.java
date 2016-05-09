@@ -1,6 +1,7 @@
 package com.blogspot.tsprates.pso;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -15,17 +16,18 @@ import java.util.Map;
 public class DistanciaDeMultidao implements Comparator<Particula>
 {
 
-    public Map<Particula, Double> ranking = new HashMap<>();
+    private Map<Particula, Double> ranking = new HashMap<>();
 
     /**
      * Atualiza os resultado de multidão para cada partícula.
      *
      * @param particulas
+     * @return DistanciaDeMultidao
      */
-    public void atualizar(List<Particula> particulas)
+    public DistanciaDeMultidao realizarRanking(Collection<Particula> particulas)
     {
         List<Particula> tempPart = new ArrayList<>(particulas);
-        int numParts = tempPart.size();
+        final int numParts = tempPart.size();
 
         Collections.sort(tempPart);
 
@@ -69,7 +71,7 @@ public class DistanciaDeMultidao implements Comparator<Particula>
                 ranking.put(particula, d);
             }
         }
-
+        return this;
     }
 
     @Override

@@ -21,6 +21,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.FastMath;
 
 // ALTER TABLE wine ADD COLUMN id SERIAL;
@@ -42,8 +43,6 @@ public class Pso
         "<", ">="
     };
 
-    private final static int LIMITE_REPO = 100;
-
     private final Random rand = new Random();
 
     private List<Particula> particulas = new ArrayList<>();
@@ -53,8 +52,6 @@ public class Pso
     private final Map<String, Set<String>> saidas = new HashMap<>();
 
     private final Map<String, List<Particula>> repositorio = new HashMap<>();
-
-    private final FronteiraPareto fronteiraPareto = new FronteiraPareto();
 
     private final String tabela;
 
@@ -86,7 +83,7 @@ public class Pso
 
     private final Map<String, Integer> popNicho = new HashMap<>();
 
-    private final DistanciaDeMultidao distMultComp = new DistanciaDeMultidao();
+    private final DistanciaDeMultidao distanciaDeMultidao = new DistanciaDeMultidao();
 
     private final SolucoesNaoDominadas solucoesNaoDominadas;
 
@@ -194,7 +191,7 @@ public class Pso
 
     /**
      * Atualiza repositório de partículas não dominadas.
-     * 
+     *
      * @param particula
      * @param classe
      * @param gbestLista
@@ -203,37 +200,16 @@ public class Pso
     {
         String classe = particula.classe();
         List<Particula> gbestLista = repositorio.get(classe);
-        
-        fronteiraPareto.atualizarParticulas(gbestLista, particula);
-        
-        // remove partículas não dominadas
+
+        FronteiraPareto.atualizarParticulas(gbestLista, particula);
+
+        // verificarTamanhoDoRepositorio partículas não dominadas
         List<Particula> rep = new ArrayList<>(
                 FronteiraPareto.getParticulasNaoDominadas(gbestLista));
-        
+
         repositorio.put(classe, rep);
-        
-        distMultComp.atualizar(rep);
-                
-        // limita o tamanho do repositório de soluções dominadas
-        // realizado por meio da distância de aglomeração
-        Collections.sort(rep);
-        final int repSize = rep.size();
-        if (repSize > LIMITE_REPO) 
-        {
-            while (rep.size() > LIMITE_REPO)
-            {
-                int index = rep.size() - 1;
-                for (int k = rep.size() - 1; k >= 0; k--)
-                {
-                    if (distMultComp.compare(rep.get(index), rep.get(k)) > 0)
-                    {
-                        index = k;
-                    }
-                
-                }
-                rep.remove(index);
-            }
-        }
+
+        FronteiraPareto.verificarTamanhoDoRepositorio(rep, distanciaDeMultidao);
     }
 
     /**
@@ -248,6 +224,11 @@ public class Pso
         {
             perturbar(particula, mut);
         }
+
+//        if ((iter % turbulencia) == 1)
+//        {
+//            perturbar(particula, mut, false);
+//        }
     }
 
     /**
@@ -263,30 +244,48 @@ public class Pso
         perturbar(p, w);
 
         // pbest
-        final List<Particula> pbest = new ArrayList<>(p.getPbest());
+//        final List<Particula> pbest = new ArrayList<>(p.getPbest());
         if (c1 > Math.random())
         {
-            final int index = rand.nextInt(pbest.size());
-            Particula pBestPart = pbest.get(index);
-            recombinar(pBestPart, posSize, pos, p);
+//            final int index = rand.nextInt(pbest.size());
+//            Particula pBestPart = pbest.get(index);
+//            recombinar(pBestPart, posSize, pos, p);
+            List<Particula> pbest = new ArrayList<>(p.getPbest());
+            final int sizePbest = pbest.size();
+
+            Particula pp1 = pbest.get(rand.nextInt(sizePbest));
+            Particula pp2 = pbest.get(rand.nextInt(sizePbest));
+
+            final DistanciaDeMultidao ranqueamento = distanciaDeMultidao
+                    .realizarRanking(pbest);
+            if (ranqueamento.compare(pp1, pp2) > 0)
+            {
+                recombinar(pp1, posSize, pos, p);
+            }
+            else
+            {
+                recombinar(pp2, posSize, pos, p);
+            }
         }
 
         // gbest
         if (c2 > Math.random())
         {
-            final List<Particula> gbest = repositorio.get(p.classe());
+            List<Particula> gbest = repositorio.get(p.classe());
+            final int sizeGbest = gbest.size();
 
-            final int size = gbest.size();
-            Particula p1 = gbest.get(rand.nextInt(size));
-            Particula p2 = gbest.get(rand.nextInt(size));
-            
-            if (distMultComp.compare(p1, p2) > 0)
+            Particula pg1 = gbest.get(rand.nextInt(sizeGbest));
+            Particula pg2 = gbest.get(rand.nextInt(sizeGbest));
+
+            final DistanciaDeMultidao ranqueamento = distanciaDeMultidao
+                    .realizarRanking(gbest);
+            if (ranqueamento.compare(pg1, pg2) > 0)
             {
-                recombinar(p1, posSize, pos, p);
+                recombinar(pg1, posSize, pos, p);
             }
             else
             {
-                recombinar(p2, posSize, pos, p);
+                recombinar(pg2, posSize, pos, p);
             }
         }
 
@@ -329,12 +328,25 @@ public class Pso
     }
 
     /**
-     * Busca local.
+     * Mutação a partir de distribuição normal.
      *
-     * @param p
-     * @param pm
+     * @param p Partícula.
+     * @param pm Taxa de mutação.
      */
     private void perturbar(Particula p, double pm)
+    {
+        perturbar(p, pm, false);
+    }
+
+    /**
+     * Mutação.
+     *
+     * @param p Partícula.
+     * @param pm Taxa de mutação.
+     * @param uniformDistribution Valores aleatórios a partir da Distribuição
+     * Uniforme.
+     */
+    private void perturbar(Particula p, double pm, boolean uniformDistribution)
     {
         final int operLen = LISTA_OPERADORES.length;
 
@@ -348,15 +360,40 @@ public class Pso
 
             if (StringUtils.isNumeric(clausula[2]))
             {
-                double newValor = Double.parseDouble(clausula[1])
-                        + RandomUtils.nextDouble(-1, 1);
+                // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
+                // Proposta de Higashi et al. (2003)
+                final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0]));
+                final double valor = Double.parseDouble(clausula[2]);
 
+                final double R;
+                if (uniformDistribution)
+                {
+                    R = RandomUtils.nextDouble(-alfa, alfa);
+                }
+                else
+                {
+                    R = new NormalDistribution(0, alfa).sample();
+                }
+
+                double newValor = valor + R;
+
+                // Proposta de Michalewitz (1996)
+//                double newValor;
+//                double valor = Double.parseDouble(clausula[2]);
+//                if (Math.random() < 0.5)
+//                {
+//                    newValor = valor + (max.get(clausula[1]) - valor) * Math.random();
+//                }
+//                else
+//                {
+//                    newValor = valor - (valor - min.get(clausula[1])) * Math.random();
+//                }
                 pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0],
                         clausula[1], newValor));
             }
             else
             {
-                if (Math.random() < 0.5)
+                if (Math.random() < 0.6)
                 {
                     pos.add(criarCondicao());
                 }
@@ -543,8 +580,7 @@ public class Pso
             {
                 Set<String> pos = criarWhere();
 
-                Particula particula = new Particula(pos, cls, fitness,
-                        fronteiraPareto);
+                Particula particula = new Particula(pos, cls, fitness, distanciaDeMultidao);
 
                 nichoParticulas.add(particula);
 
@@ -570,7 +606,7 @@ public class Pso
     {
         for (Particula p : particulas)
         {
-            fronteiraPareto.atualizarParticulas(repositorio.get(classe), p);
+            FronteiraPareto.atualizarParticulas(repositorio.get(classe), p);
         }
 
     }
@@ -649,8 +685,7 @@ public class Pso
         int numCols = colunas.length;
         Set<String> listaWhere = new HashSet<>();
 
-        int maxWhere = (int) Math.ceil(FastMath.log(2.0,
-                RandomUtils.nextDouble(2, numCols))) + 1;
+        int maxWhere = (int) Math.ceil(FastMath.log(2.0, RandomUtils.nextDouble(1, numCols))) + 1;
 //        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
 
         for (int i = 0; i < maxWhere; i++)
@@ -675,7 +710,7 @@ public class Pso
         final int colIndex = rand.nextInt(numCols);
         final int operIndex = rand.nextInt(numOper);
 
-        final double prob = 0.6;
+        final double prob = 0.5;
 
         String valor;
 
@@ -703,8 +738,8 @@ public class Pso
         String col = colunas[colIndex];
         String oper = LISTA_OPERADORES[operIndex];
 
-        String cond = String.format(Locale.ROOT, "%s %s %s", col, oper, valor);
-        return cond;
+        String condicao = String.format(Locale.ROOT, "%s %s %s", col, oper, valor);
+        return condicao;
     }
 
     /**

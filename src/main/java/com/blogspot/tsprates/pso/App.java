@@ -67,6 +67,7 @@ public class App
                     soma += Collections.max(efetividade.get(c));
                 }
                 efetividadeGlobal.add(soma / (double) classes.size());
+
             }
 
             // mostra o gráfico
@@ -90,8 +91,7 @@ public class App
     /**
      * Retorna arquivo de configurações.
      *
-     * @param configFile
-     *            Configurations
+     * @param configFile Configurations
      * @return Properties
      */
     private static Properties carregarConfigArquivo(String configFile)
