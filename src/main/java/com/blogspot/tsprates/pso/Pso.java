@@ -738,8 +738,7 @@ public class Pso
         String col = colunas[colIndex];
         String oper = LISTA_OPERADORES[operIndex];
 
-        String condicao = String.format(Locale.ROOT, "%s %s %s", col, oper, valor);
-        return condicao;
+        return String.format(Locale.ROOT, "%s %s %s", col, oper, valor);
     }
 
     /**
