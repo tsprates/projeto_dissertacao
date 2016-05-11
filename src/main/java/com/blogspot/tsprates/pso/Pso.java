@@ -401,7 +401,7 @@ public class Pso
                         if (PROB_OPERADORES[k - 1] >= sorteio 
                                 && PROB_OPERADORES[k] < sorteio)
                         {
-                            indexOper = i - 1;
+                            indexOper = k - 1;
                         }
                     }
                     
