@@ -39,8 +39,14 @@ public class Pso
 
     private final static String[] LISTA_OPERADORES =
     {
-        "=", "!=", ">", ">=",
-        "<", ">="
+        ">", ">=", "<", ">=",
+        "!=", "="
+    };
+    
+    private final static double[] PROB_OPERADORES =
+    {
+        0.0, 0.22, 0.44, 0.66, 0.88,
+        0.94, 1.0
     };
 
     private final Random rand = new Random();
@@ -388,7 +394,19 @@ public class Pso
                 }
                 else
                 {
-                    clausula[1] = LISTA_OPERADORES[rand.nextInt(operLen)];
+                    double sorteio = Math.random();
+                    int indexOper = 0;
+                    for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
+                    {
+                        if (PROB_OPERADORES[k - 1] >= sorteio 
+                                && PROB_OPERADORES[k] < sorteio)
+                        {
+                            indexOper = i - 1;
+                        }
+                    }
+                    
+                    clausula[1] = LISTA_OPERADORES[indexOper];
+                    
                     pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0],
                             clausula[1], clausula[2]));
 
