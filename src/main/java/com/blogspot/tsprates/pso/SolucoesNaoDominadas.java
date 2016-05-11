@@ -22,7 +22,7 @@ public class SolucoesNaoDominadas
     private final String tabela;
 
     private final Set<String> tipoSaidas;
-    
+
     private final static String PREFIX_TAB = "frontpareto_";
 
     /**
@@ -45,16 +45,15 @@ public class SolucoesNaoDominadas
     /**
      * Salva resultado no banco de dados.
      *
-     * @param repositorio
-     *            Repositório soluções não dominadas encontradas.
+     * @param repositorio Repositório soluções não dominadas encontradas.
      */
     public void salvar(Map<String, List<Particula>> repositorio)
     {
 
         PreparedStatement pstmt;
 
-        String sql = "INSERT " + "INTO " + PREFIX_TAB + tabela
-                + "(classe, complexidade, efetividade) " + "VALUES(?, ?, ?)";
+        String sql = "INSERT " + "INTO " + PREFIX_TAB + tabela + "(classe, complexidade, efetividade, condicao) "
+                + "VALUES(?, ?, ?, ?)";
 
         try
         {
@@ -71,6 +70,7 @@ public class SolucoesNaoDominadas
                     pstmt.setString(1, cls);
                     pstmt.setDouble(2, fit[0]);
                     pstmt.setDouble(3, fit[1]);
+                    pstmt.setString(4, p.whereSql());
                     pstmt.addBatch();
                 }
             }
@@ -103,14 +103,18 @@ public class SolucoesNaoDominadas
 
         PreparedStatement pstmt;
 
-        String sql = "BEGIN;" + "DO $do$\n" + "DECLARE r " + PREFIX_TAB + tabela
-                + "%ROWTYPE;\n" + "BEGIN\n"
+        String sql = "BEGIN;"
+                + "DO $do$\n"
+                + "DECLARE r " + PREFIX_TAB + tabela + "%ROWTYPE;\n"
+                + "BEGIN\n"
                 + "FOR r IN SELECT * FROM " + PREFIX_TAB + tabela + "\n"
-                + " LOOP\n" + "     DELETE FROM " + PREFIX_TAB + tabela
-                + " AS fp " + "     WHERE fp.complexidade <= r.complexidade "
+                + " LOOP\n"
+                + "     DELETE FROM " + PREFIX_TAB + tabela + " AS fp "
+                + "     WHERE fp.complexidade <= r.complexidade "
                 + "         AND fp.efetividade <= r.efetividade "
                 + "         AND (fp.complexidade < r.complexidade OR fp.efetividade < r.efetividade) "
-                + "         AND fp.classe=r.classe;\n" + " END LOOP;\n "
+                + "         AND fp.classe=r.classe;\n"
+                + " END LOOP;\n "
                 + "END\n" + "$do$;" + "COMMIT;";
 
         try
@@ -139,7 +143,9 @@ public class SolucoesNaoDominadas
         String sql = "CREATE TABLE IF NOT EXISTS " + PREFIX_TAB + tabela + "(\n"
                 + "     classe \"char\",\n"
                 + "     complexidade double precision,\n"
-                + "     efetividade double precision\n" + ");";
+                + "     efetividade double precision,\n"
+                + "     condicao text\n"
+                + ");";
 
         try
         {
@@ -159,7 +165,7 @@ public class SolucoesNaoDominadas
 
     /**
      * Retorna fronteira Pareto salva no banco de dados.
-     * 
+     *
      * @return Fronteira Pareto.
      */
     public Map<String, List<Double[]>> get()
@@ -182,15 +188,18 @@ public class SolucoesNaoDominadas
             while (rs.next())
             {
                 retorno.get(rs.getString("classe"))
-                        .add(new Double[] { rs.getDouble("complexidade"),
-                                rs.getDouble("efetividade") });
+                        .add(new Double[]
+                                {
+                                    rs.getDouble("complexidade"),
+                                    rs.getDouble("efetividade")
+                        });
             }
         }
         catch (SQLException e)
         {
             throw new RuntimeException("Erro ao retornar Fronteira Pareto.", e);
         }
-        
+
         return retorno;
     }
 }
