@@ -114,7 +114,7 @@ public class Pso
 
         carregarColunas();
         carregarClassesDeSaida();
-        criarMapaSaidaId();
+        mapaSaidaId();
         carregarMaxMinEntradas();
         carregarTotalNichoEnxame();
 
@@ -140,7 +140,6 @@ public class Pso
 
         long tempoInicial = System.nanoTime();
         int i = 0;
-//        for (int i = 0; i < maxIter; i++)
         while (fitness.getNumAvaliacao() < maxIter)
         {
 
@@ -185,8 +184,9 @@ public class Pso
         System.out.println("Tempo decorrido: " + tempoDecorrido);
         System.out.println();
 
-//        solucoesNaoDominadas.salvar(repositorio);
-//        solucoesNaoDominadas.limparSolucoesDominadasSalvas();
+        // soluções não dominadas
+        solucoesNaoDominadas.salvar(repositorio);
+        solucoesNaoDominadas.limparSolucoesDominadasSalvas();
     }
 
     /**
@@ -224,11 +224,6 @@ public class Pso
         {
             perturbar(particula, mut);
         }
-
-//        if ((iter % turbulencia) == 1)
-//        {
-//            perturbar(particula, mut, false);
-//        }
     }
 
     /**
@@ -244,12 +239,8 @@ public class Pso
         perturbar(p, w);
 
         // pbest
-//        final List<Particula> pbest = new ArrayList<>(p.getPbest());
         if (c1 > Math.random())
         {
-//            final int index = rand.nextInt(pbest.size());
-//            Particula pBestPart = pbest.get(index);
-//            recombinar(pBestPart, posSize, pos, p);
             List<Particula> pbest = new ArrayList<>(p.getPbest());
             final int sizePbest = pbest.size();
 
@@ -350,9 +341,7 @@ public class Pso
     {
         final int operLen = LISTA_OPERADORES.length;
 
-        final double sorteio = Math.random();
-
-        if (sorteio < pm)
+        if (pm > Math.random())
         {
             List<String> pos = new ArrayList<>(p.posicao());
             final int i = rand.nextInt(pos.size());
@@ -408,14 +397,13 @@ public class Pso
 
             p.setPosicao(pos);
         }
-
     }
 
     /**
-     * Mapeia de todas as saídas (classes) possíves para cada id da tupla.
+     * Mapa de todas as saídas (classes) possíves para cada id da tupla.
      *
      */
-    private void criarMapaSaidaId()
+    private void mapaSaidaId()
     {
         for (String s : tipoSaidas)
         {
@@ -685,7 +673,8 @@ public class Pso
         int numCols = colunas.length;
         Set<String> listaWhere = new HashSet<>();
 
-        int maxWhere = (int) Math.ceil(FastMath.log(2.0, RandomUtils.nextDouble(1, numCols))) + 1;
+        int maxWhere = (int) Math.ceil(FastMath.log(2.0, 
+                RandomUtils.nextDouble(1, numCols))) + 1;
 //        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
 
         for (int i = 0; i < maxWhere; i++)
