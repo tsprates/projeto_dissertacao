@@ -28,7 +28,7 @@ public class Fitness
     private List<String> resultado;
 
     private int totalSize = 0;
-    
+
     private long numAvaliacao = 0;
 
     /**
@@ -55,19 +55,22 @@ public class Fitness
 
     /**
      * Calcula fitness.
-     * 
+     *
      * @param p Partícula.
      * @return Array contendo a complexidade WHERE, efetividade e acurácia.
      */
     public double[] calcular(Particula p)
-    {        
-        final double[] r = realizarCalculo(p);
+    {
+        // atualiza o número de avaliação
+        numAvaliacao += 1;
         
+        final double[] r = realizarCalculo(p);
+
         final double[] arr = new double[3];
         arr[0] = 1.0 / p.numWhere();
         arr[1] = r[0];
         arr[2] = r[1];
-        
+
         return arr;
     }
 
@@ -79,7 +82,8 @@ public class Fitness
      */
     private List<String> consultaSql(String where)
     {
-        List<String> l = new ArrayList<>();
+        List<String> resultado = new ArrayList<>();
+
         String sql = "SELECT " + colId + " AS id "
                 + "FROM " + tabela + " "
                 + "WHERE " + where;
@@ -90,10 +94,10 @@ public class Fitness
 
             while (rs.next())
             {
-                l.add(rs.getString("id"));
+                resultado.add(rs.getString("id"));
             }
 
-            return l;
+            return resultado;
         }
         catch (SQLException e)
         {
@@ -135,19 +139,16 @@ public class Fitness
         double acuracia = (tp + tn) / (tp + tn + fp + fn);
 
         double efetividade = especificidade * sensibilidade;
-        
-        // atualiza o número de avaliação
-        numAvaliacao += 1;
-        
+
         return new double[]
         {
             efetividade, acuracia
         };
     }
-    
+
     /**
      * Retorna o número de avaliação do fitness.
-     * 
+     *
      * @return Número de avaliação do fitness.
      */
     public long getNumAvaliacao()
@@ -157,7 +158,7 @@ public class Fitness
 
     /**
      * Reset o número de avaliação do fitness.
-     * 
+     *
      * @param n Número de avaliações.
      */
     public void setNumAvaliacao(int n)
