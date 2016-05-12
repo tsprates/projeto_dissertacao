@@ -77,7 +77,7 @@ public class Pso
 
     private final double w, c1, c2;
 
-    private final double cr, mut;
+    private final double crossover;
 
     private final Fitness fitness;
 
@@ -113,8 +113,7 @@ public class Pso
         this.c1 = Double.valueOf(props.getProperty("c1"));
         this.c2 = Double.valueOf(props.getProperty("c2"));
 
-        this.cr = Double.valueOf(props.getProperty("cr"));
-        this.mut = Double.valueOf(props.getProperty("mut"));
+        this.crossover = Double.valueOf(props.getProperty("cr"));
         this.numParts = Integer.valueOf(props.getProperty("npop"));
         this.maxIter = Integer.valueOf(props.getProperty("maxiter"));
 
@@ -228,7 +227,7 @@ public class Pso
     {
         if ((iter % turbulencia) == 0)
         {
-            perturbar(particula, 1.0);
+            perturbar(particula);
         }
     }
 
@@ -308,7 +307,7 @@ public class Pso
         int i = 0;
         while (i < bestPosSize)
         {
-            if (cr > Math.random())
+            if (crossover > Math.random())
             {
                 newPos.add(bestPos.get(rand.nextInt(bestPosSize)));
                 i++;
@@ -322,6 +321,16 @@ public class Pso
         }
 
         part.setPosicao(new HashSet<>(newPos));
+    }
+    
+    /**
+     * Perturbação.
+     *
+     * @param p Partícula.
+     */
+    private void perturbar(Particula p)
+    {
+        perturbar(p, 1.0);
     }
     
     /**
