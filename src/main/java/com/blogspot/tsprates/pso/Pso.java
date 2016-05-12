@@ -221,14 +221,14 @@ public class Pso
     /**
      * Operador de turbulência.
      *
-     * @param iter
+     * @param iter Iteração atual.
      * @param particula
      */
     private void aplicarTurbulencia(double iter, Particula particula)
     {
         if ((iter % turbulencia) == 0)
         {
-            perturbar(particula, mut);
+            perturbar(particula, 1.0);
         }
     }
 
@@ -323,30 +323,15 @@ public class Pso
 
         part.setPosicao(new HashSet<>(newPos));
     }
-
+    
     /**
-     * Mutação a partir de distribuição normal.
+     * Mutação.
      *
      * @param p Partícula.
      * @param pm Taxa de mutação.
      */
     private void perturbar(Particula p, double pm)
     {
-        perturbar(p, pm, false);
-    }
-
-    /**
-     * Mutação.
-     *
-     * @param p Partícula.
-     * @param pm Taxa de mutação.
-     * @param uniformDistribution Valores aleatórios a partir da Distribuição
-     * Uniforme.
-     */
-    private void perturbar(Particula p, double pm, boolean uniformDistribution)
-    {
-        final int operLen = LISTA_OPERADORES.length;
-
         if (pm > Math.random())
         {
             List<String> pos = new ArrayList<>(p.posicao());
@@ -357,19 +342,11 @@ public class Pso
             {
                 // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
                 // Proposta de Higashi et al. (2003)
-                final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0]));
                 final double valor = Double.parseDouble(clausula[2]);
-
-                final double R;
-                if (uniformDistribution)
-                {
-                    R = RandomUtils.nextDouble(-alfa, alfa) * valor;
-                }
-                else
-                {
-                    R = new NormalDistribution(0, alfa).sample();
-                }
-
+                
+                final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0]));
+                final double R = new NormalDistribution(0, alfa).sample();
+                
                 double newValor = valor + R;
 
                 // Proposta de Michalewitz (1996)
@@ -383,6 +360,7 @@ public class Pso
 //                {
 //                    newValor = valor - (valor - min.get(clausula[1])) * Math.random();
 //                }
+                
                 pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0],
                         clausula[1], newValor));
             }
