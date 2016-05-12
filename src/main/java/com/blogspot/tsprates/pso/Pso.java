@@ -190,8 +190,8 @@ public class Pso
         System.out.println();
 
         // soluções não dominadas
-        solucoesNaoDominadas.salvar(repositorio);
-        solucoesNaoDominadas.limparSolucoesDominadasSalvas();
+//        solucoesNaoDominadas.salvar(repositorio);
+//        solucoesNaoDominadas.limparSolucoesDominadasSalvas();
     }
 
     /**
