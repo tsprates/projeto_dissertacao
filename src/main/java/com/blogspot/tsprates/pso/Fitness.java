@@ -82,7 +82,7 @@ public class Fitness
      */
     private List<String> consultaSql(String where)
     {
-        List<String> resultado = new ArrayList<>();
+        List<String> result = new ArrayList<>();
 
         String sql = "SELECT " + colId + " AS id "
                 + "FROM " + tabela + " "
@@ -94,10 +94,10 @@ public class Fitness
 
             while (rs.next())
             {
-                resultado.add(rs.getString("id"));
+                result.add(rs.getString("id"));
             }
 
-            return resultado;
+            return result;
         }
         catch (SQLException e)
         {
