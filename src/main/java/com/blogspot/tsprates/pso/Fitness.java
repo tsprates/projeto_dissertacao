@@ -128,10 +128,10 @@ public class Fitness
         }
 
         final int resultadoSize = resultado.size();
-        final int listaSize = listaVerdadeiros.size();
+        final int listaVerdadeirosSize = listaVerdadeiros.size();
 
         double fp = resultadoSize - tp;
-        double fn = listaSize - tp;
+        double fn = listaVerdadeirosSize - tp;
         double tn = totalSize - fn - fp - tp;
 
         double sensibilidade = tp / (tp + fn);
