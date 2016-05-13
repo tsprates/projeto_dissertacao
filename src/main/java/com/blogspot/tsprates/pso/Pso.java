@@ -121,7 +121,7 @@ public class Pso
         carregarClassesDeSaida();
         mapaSaidaId();
         carregarMaxMinEntradas();
-        carregarTotalNichoEnxame();
+        dividirNichoEnxame();
 
         this.fitness = new Fitness(conexao, colId, tabela, saidas);
 
@@ -203,64 +203,71 @@ public class Pso
     {
         if ((indexPart % turbulencia) == 0)
         {
-            perturbar(this.particulas.get(indexPart));
+            perturbar(this.particulas.get(indexPart), true);
+        }
+        else if ((indexPart % turbulencia) == 1)
+        {
+            perturbar(this.particulas.get(indexPart), false);
         }
     }
 
     /**
      * Atualiza posição.
      *
-     * @param p Partícula.
+     * @param part Partícula.
      */
-    private void atualizaPosicao(Particula p)
+    private void atualizaPosicao(Particula part)
     {
-        List<String> pos = new ArrayList<>(p.posicao());
-        final int posSize = pos.size();
+        List<String> partPos = new ArrayList<>(part.posicao());
+        final int partPosSize = partPos.size();
 
-        perturbar(p, w);
+        perturbar(part, w, true);
 
         // pbest
         if (c1 > Math.random())
         {
-            List<Particula> pbest = new ArrayList<>(p.getPbest());
-            final int sizePbest = pbest.size();
-
-            Particula pp1 = pbest.get(rand.nextInt(sizePbest));
-            Particula pp2 = pbest.get(rand.nextInt(sizePbest));
-
-            final DistanciaDeMultidao ranqueamento = distanciaDeMultidao
-                    .realizarRanking(pbest);
-            if (ranqueamento.compare(pp1, pp2) > 0)
-            {
-                recombinar(pp1, p, pos, posSize);
-            }
-            else
-            {
-                recombinar(pp2, p, pos, posSize);
-            }
+            List<Particula> pbest = new ArrayList<>(part.getPbest());
+            final int pbestSize = pbest.size();
+            aplicarRecomb(pbest, pbestSize, part, partPos, partPosSize);
         }
 
         // gbest
         if (c2 > Math.random())
         {
-            List<Particula> gbest = repositorio.get(p.classe());
-            final int sizeGbest = gbest.size();
-
-            Particula pg1 = gbest.get(rand.nextInt(sizeGbest));
-            Particula pg2 = gbest.get(rand.nextInt(sizeGbest));
-
-            final DistanciaDeMultidao ranqueamento = distanciaDeMultidao
-                    .realizarRanking(gbest);
-            if (ranqueamento.compare(pg1, pg2) > 0)
-            {
-                recombinar(pg1, p, pos, posSize);
-            }
-            else
-            {
-                recombinar(pg2, p, pos, posSize);
-            }
+            List<Particula> gbest = repositorio.get(part.classe());
+            final int gbestSize = gbest.size();
+            aplicarRecomb(gbest, gbestSize, part, partPos, partPosSize);
         }
 
+    }
+
+    /**
+     * 
+     * @param gbest
+     * @param sizeGbest
+     * @param p
+     * @param pos
+     * @param posSize 
+     */
+    private void aplicarRecomb(List<Particula> gbest, 
+            final int sizeGbest, 
+            Particula p, 
+            List<String> pos, 
+            final int posSize) {
+        
+        Particula p1 = gbest.get(rand.nextInt(sizeGbest));
+        Particula p2 = gbest.get(rand.nextInt(sizeGbest));
+        
+        final DistanciaDeMultidao ranqueamento = distanciaDeMultidao
+                .realizarRanking(gbest);
+        if (ranqueamento.compare(p1, p2) > 0)
+        {
+            recombinar(p1, p, pos, posSize);
+        }
+        else
+        {
+            recombinar(p2, p, pos, posSize);
+        }
     }
 
     /**
@@ -303,10 +310,11 @@ public class Pso
      * Perturbação.
      *
      * @param p Partícula.
+     * @param distNorm Distribuição Normal.
      */
-    private void perturbar(Particula p)
+    private void perturbar(Particula p, boolean distNorm)
     {
-        perturbar(p, 1.0);
+        perturbar(p, 1.0, distNorm);
     }
 
     /**
@@ -314,8 +322,9 @@ public class Pso
      *
      * @param p Partícula.
      * @param pm Taxa de mutação.
+     * @param distNorm Distribuição Normal.
      */
-    private void perturbar(Particula p, double pm)
+    private void perturbar(Particula p, double pm, boolean distNorm)
     {
         if (pm > Math.random())
         {
@@ -326,25 +335,31 @@ public class Pso
             if (StringUtils.isNumeric(clausula[2]))
             {
                 // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
-                // Proposta de Higashi et al. (2003)
                 final double valor = Double.parseDouble(clausula[2]);
+                double newValor;
+                
+                if (distNorm)
+                {
+                    // Proposta de Higashi et al. (2003)
+                    final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0]));
+                    final double R = new NormalDistribution(0, alfa).sample();
+                    newValor = valor + R;
+                }
+                else
+                {
+                    // Proposta de Michalewitz (1996)
+                    if (Math.random() < 0.5)
+                    {
+                        newValor = valor + (max.get(clausula[1]) - valor) 
+                                * Math.random();
+                    }
+                    else
+                    {
+                        newValor = valor - (valor - min.get(clausula[1])) 
+                                * Math.random();
+                    }
+                }
 
-                final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0]));
-                final double R = new NormalDistribution(0, alfa).sample();
-
-                double newValor = valor + R;
-
-                // Proposta de Michalewitz (1996)
-//                double newValor;
-//                double valor = Double.parseDouble(clausula[2]);
-//                if (Math.random() < 0.5)
-//                {
-//                    newValor = valor + (max.get(clausula[1]) - valor) * Math.random();
-//                }
-//                else
-//                {
-//                    newValor = valor - (valor - min.get(clausula[1])) * Math.random();
-//                }
                 pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0],
                         clausula[1], newValor));
             }
@@ -385,9 +400,9 @@ public class Pso
      */
     private void mapaSaidaId()
     {
-        for (String s : tipoSaidas)
+        for (String saida : tipoSaidas)
         {
-            saidas.put(s, new HashSet<String>());
+            saidas.put(saida, new HashSet<String>());
         }
 
         String sql = "SELECT " + colSaida + ", " + colId + " AS col_id "
@@ -509,9 +524,10 @@ public class Pso
     }
 
     /**
-     * Faz a divisão númerica de cada nicho (dependendo de cada classe).
+     * Faz a divisão do total da população em nichos similares 
+     * para cada classe do problema.
      */
-    private void carregarTotalNichoEnxame()
+    private void dividirNichoEnxame()
     {
         final int numSaidas = tipoSaidas.size();
         final int numPopNicho = numParts / numSaidas;
@@ -567,7 +583,7 @@ public class Pso
      * @param cls Classe.
      * @return
      */
-    private Particula criarParticula(String cls)
+    private Particula criarParticula(final String cls)
     {
         Set<String> pos = criarWhere();
         return new Particula(pos, cls, fitness, distanciaDeMultidao);
@@ -688,12 +704,12 @@ public class Pso
         final int colIndex = rand.nextInt(numCols);
         final int operIndex = rand.nextInt(numOper);
 
-        final double prob = 0.5;
+        final double prob = 0.7;
 
         String valor;
 
         // verifica se a condição ocorrerá com o campo constante ou valor numérico
-        if (rand.nextDouble() > prob)
+        if (rand.nextDouble() < prob)
         {
             valor = String.format(
                     Locale.ROOT,
@@ -765,9 +781,9 @@ public class Pso
     private void criaRepositorio()
     {
         // Lista não dominados (gbest)
-        for (String classe : tipoSaidas)
+        for (String saida : tipoSaidas)
         {
-            repositorio.put(classe, new ArrayList<Particula>());
+            repositorio.put(saida, new ArrayList<Particula>());
         }
     }
 
@@ -777,9 +793,9 @@ public class Pso
     private void resetRepositorio()
     {
         // Lista não dominados (gbest)
-        for (String classe : tipoSaidas)
+        for (String saida : tipoSaidas)
         {
-            repositorio.get(classe).clear();
+            repositorio.get(saida).clear();
         }
     }
 
@@ -805,5 +821,4 @@ public class Pso
 
         FronteiraPareto.verificarTamanhoDoRepositorio(rep, distanciaDeMultidao);
     }
-
 }
