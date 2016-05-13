@@ -26,8 +26,6 @@ public class Particula implements Comparable<Particula>
 
     private final Fitness calculadorFitness;
 
-    private final DistanciaDeMultidao distanciaDeMultidao;
-
     private Set<Particula> pbest;
 
     /**
@@ -36,10 +34,8 @@ public class Particula implements Comparable<Particula>
      * @param posicao
      * @param classe
      * @param fitness
-     * @param distanciaDeMultidao Distância de Multidão.
      */
-    public Particula(Set<String> posicao, String classe, Fitness fitness,
-            DistanciaDeMultidao distanciaDeMultidao)
+    public Particula(Set<String> posicao, String classe, Fitness fitness)
     {
         this.posicao = new TreeSet<>(posicao);
         this.strPos = join(posicao);
@@ -50,8 +46,6 @@ public class Particula implements Comparable<Particula>
 
         final Particula that = this;
         this.fitness = calculadorFitness.calcular(that);
-
-        this.distanciaDeMultidao = distanciaDeMultidao;
     }
 
     /**
@@ -60,7 +54,7 @@ public class Particula implements Comparable<Particula>
      */
     public Particula(Particula p)
     {
-        this(p.posicao, p.classe, p.calculadorFitness, p.distanciaDeMultidao);
+        this(p.posicao, p.classe, p.calculadorFitness);
     }
 
     /**
@@ -179,10 +173,6 @@ public class Particula implements Comparable<Particula>
     {
         FronteiraPareto.atualizarParticulas(pbest, this);
         this.pbest = new TreeSet<>(pbest);
-
-        // verifica tamanho do repositório
-        FronteiraPareto.verificarTamanhoDoRepositorio(this.pbest,
-                distanciaDeMultidao);
     }
 
     @Override

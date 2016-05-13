@@ -87,8 +87,6 @@ public class Pso
 
     private final Map<String, List<Double>> acuracia = new HashMap<>();
 
-    private final DistanciaDeMultidao distanciaDeMultidao = new DistanciaDeMultidao();
-
     private final Map<String, Integer> enxameNicho;
 
     private final double turbulencia = 3;
@@ -363,55 +361,39 @@ public class Pso
         final int partPosSize = partPos.size();
 
         perturbar(part, w, true);
-
+        
         // pbest
         if (c1 > Math.random())
         {
             List<Particula> pbest = new ArrayList<>(part.getPbest());
-            final int pbestSize = pbest.size();
-            aplicarRecomb(pbest, pbestSize, part, partPos, partPosSize);
+            aplicarRecomb(pbest, part, partPos, partPosSize);
         }
 
         // gbest
         if (c2 > Math.random())
         {
             List<Particula> gbest = repositorio.get(part.classe());
-            final int gbestSize = gbest.size();
-            aplicarRecomb(gbest, gbestSize, part, partPos, partPosSize);
+            aplicarRecomb(gbest, part, partPos, partPosSize);
         }
 
     }
 
     /**
-     * Aplica recombinação.
-     *
-     * @param gbest
-     * @param gbestSize
+     * Aplicar operação de recombinação (crossover).
+     * 
+     * @param best
      * @param part
      * @param partPos
-     * @param partPosSize
+     * @param partPosSize 
      */
-    private void aplicarRecomb(List<Particula> gbest,
-            final int gbestSize,
-            Particula part,
-            List<String> partPos,
-            final int partPosSize)
-    {
-
-        Particula p1 = gbest.get(rand.nextInt(gbestSize));
-        Particula p2 = gbest.get(rand.nextInt(gbestSize));
-
-        final DistanciaDeMultidao ranqueamento = distanciaDeMultidao
-                .realizarRanking(gbest);
-        if (ranqueamento.compare(p1, p2) > 0)
-        {
-            recombinar(p1, part, partPos, partPosSize);
-        }
-        else
-        {
-            recombinar(p2, part, partPos, partPosSize);
-        }
+    private void aplicarRecomb(List<Particula> best, 
+            Particula part, 
+            List<String> partPos, 
+            final int partPosSize) {
+        Particula maixProx = Distancia.retornarParticulaMaisProxima(best, part);
+        recombinar(maixProx, part, partPos, partPosSize);
     }
+
 
     /**
      * Operador de crossover.
@@ -422,7 +404,8 @@ public class Pso
      * @param partPosSize Tamanho do vetor posição da partícula.
      */
     private void recombinar(Particula best, Particula part,
-            List<String> partPos, int partPosSize)
+            List<String> partPos, 
+            final int partPosSize)
     {
         final List<String> bestPos = new ArrayList<>(best.posicao());
 
@@ -739,7 +722,7 @@ public class Pso
     private Particula criarParticula(final String cls)
     {
         Set<String> pos = criarWhere();
-        return new Particula(pos, cls, fitness, distanciaDeMultidao);
+        return new Particula(pos, cls, fitness);
     }
 
     /**
@@ -937,9 +920,6 @@ public class Pso
         List<Particula> rep = new ArrayList<>(gbestLista);
 
         repositorio.put(classe, rep);
-
-        // verifica tamanho do repositório
-        FronteiraPareto.verificarTamanhoDoRepositorio(rep, distanciaDeMultidao);
     }
 
     /**
