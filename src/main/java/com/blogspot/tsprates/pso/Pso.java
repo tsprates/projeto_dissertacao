@@ -390,8 +390,8 @@ public class Pso
             Particula part, 
             List<String> partPos, 
             final int partPosSize) {
-        Particula maixProx = Distancia.retornarParticulaMaisProxima(best, part);
-        recombinar(maixProx, part, partPos, partPosSize);
+        Particula partProx = Distancia.retornarParticulaMaisProxima(best, part);
+        recombinar(partProx, part, partPos, partPosSize);
     }
 
 
