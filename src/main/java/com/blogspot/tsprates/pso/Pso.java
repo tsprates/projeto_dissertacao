@@ -42,7 +42,7 @@ public class Pso
         ">", ">=", "<", ">=",
         "!=", "="
     };
-    
+
     private final static double[] PROB_OPERADORES =
     {
         0.0, 0.22, 0.44, 0.66, 0.88,
@@ -256,11 +256,11 @@ public class Pso
                     .realizarRanking(pbest);
             if (ranqueamento.compare(pp1, pp2) > 0)
             {
-                recombinar(pp1, posSize, pos, p);
+                recombinar(pp1, p, pos, posSize);
             }
             else
             {
-                recombinar(pp2, posSize, pos, p);
+                recombinar(pp2, p, pos, posSize);
             }
         }
 
@@ -277,11 +277,11 @@ public class Pso
                     .realizarRanking(gbest);
             if (ranqueamento.compare(pg1, pg2) > 0)
             {
-                recombinar(pg1, posSize, pos, p);
+                recombinar(pg1, p, pos, posSize);
             }
             else
             {
-                recombinar(pg2, posSize, pos, p);
+                recombinar(pg2, p, pos, posSize);
             }
         }
 
@@ -290,13 +290,13 @@ public class Pso
     /**
      * Operador de crossover.
      *
-     * @param best
-     * @param posSize
-     * @param pos
-     * @param part
+     * @param best Melhor partícula.
+     * @param part Partícula.
+     * @param partPos Posição da partícula.
+     * @param partPosSize Tamanho do vetor posição da partícula.
      */
-    private void recombinar(Particula best, int posSize,
-            List<String> pos, Particula part)
+    private void recombinar(Particula best, Particula part,
+            List<String> partPos, int partPosSize)
     {
         final List<String> bestPos = new ArrayList<>(best.posicao());
 
@@ -313,16 +313,16 @@ public class Pso
                 i++;
             }
 
-            if (i < posSize)
+            if (i < partPosSize)
             {
-                newPos.add(pos.get(rand.nextInt(posSize)));
+                newPos.add(partPos.get(rand.nextInt(partPosSize)));
                 i++;
             }
         }
 
         part.setPosicao(new HashSet<>(newPos));
     }
-    
+
     /**
      * Perturbação.
      *
@@ -332,7 +332,7 @@ public class Pso
     {
         perturbar(p, 1.0);
     }
-    
+
     /**
      * Mutação.
      *
@@ -352,10 +352,10 @@ public class Pso
                 // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
                 // Proposta de Higashi et al. (2003)
                 final double valor = Double.parseDouble(clausula[2]);
-                
+
                 final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0]));
                 final double R = new NormalDistribution(0, alfa).sample();
-                
+
                 double newValor = valor + R;
 
                 // Proposta de Michalewitz (1996)
@@ -369,7 +369,6 @@ public class Pso
 //                {
 //                    newValor = valor - (valor - min.get(clausula[1])) * Math.random();
 //                }
-                
                 pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0],
                         clausula[1], newValor));
             }
@@ -385,15 +384,15 @@ public class Pso
                     int indexOper = 0;
                     for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
                     {
-                        if (PROB_OPERADORES[k - 1] >= sorteio 
+                        if (PROB_OPERADORES[k - 1] >= sorteio
                                 && PROB_OPERADORES[k] < sorteio)
                         {
                             indexOper = k - 1;
                         }
                     }
-                    
+
                     clausula[1] = LISTA_OPERADORES[indexOper];
-                    
+
                     pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0],
                             clausula[1], clausula[2]));
 
@@ -678,7 +677,7 @@ public class Pso
         int numCols = colunas.length;
         Set<String> listaWhere = new HashSet<>();
 
-        int maxWhere = (int) Math.ceil(FastMath.log(2.0, 
+        int maxWhere = (int) Math.ceil(FastMath.log(2.0,
                 RandomUtils.nextDouble(1, numCols))) + 1;
 //        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
 
