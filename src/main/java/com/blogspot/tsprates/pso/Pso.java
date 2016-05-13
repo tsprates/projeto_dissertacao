@@ -398,16 +398,15 @@ public class Pso
     /**
      * Operador de crossover.
      *
-     * @param best Melhor partícula.
+     * @param partBest Melhor partícula.
      * @param part Partícula.
      * @param partPos Posição da partícula.
      * @param partPosSize Tamanho do vetor posição da partícula.
      */
-    private void recombinar(Particula best, Particula part,
-            List<String> partPos, 
-            final int partPosSize)
+    private void recombinar(Particula partBest, Particula part,
+            List<String> partPos, final int partPosSize)
     {
-        final List<String> bestPos = new ArrayList<>(best.posicao());
+        final List<String> bestPos = new ArrayList<>(partBest.posicao());
 
         List<String> newPos = new ArrayList<>();
 
