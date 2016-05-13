@@ -156,7 +156,7 @@ public class Pso
                 atualizarRepositorio(particula);
 
                 // operador de turbulência
-                aplicarTurbulencia(pi, particula);
+                aplicarTurbulencia(pi);
 
                 // pbest
                 particula.atualizaPbest();
@@ -195,39 +195,15 @@ public class Pso
     }
 
     /**
-     * Atualiza repositório de partículas não dominadas.
-     *
-     * @param particula
-     * @param classe
-     * @param gbestLista
-     */
-    private void atualizarRepositorio(Particula particula)
-    {
-        String classe = particula.classe();
-        List<Particula> gbestLista = repositorio.get(classe);
-
-        FronteiraPareto.atualizarParticulas(gbestLista, particula);
-
-        // verificarTamanhoDoRepositorio partículas não dominadas
-        List<Particula> rep = new ArrayList<>(
-                FronteiraPareto.getParticulasNaoDominadas(gbestLista));
-
-        repositorio.put(classe, rep);
-
-        FronteiraPareto.verificarTamanhoDoRepositorio(rep, distanciaDeMultidao);
-    }
-
-    /**
      * Operador de turbulência.
      *
-     * @param iter Iteração atual.
-     * @param particula
+     * @param indexPart Índice da partícula.
      */
-    private void aplicarTurbulencia(double iter, Particula particula)
+    private void aplicarTurbulencia(int indexPart)
     {
-        if ((iter % turbulencia) == 0)
+        if ((indexPart % turbulencia) == 0)
         {
-            perturbar(particula);
+            perturbar(this.particulas.get(indexPart));
         }
     }
 
@@ -570,10 +546,7 @@ public class Pso
 
             for (int i = 0, len = popNicho.get(cls); i < len; i++)
             {
-                Set<String> pos = criarWhere();
-
-                Particula particula = new Particula(pos, cls, fitness, distanciaDeMultidao);
-
+                Particula particula = criarParticula(cls);
                 nichoParticulas.add(particula);
 
             }
@@ -586,6 +559,18 @@ public class Pso
         }
 
         return newParts;
+    }
+
+    /**
+     * Cria uma partícula da classe definida.
+     *
+     * @param cls Classe.
+     * @return
+     */
+    private Particula criarParticula(String cls)
+    {
+        Set<String> pos = criarWhere();
+        return new Particula(pos, cls, fitness, distanciaDeMultidao);
     }
 
     /**
@@ -796,6 +781,29 @@ public class Pso
         {
             repositorio.get(classe).clear();
         }
+    }
+
+    /**
+     * Atualiza repositório de partículas não dominadas.
+     *
+     * @param particula
+     * @param classe
+     * @param gbestLista
+     */
+    private void atualizarRepositorio(Particula particula)
+    {
+        String classe = particula.classe();
+        List<Particula> gbestLista = repositorio.get(classe);
+
+        FronteiraPareto.atualizarParticulas(gbestLista, particula);
+
+        // verificarTamanhoDoRepositorio partículas não dominadas
+        List<Particula> rep = new ArrayList<>(
+                FronteiraPareto.getParticulasNaoDominadas(gbestLista));
+
+        repositorio.put(classe, rep);
+
+        FronteiraPareto.verificarTamanhoDoRepositorio(rep, distanciaDeMultidao);
     }
 
 }
