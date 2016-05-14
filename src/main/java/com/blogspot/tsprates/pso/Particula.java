@@ -178,8 +178,11 @@ public class Particula implements Comparable<Particula>
     public void atualizaPbest()
     {
         FronteiraPareto.atualizarParticulas(pbest, this);
-        this.pbest = new HashSet<>(FronteiraPareto.getParticulasNaoDominadas(pbest));
-        FronteiraPareto.verificarTamanhoDoRepositorio(this.pbest, distanciaDeMultidao);
+        this.pbest = new HashSet<>(pbest);
+        
+        // verifica tamanho do repositório
+        FronteiraPareto.verificarTamanhoDoRepositorio(this.pbest, 
+                distanciaDeMultidao);
     }
 
     @Override

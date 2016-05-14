@@ -813,12 +813,11 @@ public class Pso
 
         FronteiraPareto.atualizarParticulas(gbestLista, particula);
 
-        // verificarTamanhoDoRepositorio partículas não dominadas
-        List<Particula> rep = new ArrayList<>(
-                FronteiraPareto.getParticulasNaoDominadas(gbestLista));
+        List<Particula> rep = new ArrayList<>(gbestLista);
 
         repositorio.put(classe, rep);
 
+        // verifica tamanho do repositório
         FronteiraPareto.verificarTamanhoDoRepositorio(rep, distanciaDeMultidao);
     }
 }
