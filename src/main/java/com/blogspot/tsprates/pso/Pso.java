@@ -365,7 +365,7 @@ public class Pso
             }
             else
             {
-                if (Math.random() < 0.6)
+                if (Math.random() < 0.5)
                 {
                     pos.add(criarCondicao());
                 }
@@ -704,7 +704,7 @@ public class Pso
         final int colIndex = rand.nextInt(numCols);
         final int operIndex = rand.nextInt(numOper);
 
-        final double prob = 0.7;
+        final double prob = 0.9;
 
         String valor;
 
