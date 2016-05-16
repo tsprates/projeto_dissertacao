@@ -14,7 +14,7 @@ import java.util.List;
 public class FronteiraPareto
 {
 
-    private final static int LIMITE_REPO = 100;
+    private final static int LIMITE_REPO = 30;
 
     public static void verificarTamanhoDoRepositorio(
             Collection<Particula> repositorio,

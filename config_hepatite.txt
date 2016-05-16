@@ -1,9 +1,9 @@
 saida=classe
 id=cod
-npop=500
+npop=200
 tabela=hepatite_correta
-maxiter=200000
+maxiter=100000
 w=0.9
-c1=0.8
-c2=0.8
-cr=0.9
+c1=0.7
+c2=0.7
+cr=0.8
