@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.RandomUtils;
+
 /**
  * Fronteira Pareto.
  *
@@ -16,14 +18,9 @@ public class FronteiraPareto
 
     private final static int LIMITE_REPO = 30;
 
-    public static void verificarTamanhoDoRepositorio(
-            Collection<Particula> repositorio,
-            DistanciaDeMultidao distanciaDeMultidao)
+    public static void verificarTamanhoDoRepositorio(Collection<Particula> repositorio)
     {
         List<Particula> rep = new ArrayList<>(repositorio);
-
-        // limita o tamanho do repositório de soluções dominadas
-        // realizado por meio da distância de aglomeração
         Collections.sort(rep);
         final int repSize = rep.size();
         if (repSize > LIMITE_REPO)
@@ -31,17 +28,7 @@ public class FronteiraPareto
             while (rep.size() > LIMITE_REPO)
             {
                 int index = rep.size() - 1;
-                for (int iter = rep.size() - 1; iter >= 0; iter--)
-                {
-                    final DistanciaDeMultidao ranqueamento = distanciaDeMultidao
-                            .realizarRanking(rep);
-                    if (ranqueamento.compare(rep.get(index), rep.get(iter)) > 0)
-                    {
-                        index = iter;
-                    }
-
-                }
-                rep.remove(index);
+                rep.remove(RandomUtils.nextInt(1, index));
             }
         }
     }
