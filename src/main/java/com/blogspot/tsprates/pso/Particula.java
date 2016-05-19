@@ -173,6 +173,10 @@ public class Particula implements Comparable<Particula>
     {
         FronteiraPareto.atualizarParticulas(pbest, this);
         this.pbest = new TreeSet<>(pbest);
+
+        // verifica tamanho do repositório
+        FronteiraPareto.verificarTamanhoDoRepositorio(this.pbest);
+
     }
 
     @Override
