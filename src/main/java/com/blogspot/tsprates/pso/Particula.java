@@ -1,10 +1,10 @@
 package com.blogspot.tsprates.pso;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,9 +16,9 @@ import org.apache.commons.lang3.StringUtils;
 public class Particula implements Comparable<Particula>
 {
 
-    private Set<String> posicao = new HashSet<>();
+    private Set<String> posicao;
 
-    private String strPos = null;
+    private String strPos;
 
     private String classe;
 
@@ -41,10 +41,10 @@ public class Particula implements Comparable<Particula>
     public Particula(Set<String> posicao, String classe, Fitness fitness,
             DistanciaDeMultidao distanciaDeMultidao)
     {
-        this.posicao = new HashSet<>(posicao);
+        this.posicao = new TreeSet<>(posicao);
         this.strPos = join(posicao);
         this.classe = classe;
-        this.pbest = new HashSet<>();
+        this.pbest = new TreeSet<>();
 
         this.calculadorFitness = fitness;
 
@@ -80,7 +80,7 @@ public class Particula implements Comparable<Particula>
      */
     public void setPosicao(Collection<String> posicao)
     {
-        this.posicao = new HashSet<>(posicao);
+        this.posicao = new TreeSet<>(posicao);
         this.strPos = join(this.posicao);
         this.fitness = calculadorFitness.calcular(this);
     }
@@ -168,7 +168,7 @@ public class Particula implements Comparable<Particula>
      */
     public void setPbest(List<Particula> pbest)
     {
-        this.pbest = new HashSet<>(pbest);
+        this.pbest = new TreeSet<>(pbest);
     }
 
     /**
@@ -178,34 +178,37 @@ public class Particula implements Comparable<Particula>
     public void atualizaPbest()
     {
         FronteiraPareto.atualizarParticulas(pbest, this);
-        this.pbest = new HashSet<>(pbest);
+        this.pbest = new TreeSet<>(pbest);
         
         // verifica tamanho do repositório
         FronteiraPareto.verificarTamanhoDoRepositorio(this.pbest, 
                 distanciaDeMultidao);
     }
 
+   
+
     @Override
     public int hashCode()
     {
-        int hash = 5;
-        hash = 41 * hash + Objects.hashCode(this.strPos);
-        return hash;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(fitness);
+        return result;
     }
 
     @Override
     public boolean equals(Object obj)
     {
+        if (this == obj)
+            return true;
         if (obj == null)
-        {
             return false;
-        }
         if (getClass() != obj.getClass())
-        {
             return false;
-        }
-        final Particula other = (Particula) obj;
-        return Objects.equals(this.strPos, other.strPos);
+        Particula other = (Particula) obj;
+        if (!Arrays.equals(fitness, other.fitness))
+            return false;
+        return true;
     }
 
     @Override
