@@ -1,7 +1,7 @@
-saida=classe
-id=id
+saida=classificacao
+id=cod
 npop=200
-tabela=wine
+tabela=wine_class
 maxiter=100000
 w=0.9
 c1=0.7
