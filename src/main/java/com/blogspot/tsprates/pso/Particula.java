@@ -179,13 +179,11 @@ public class Particula implements Comparable<Particula>
     {
         FronteiraPareto.atualizarParticulas(pbest, this);
         this.pbest = new TreeSet<>(pbest);
-        
+
         // verifica tamanho do repositório
-        FronteiraPareto.verificarTamanhoDoRepositorio(this.pbest, 
+        FronteiraPareto.verificarTamanhoDoRepositorio(this.pbest,
                 distanciaDeMultidao);
     }
-
-   
 
     @Override
     public int hashCode()
@@ -200,15 +198,19 @@ public class Particula implements Comparable<Particula>
     public boolean equals(Object obj)
     {
         if (this == obj)
+        {
             return true;
+        }
         if (obj == null)
+        {
             return false;
+        }
         if (getClass() != obj.getClass())
+        {
             return false;
+        }
         Particula other = (Particula) obj;
-        if (!Arrays.equals(fitness, other.fitness))
-            return false;
-        return true;
+        return Arrays.equals(fitness, other.fitness);
     }
 
     @Override

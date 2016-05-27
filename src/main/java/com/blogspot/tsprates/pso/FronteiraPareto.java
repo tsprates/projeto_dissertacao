@@ -76,7 +76,7 @@ public class FronteiraPareto
                 {
                     iter.remove();
                 }
-                
+
                 // testa se não é dominada
                 if (testarNaoDominancia(pfit, pfitAtual))
                 {
@@ -89,7 +89,7 @@ public class FronteiraPareto
                 }
             }
 
-            if ((adiciona == true && dominada == false) 
+            if ((adiciona == true && dominada == false)
                     && !particulas.contains(particula))
             {
                 particulas.add(new Particula(particula));
@@ -155,5 +155,4 @@ public class FronteiraPareto
 //
 //        return particulasNaoDominadas;
 //    }
-
 }

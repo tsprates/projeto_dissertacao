@@ -10,7 +10,8 @@ import java.sql.SQLException;
  * @author thiago
  *
  */
-public class DbFactory {
+public class DbFactory
+{
 
     /**
      * Nome do banco de dados.
@@ -32,13 +33,17 @@ public class DbFactory {
      *
      * @return Connection
      */
-    public Connection conectar() {
-	try {
-	    return DriverManager.getConnection("jdbc:postgresql://localhost/"
-		    + DB_NAME, USERNAME, PASSWORD);
-	} catch (SQLException e) {
-	    throw new RuntimeException(e);
-	}
+    public Connection conectar()
+    {
+        try
+        {
+            return DriverManager.getConnection("jdbc:postgresql://localhost/"
+                    + DB_NAME, USERNAME, PASSWORD);
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
 }

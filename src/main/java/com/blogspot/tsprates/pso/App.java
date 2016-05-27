@@ -6,11 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,16 +37,14 @@ public class App
             Connection conexaoDb = new DbFactory().conectar();
             Properties config = carregarConfigArquivo(args[0]);
 
-            final Formatador format = new Formatador();
-
             final int exec = 30;
 
-            Pso pso = new Pso(conexaoDb, config, format);
-            final Set<String> classes = pso.getClasses();
+            final Formatador format = new Formatador();
 
-            Map<String, List<Double>> efetividade;
+            int kpastas = 10;
+            Pso pso = new Pso(conexaoDb, config, format, kpastas);
 
-            List<Double> efetividadeGlobal = new ArrayList<>();
+            List<Double> efetividadeExec = new ArrayList<>();
 
             for (int iter = 0; iter < exec; iter++)
             {
@@ -60,14 +55,7 @@ public class App
                 pso.carregar();
                 pso.mostrarResultados();
 
-                efetividade = pso.getEfetividade();
-                double soma = 0;
-                for (String c : classes)
-                {
-                    soma += Collections.max(efetividade.get(c));
-                }
-                efetividadeGlobal.add(soma / (double) classes.size());
-
+                efetividadeExec.add(pso.getResultado());
             }
 
             // mostra o gráfico
@@ -76,7 +64,7 @@ public class App
             final String eixoX = "Execução";
             final String eixoY = "Sensibilidade x Especificidade";
             Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
-            g.adicionaSerie("MOPSO", efetividadeGlobal);
+            g.adicionaSerie("MOPSO", efetividadeExec);
             g.mostra();
 
         }

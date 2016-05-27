@@ -55,7 +55,7 @@ public class Pso
 
     private final Set<String> tipoSaidas = new TreeSet<>();
 
-    private final Map<String, Set<String>> saidas = new HashMap<>();
+    private final Map<String, List<String>> mapaSaida = new HashMap<>();
 
     private final Map<String, List<Particula>> repositorio = new HashMap<>();
 
@@ -87,13 +87,17 @@ public class Pso
 
     private final Map<String, List<Double>> acuracia = new HashMap<>();
 
-    private final Map<String, Integer> popNicho = new HashMap<>();
-
     private final DistanciaDeMultidao distanciaDeMultidao = new DistanciaDeMultidao();
 
-    private final SolucoesNaoDominadas solucoesNaoDominadas;
+    private final Map<String, Integer> enxameNicho;
 
     private final double turbulencia = 3;
+
+    private final int NUM_K;
+
+    private List<List<String>> kpastas = new ArrayList<>();
+
+    private double resultado;
 
     /**
      * Construtor.
@@ -101,8 +105,12 @@ public class Pso
      * @param conexao Conexão com banco de dados PostgreSQL.
      * @param props Propriedades de configuração.
      * @param formatador Formatador de casas decimais.
+     * @param kfold Número para validação k-pastas.
      */
-    public Pso(Connection conexao, Properties props, Formatador formatador)
+    public Pso(Connection conexao,
+            final Properties props,
+            final Formatador formatador,
+            final int kfold)
     {
         this.conexao = conexao;
         this.tabela = (props.getProperty("tabela"));
@@ -121,15 +129,23 @@ public class Pso
         carregarClassesDeSaida();
         mapaSaidaId();
         carregarMaxMinEntradas();
-        dividirNichoEnxame();
 
-        this.fitness = new Fitness(conexao, colId, tabela, saidas);
-
-        this.solucoesNaoDominadas = new SolucoesNaoDominadas(conexao, tabela, tipoSaidas);
+        enxameNicho = dividirNichoEnxame();
 
         format = formatador;
 
         criaRepositorio();
+
+        NUM_K = kfold;
+
+        for (int i = 0; i < NUM_K; i++)
+        {
+            kpastas.add(new ArrayList<String>());
+        }
+
+        dividirKPastas(NUM_K);
+
+        this.fitness = new Fitness(conexao, colId, tabela, mapaSaida, kpastas);
     }
 
     /**
@@ -144,30 +160,42 @@ public class Pso
         this.particulas = getEnxameInicial();
 
         long tempoInicial = System.nanoTime();
-        int i = 0;
-        while (fitness.getNumAvaliacao() < maxIter)
+
+        Map<String, Double> mapaTotal = iniciarMapaTotal();
+
+        for (int ki = 0; ki < NUM_K; ki++)
         {
+            fitness.setK(ki);
 
-            for (int pi = 0; pi < numParts; pi++)
+            int i = 0;
+            while (fitness.getNumAvaliacao() < maxIter)
             {
-                Particula particula = particulas.get(pi);
 
-                // gbest
-                atualizarRepositorio(particula);
+                for (int part = 0; part < numParts; part++)
+                {
+                    Particula particula = particulas.get(part);
 
-                // operador de turbulência
-                aplicarTurbulencia(pi);
+                    // gbest
+                    atualizarRepositorio(particula);
 
-                // pbest
-                particula.atualizaPbest();
+                    // operador de turbulência
+                    aplicarTurbulencia(part);
 
-                // atualiza posição da partícula
-                atualizaPosicao(particula);
-            }
+                    // pbest
+                    particula.atualizaPbest();
 
-            System.out.println("Iteração: " + (i + 1));
-            i++;
-        }
+                    // atualiza posição da partícula
+                    atualizaPosicao(particula);
+                }
+
+//                System.out.println("Iteração: " + (i + 1));
+                i++;
+            } // fim: iterações
+
+            calcularResultado(mapaTotal);
+        } // fim: k-pastas
+
+        this.resultado = getValorMedioResultado(mapaTotal);
 
         for (String saida : tipoSaidas)
         {
@@ -188,10 +216,114 @@ public class Pso
         System.out.println();
         System.out.println("Tempo decorrido: " + tempoDecorrido);
         System.out.println();
+    }
 
-        // soluções não dominadas
-//        solucoesNaoDominadas.salvar(repositorio);
-//        solucoesNaoDominadas.limparSolucoesDominadasSalvas();
+    /**
+     *
+     * @param mapaTotal
+     * @return
+     */
+    private double getValorMedioResultado(Map<String, Double> mapaTotal)
+    {
+        double total = 0.0;
+        for (Double d : mapaTotal.values())
+        {
+            total += d;
+        }
+        return (total / (tipoSaidas.size() * NUM_K));
+    }
+
+    /**
+     *
+     * @return
+     */
+    public double getResultado()
+    {
+        return resultado;
+    }
+
+    /**
+     * Inicializa mapa de resultados para cada classe de saída.
+     *
+     * @return
+     */
+    private Map<String, Double> iniciarMapaTotal()
+    {
+        Map<String, Double> total = new HashMap<>();
+        for (String saida : tipoSaidas)
+        {
+            total.put(saida, 0.0);
+        }
+        return total;
+    }
+
+    /**
+     * Calcular resultado para cada classe de saída.
+     *
+     * @param total
+     */
+    private void calcularResultado(Map<String, Double> total)
+    {
+        Map<String, List<Double[]>> resultado = fitness.avaliar(repositorio);
+
+        for (Entry<String, List<Double[]>> entrada : resultado.entrySet())
+        {
+            String saida = entrada.getKey();
+            List<Double[]> val = entrada.getValue();
+
+            // vetor fitness na posição 2 (efetividade)
+            Double[] temp = val.get(0);
+            double maior = temp[1];
+            for (Double[] fitness : val)
+            {
+                if (fitness[1] > maior)
+                {
+                    maior = fitness[1];
+                }
+            }
+
+            total.put(saida, total.get(saida) + maior);
+        }
+    }
+
+    /**
+     * Mostra Resultados.
+     */
+    public void mostrarResultados()
+    {
+        System.out.println();
+
+        Map<String, List<Particula>> solucoes = repositorio;
+
+        StringBuilder builder = new StringBuilder(
+                "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
+
+        for (Entry<String, List<Particula>> parts : solucoes.entrySet())
+        {
+
+            String classe = parts.getKey();
+
+            List<Particula> listaParts = parts.getValue();
+
+            Collections.sort(listaParts);
+
+            for (Particula part : listaParts)
+            {
+                builder.append(classe);
+
+                double[] d = part.fitness();
+                for (int i = 0, len = d.length; i < len; i++)
+                {
+                    builder.append("\t").append(format.formatar(d[i]));
+                }
+
+                builder.append("\t").append(part.whereSql()).append("\n");
+            }
+        }
+
+        builder.append("\n");
+
+        System.out.println(builder.toString());
     }
 
     /**
@@ -242,31 +374,33 @@ public class Pso
     }
 
     /**
-     * 
+     * Aplica recombinação.
+     *
      * @param gbest
-     * @param sizeGbest
-     * @param p
-     * @param pos
-     * @param posSize 
+     * @param gbestSize
+     * @param part
+     * @param partPos
+     * @param partPosSize
      */
-    private void aplicarRecomb(List<Particula> gbest, 
-            final int sizeGbest, 
-            Particula p, 
-            List<String> pos, 
-            final int posSize) {
-        
-        Particula p1 = gbest.get(rand.nextInt(sizeGbest));
-        Particula p2 = gbest.get(rand.nextInt(sizeGbest));
-        
+    private void aplicarRecomb(List<Particula> gbest,
+            final int gbestSize,
+            Particula part,
+            List<String> partPos,
+            final int partPosSize)
+    {
+
+        Particula p1 = gbest.get(rand.nextInt(gbestSize));
+        Particula p2 = gbest.get(rand.nextInt(gbestSize));
+
         final DistanciaDeMultidao ranqueamento = distanciaDeMultidao
                 .realizarRanking(gbest);
         if (ranqueamento.compare(p1, p2) > 0)
         {
-            recombinar(p1, p, pos, posSize);
+            recombinar(p1, part, partPos, partPosSize);
         }
         else
         {
-            recombinar(p2, p, pos, posSize);
+            recombinar(p2, part, partPos, partPosSize);
         }
     }
 
@@ -337,7 +471,7 @@ public class Pso
                 // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
                 final double valor = Double.parseDouble(clausula[2]);
                 double newValor;
-                
+
                 if (distNorm)
                 {
                     // Proposta de Higashi et al. (2003)
@@ -350,12 +484,12 @@ public class Pso
                     // Proposta de Michalewitz (1996)
                     if (Math.random() < 0.5)
                     {
-                        newValor = valor + (max.get(clausula[1]) - valor) 
+                        newValor = valor + (max.get(clausula[1]) - valor)
                                 * Math.random();
                     }
                     else
                     {
-                        newValor = valor - (valor - min.get(clausula[1])) 
+                        newValor = valor - (valor - min.get(clausula[1]))
                                 * Math.random();
                     }
                 }
@@ -402,7 +536,7 @@ public class Pso
     {
         for (String saida : tipoSaidas)
         {
-            saidas.put(saida, new HashSet<String>());
+            mapaSaida.put(saida, new ArrayList<String>());
         }
 
         String sql = "SELECT " + colSaida + ", " + colId + " AS col_id "
@@ -414,7 +548,7 @@ public class Pso
             while (rs.next())
             {
                 String coluna = rs.getString(colSaida);
-                saidas.get(coluna).add(rs.getString("col_id"));
+                mapaSaida.get(coluna).add(rs.getString("col_id"));
             }
         }
         catch (SQLException e)
@@ -430,7 +564,11 @@ public class Pso
     private void carregarColunas()
     {
         ResultSetMetaData metadata;
-        String sql = "SELECT * FROM " + tabela + " LIMIT 1";
+
+        String sql = "SELECT * "
+                + "FROM " + tabela + " "
+                + "LIMIT 1";
+
         int numCol;
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
@@ -467,8 +605,9 @@ public class Pso
      */
     private void carregarClassesDeSaida()
     {
-        String sql = "SELECT DISTINCT " + colSaida + " FROM " + tabela
-                + " ORDER BY " + colSaida + " ASC";
+        String sql = "SELECT DISTINCT " + colSaida + " "
+                + "FROM " + tabela + " "
+                + "ORDER BY " + colSaida + " ASC";
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery())
@@ -524,27 +663,32 @@ public class Pso
     }
 
     /**
-     * Faz a divisão do total da população em nichos similares 
-     * para cada classe do problema.
+     * Faz a divisão do total da população em nichos similares para cada classe
+     * do problema.
+     *
+     * @return População de cada nicho.
      */
-    private void dividirNichoEnxame()
+    private Map<String, Integer> dividirNichoEnxame()
     {
         final int numSaidas = tipoSaidas.size();
         final int numPopNicho = numParts / numSaidas;
         int resto = numParts % numSaidas;
+        Map<String, Integer> nicho = new HashMap<>();
 
         for (String i : tipoSaidas)
         {
             if (resto > 0)
             {
-                popNicho.put(i, numPopNicho + 1);
+                nicho.put(i, numPopNicho + 1);
                 resto -= 1;
             }
             else
             {
-                popNicho.put(i, numPopNicho);
+                nicho.put(i, numPopNicho);
             }
         }
+
+        return nicho;
     }
 
     /**
@@ -556,11 +700,11 @@ public class Pso
     {
         List<Particula> newParts = new ArrayList<>();
 
-        for (String cls : popNicho.keySet())
+        for (String cls : enxameNicho.keySet())
         {
             List<Particula> nichoParticulas = new ArrayList<>();
 
-            for (int i = 0, len = popNicho.get(cls); i < len; i++)
+            for (int i = 0, len = enxameNicho.get(cls); i < len; i++)
             {
                 Particula particula = criarParticula(cls);
                 nichoParticulas.add(particula);
@@ -605,56 +749,14 @@ public class Pso
     }
 
     /**
-     * Solução encontrada.
-     *
-     */
-    public void mostrarResultados()
-    {
-        System.out.println();
-
-        Map<String, List<Particula>> solucoes = repositorio;
-
-        StringBuilder builder = new StringBuilder(
-                "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
-
-        for (Entry<String, List<Particula>> parts
-                : solucoes.entrySet())
-        {
-
-            String classe = parts.getKey();
-
-            List<Particula> resultado = parts.getValue();
-
-            Collections.sort(resultado);
-
-            for (Particula part : resultado)
-            {
-                builder.append(classe);
-
-                double[] d = part.fitness();
-                for (int i = 0, len = d.length; i < len; i++)
-                {
-                    builder.append("\t").append(format.formatar(d[i]));
-                }
-
-                builder.append("\t").append(part.whereSql()).append("\n");
-            }
-        }
-
-        builder.append("\n");
-
-        System.out.println(builder.toString());
-    }
-
-    /**
      * Lista toda a população.
      */
     public void mostrarEnxame()
     {
         System.out.println("Classe:");
-        for (String classe : saidas.keySet())
+        for (String classe : mapaSaida.keySet())
         {
-            Set<String> c = saidas.get(classe);
+            List<String> c = mapaSaida.get(classe);
             System.out.println(classe + ") " + c.size());
         }
         System.out.println();
@@ -678,8 +780,8 @@ public class Pso
         int numCols = colunas.length;
         Set<String> listaWhere = new HashSet<>();
 
-        int maxWhere = (int) Math.ceil(FastMath.log(2.0,
-                RandomUtils.nextDouble(1, numCols))) + 1;
+        double r = RandomUtils.nextDouble(1, numCols);
+        int maxWhere = (int) Math.ceil(FastMath.log(2.0, r)) + 1;
 //        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
 
         for (int i = 0; i < maxWhere; i++)
@@ -756,6 +858,16 @@ public class Pso
     }
 
     /**
+     * Retorna tipos de saída.
+     *
+     * @return Tipos de saída.
+     */
+    public Map<String, List<String>> getSaidasPorId()
+    {
+        return mapaSaida;
+    }
+
+    /**
      * Retorna mapa das classes com a efetividade de cada partícula.
      *
      * @return Mapa das classes com a efetividade de cada partícula.
@@ -819,5 +931,75 @@ public class Pso
 
         // verifica tamanho do repositório
         FronteiraPareto.verificarTamanhoDoRepositorio(rep, distanciaDeMultidao);
+    }
+
+    /**
+     * Validação Cruzada k-pastas.
+     *
+     * @param k Número de pastas.
+     */
+    private void dividirKPastas(int numPastas)
+    {
+        Map<String, List<String>> temp = new HashMap<>();
+        int total = 0;
+
+        for (String saida : tipoSaidas)
+        {
+            temp.put(saida, new ArrayList<String>());
+
+            for (int i = 0, len = mapaSaida.get(saida).size(); i < len; i++)
+            {
+                temp.get(saida).add(mapaSaida.get(saida).get(i));
+                total++;
+            }
+        }
+
+        List<String> listaTipoSaidas = new ArrayList<>(tipoSaidas);
+
+        int k = 0;
+
+        for (int i = 0; i < total;)
+        {
+            for (int j = 0, size = listaTipoSaidas.size(); j < size;)
+            {
+                String idx = listaTipoSaidas.get(j);
+                List<String> ids = temp.get(idx);
+
+                while (k < numPastas)
+                {
+                    if (!ids.isEmpty())
+                    {
+                        String id = ids.remove(0);
+                        kpastas.get(k).add(id);
+                        i++;
+                        k++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+                }
+
+                if (k == NUM_K)
+                {
+                    k = 0;
+                }
+                else
+                {
+                    j++;
+                }
+            }
+        }
+    }
+
+    /**
+     * Retorna k-pastas.
+     *
+     * @return Lista estratificada de k-pastas.
+     */
+    public List<List<String>> getKPasta()
+    {
+        return kpastas;
     }
 }
