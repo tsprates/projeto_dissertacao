@@ -188,7 +188,7 @@ public class Pso
                     atualizaPosicao(particula);
                 }
 
-//                System.out.println("Iteração: " + (i + 1));
+                System.out.println("Iteração: " + (i + 1));
                 i++;
             } // fim: iterações
 
@@ -943,27 +943,36 @@ public class Pso
         Map<String, List<String>> temp = new HashMap<>();
         int total = 0;
 
+        // deep cloning
         for (String saida : tipoSaidas)
         {
             temp.put(saida, new ArrayList<String>());
 
-            for (int i = 0, len = mapaSaida.get(saida).size(); i < len; i++)
+            List<String> mapaSaidaLista = mapaSaida.get(saida);
+            
+            for (int i = 0, size = mapaSaidaLista.size(); i < size; i++)
             {
-                temp.get(saida).add(mapaSaida.get(saida).get(i));
+                temp.get(saida).add(mapaSaidaLista.get(i));
                 total++;
             }
+            
+            Collections.shuffle(temp.get(saida));
         }
-
-        List<String> listaTipoSaidas = new ArrayList<>(tipoSaidas);
+        
+//        for (String s : temp.keySet())
+//        {
+//            System.out.println(temp.get(s));
+//        }
 
         int k = 0;
-
+        List<String> listaTipoSaidas = new ArrayList<>(tipoSaidas);
+        
         for (int i = 0; i < total;)
         {
             for (int j = 0, size = listaTipoSaidas.size(); j < size;)
             {
-                String idx = listaTipoSaidas.get(j);
-                List<String> ids = temp.get(idx);
+                String index = listaTipoSaidas.get(j);
+                List<String> ids = temp.get(index);
 
                 while (k < numPastas)
                 {
@@ -978,7 +987,6 @@ public class Pso
                     {
                         break;
                     }
-
                 }
 
                 if (k == NUM_K)

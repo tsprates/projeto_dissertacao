@@ -66,7 +66,6 @@ public class App
             Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
             g.adicionaSerie("MOPSO", efetividadeExec);
             g.mostra();
-
         }
         else
         {
