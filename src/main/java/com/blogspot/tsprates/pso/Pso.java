@@ -98,6 +98,8 @@ public class Pso
     private List<List<String>> kpastas = new ArrayList<>();
 
     private double resultado;
+    
+//    private final SolucoesNaoDominadas solucoesNaoDominadas;
 
     /**
      * Construtor.
@@ -146,6 +148,8 @@ public class Pso
         dividirKPastas(NUM_K);
 
         this.fitness = new Fitness(conexao, colId, tabela, mapaSaida, kpastas);
+        
+//        this.solucoesNaoDominadas = new SolucoesNaoDominadas(conexao, tabela, tipoSaidas);
     }
 
     /**
@@ -190,6 +194,10 @@ public class Pso
 
                 System.out.println("Iteração: " + (i + 1));
                 i++;
+                
+                // soluções não dominadas
+//                solucoesNaoDominadas.salvar(repositorio);
+//                solucoesNaoDominadas.limparSolucoesDominadasSalvas();
             } // fim: iterações
 
             calcularResultado(mapaTotal);
