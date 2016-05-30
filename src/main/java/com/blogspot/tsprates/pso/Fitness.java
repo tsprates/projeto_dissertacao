@@ -53,21 +53,17 @@ public class Fitness
     public Fitness(Connection conexao,
             final String colId,
             final String tabela,
-            final Map<String, List<String>> classesSaida,
-            final List<List<String>> kpastas)
+            final Map<String, List<String>> classesSaida)
     {
         this.conexao = conexao;
         this.colId = colId;
         this.tabela = tabela;
         this.classesSaida = classesSaida;
-        this.kpastas = kpastas;
 
         for (String saida : classesSaida.keySet())
         {
             totalSize += classesSaida.get(saida).size();
         }
-
-        notId = StringUtils.join(kpastas.get(0), ", ");
     }
 
     /**
@@ -79,6 +75,16 @@ public class Fitness
     {
         this.k = k;
         notId = StringUtils.join(kpastas.get(k), ", ");
+    }
+
+    /**
+     * Seta k-pasta.
+     *
+     * @param kpastas
+     */
+    public void setKPastas(List<List<String>> kpastas)
+    {
+        this.kpastas = kpastas;
     }
 
     /**

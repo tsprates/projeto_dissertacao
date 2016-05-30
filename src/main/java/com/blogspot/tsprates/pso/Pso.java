@@ -95,7 +95,7 @@ public class Pso
 
     private final int NUM_K;
 
-    private List<List<String>> kpastas = new ArrayList<>();
+    private List<List<String>> kpastas;
 
     private double resultado;
     
@@ -107,12 +107,12 @@ public class Pso
      * @param conexao Conexão com banco de dados PostgreSQL.
      * @param props Propriedades de configuração.
      * @param formatador Formatador de casas decimais.
-     * @param kfold Número para validação k-pastas.
+     * @param numKpastas Número para validação k-pastas.
      */
     public Pso(Connection conexao,
             final Properties props,
             final Formatador formatador,
-            final int kfold)
+            final int numKpastas)
     {
         this.conexao = conexao;
         this.tabela = (props.getProperty("tabela"));
@@ -135,19 +135,12 @@ public class Pso
         enxameNicho = dividirNichoEnxame();
 
         format = formatador;
+        
+        NUM_K = numKpastas;
 
         criaRepositorio();
 
-        NUM_K = kfold;
-
-        for (int i = 0; i < NUM_K; i++)
-        {
-            kpastas.add(new ArrayList<String>());
-        }
-
-        dividirKPastas(NUM_K);
-
-        this.fitness = new Fitness(conexao, colId, tabela, mapaSaida, kpastas);
+        this.fitness = new Fitness(conexao, colId, tabela, mapaSaida);
         
 //        this.solucoesNaoDominadas = new SolucoesNaoDominadas(conexao, tabela, tipoSaidas);
     }
@@ -157,15 +150,23 @@ public class Pso
      */
     public void carregar()
     {
+        
         resetRepositorio();
 
-        fitness.setNumAvaliacao(0);
+        // validação cruzada
+        criarKpastas();
+        fitness.setKPastas(kpastas);
+        
+        // reset contaddor de número de avaliações
+        fitness.setNumAvaliacao(0); 
 
+        // enxame
         this.particulas = getEnxameInicial();
 
+        // tempo inicial
         long tempoInicial = System.nanoTime();
 
-        Map<String, Double> mapaTotal = iniciarMapaTotal();
+        Map<String, Double> mapaTotal = iniciarMapaSaidaNumTotal();
 
         for (int ki = 0; ki < NUM_K; ki++)
         {
@@ -255,7 +256,7 @@ public class Pso
      *
      * @return
      */
-    private Map<String, Double> iniciarMapaTotal()
+    private Map<String, Double> iniciarMapaSaidaNumTotal()
     {
         Map<String, Double> total = new HashMap<>();
         for (String saida : tipoSaidas)
@@ -329,7 +330,7 @@ public class Pso
             }
         }
 
-        builder.append("\n");
+//        builder.append("\n");
 
         System.out.println(builder.toString());
     }
@@ -941,6 +942,23 @@ public class Pso
         FronteiraPareto.verificarTamanhoDoRepositorio(rep, distanciaDeMultidao);
     }
 
+    /**
+     * Faz a validação cruzada k-pastas.
+     * 
+     * @param numKpastas
+     */
+    private void criarKpastas()
+    {
+        kpastas = new ArrayList<>();
+        
+        for (int i = 0; i < NUM_K; i++)
+        {
+            kpastas.add(new ArrayList<String>());
+        }
+
+        dividirKPastas(NUM_K);
+    }
+    
     /**
      * Validação Cruzada k-pastas.
      *

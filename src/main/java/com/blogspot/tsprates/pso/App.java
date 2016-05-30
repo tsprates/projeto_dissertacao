@@ -37,14 +37,21 @@ public class App
             Connection conexaoDb = new DbFactory().conectar();
             Properties config = carregarConfigArquivo(args[0]);
 
-            final int exec = 30;
-
             final Formatador format = new Formatador();
 
-            int kpastas = 10;
+            final int exec = 50;
+
+            final int kpastas = 10;
             Pso pso = new Pso(conexaoDb, config, format, kpastas);
 
-            List<Double> efetividadeExec = new ArrayList<>();
+            List<Double> efetPsoExec = new ArrayList<>();
+            List<Double> efetJ48Exec = new ArrayList<>();
+            List<Double> efetSMOExec = new ArrayList<>();
+            
+            String tabela = config.getProperty("tabela");
+            String colSaida = config.getProperty("saida");
+            String colId = config.getProperty("id");
+            
 
             for (int iter = 0; iter < exec; iter++)
             {
@@ -55,7 +62,12 @@ public class App
                 pso.carregar();
                 pso.mostrarResultados();
 
-                efetividadeExec.add(pso.getResultado());
+                efetPsoExec.add(pso.getResultado());
+                
+                Weka ad = new Weka(pso.getKPasta(), kpastas, tabela, colId, colSaida);
+                double[] efetArray = ad.getEfetividadeArray();
+                efetJ48Exec.add(efetArray[0]);
+                efetSMOExec.add(efetArray[1]);
             }
 
             // mostra o gráfico
@@ -64,7 +76,9 @@ public class App
             final String eixoX = "Execução";
             final String eixoY = "Sensibilidade x Especificidade";
             Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
-            g.adicionaSerie("MOPSO", efetividadeExec);
+            g.adicionaSerie("MOPSO", efetPsoExec);
+            g.adicionaSerie("J48", efetJ48Exec);
+            g.adicionaSerie("SMO", efetSMOExec);
             g.mostra();
         }
         else
