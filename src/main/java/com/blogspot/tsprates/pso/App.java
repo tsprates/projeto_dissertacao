@@ -47,6 +47,7 @@ public class App
             List<Double> efetPsoExec = new ArrayList<>();
             List<Double> efetJ48Exec = new ArrayList<>();
             List<Double> efetSMOExec = new ArrayList<>();
+            List<Double> efetRBFExec = new ArrayList<>();
             
             String tabela = config.getProperty("tabela");
             String colSaida = config.getProperty("saida");
@@ -68,6 +69,7 @@ public class App
                 double[] efetArray = ad.getEfetividadeArray();
                 efetJ48Exec.add(efetArray[0]);
                 efetSMOExec.add(efetArray[1]);
+                efetRBFExec.add(efetArray[2]);
             }
 
             // mostra o gráfico
@@ -79,6 +81,7 @@ public class App
             g.adicionaSerie("MOPSO", efetPsoExec);
             g.adicionaSerie("J48", efetJ48Exec);
             g.adicionaSerie("SMO", efetSMOExec);
+            g.adicionaSerie("RBF", efetRBFExec);
             g.mostra();
         }
         else

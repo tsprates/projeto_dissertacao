@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 import weka.classifiers.Evaluation;
+import weka.classifiers.functions.RBFNetwork;
 import weka.classifiers.functions.SMO;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
@@ -41,7 +42,7 @@ public class Weka
 
     public double[] getEfetividadeArray()
     {
-        double[] total = new double[]{0.0, 0.0};
+        double[] total = new double[] { 0.0, 0.0, 0.0 };
             
         try
         {
@@ -73,6 +74,9 @@ public class Weka
                 SMO smo = new SMO();
                 smo.buildClassifier(trainData);
                 
+                RBFNetwork rbf = new RBFNetwork();
+                rbf.buildClassifier(trainData);
+                
                 // teste
                 query.setQuery("SELECT * "
                         + "FROM " + tabela + " "
@@ -89,19 +93,26 @@ public class Weka
                 
                 Evaluation evalSMO = new Evaluation(trainData);
                 evalSMO.evaluateModel(smo, testData);
+                
+                Evaluation evalRBF = new Evaluation(trainData);
+                evalRBF.evaluateModel(rbf, testData);
 
                 // efetividade global
                 int numClasses = trainData.numClasses();
-                double tJ48 = 0.0;
-                double tSMO = 0.0;
+                double totalJ48 = 0.0;
+                double totalSMO = 0.0;
+                double totalRBF = 0.0;
+                
                 for (int j = 0; j < numClasses; j++)
                 {
-                    tJ48 += evalJ48.precision(j) * evalJ48.recall(j);
-                    tSMO += evalSMO.precision(j) * evalSMO.recall(j);
+                    totalJ48 += evalJ48.precision(j) * evalJ48.recall(j);
+                    totalSMO += evalSMO.precision(j) * evalSMO.recall(j);
+                    totalRBF += evalRBF.precision(j) * evalRBF.recall(j);
                 }
                 
-                total[0] += tJ48 / numClasses;
-                total[1] += tSMO / numClasses;
+                total[0] += totalJ48 / numClasses;
+                total[1] += totalSMO / numClasses;
+                total[2] += totalRBF / numClasses;
             }
         }
         catch (Exception e)
@@ -111,15 +122,16 @@ public class Weka
 
         total[0] = total[0] / K;
         total[1] = total[1] / K;
+        total[2] = total[2] / K;
         
         return total;
     }
 
     private Remove criarRemove(Instances instance) throws Exception
     {
-        int testColIdIdx = instance.attribute(colId).index() + 1;
+        int colIdIndex = instance.attribute(colId).index() + 1;
         Remove removeAtrib = new Remove();
-        removeAtrib.setOptions(Utils.splitOptions("-R " + testColIdIdx));
+        removeAtrib.setOptions(Utils.splitOptions("-R " + colIdIndex));
         removeAtrib.setInputFormat(instance);
         return removeAtrib;
     }
