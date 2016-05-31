@@ -919,6 +919,9 @@ public class Pso
         List<Particula> rep = new ArrayList<>(gbestLista);
 
         repositorio.put(classe, rep);
+        
+        // verifica tamanho do repositório
+        FronteiraPareto.verificarTamanhoDoRepositorio(rep);
     }
 
     /**
