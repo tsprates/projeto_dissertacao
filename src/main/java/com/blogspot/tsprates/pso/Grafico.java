@@ -1,6 +1,5 @@
 package com.blogspot.tsprates.pso;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.text.DecimalFormat;
 import java.util.List;
@@ -74,7 +73,7 @@ public class Grafico extends ApplicationFrame
 
         XYPlot plot = chart.getXYPlot();
 
-        setBackground(plot);
+//        setBackground(plot);
         setEixoY(plot);
         setLineRenderer(plot);
 
@@ -103,12 +102,12 @@ public class Grafico extends ApplicationFrame
         plot.setRenderer(renderer);
     }
 
-    private void setBackground(XYPlot plot)
-    {
-        plot.setBackgroundPaint(Color.WHITE);
-        plot.setDomainGridlinePaint(Color.GRAY);
-        plot.setRangeGridlinePaint(Color.GRAY);
-    }
+//    private void setBackground(XYPlot plot)
+//    {
+//        plot.setBackgroundPaint(Color.WHITE);
+//        plot.setDomainGridlinePaint(Color.GRAY);
+//        plot.setRangeGridlinePaint(Color.GRAY);
+//    }
 
     private void createChart(JFreeChart chart)
     {
