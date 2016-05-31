@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 
 /**
  * Particles Swarm Optimization (PSO).
@@ -34,27 +35,25 @@ public class App
 
         if (args.length > 0 && Files.exists(Paths.get(args[0])))
         {
-            Connection conexaoDb = new DbFactory().conectar();
+            Connection db = new DbFactory().conectar();
             Properties config = carregarConfigArquivo(args[0]);
 
-            final Formatador format = new Formatador();
+            final Formatador fmt = new Formatador();
 
-            final int exec = 50;
+            final int K = 10;
+            Pso pso = new Pso(db, config, fmt, K);
 
-            final int kpastas = 10;
-            Pso pso = new Pso(conexaoDb, config, format, kpastas);
+            List<Double> efetPSO = new ArrayList<>();
+            List<Double> efetJ48 = new ArrayList<>();
+            List<Double> efetSMO = new ArrayList<>();
+            List<Double> efetRBF = new ArrayList<>();
 
-            List<Double> efetPsoExec = new ArrayList<>();
-            List<Double> efetJ48Exec = new ArrayList<>();
-            List<Double> efetSMOExec = new ArrayList<>();
-            List<Double> efetRBFExec = new ArrayList<>();
-            
             String tabela = config.getProperty("tabela");
             String colSaida = config.getProperty("saida");
             String colId = config.getProperty("id");
-            
 
-            for (int iter = 0; iter < exec; iter++)
+            final int EXEC = 50;
+            for (int iter = 0; iter < EXEC; iter++)
             {
                 System.out.println();
                 System.out.println("Execução: " + (iter + 1));
@@ -63,14 +62,56 @@ public class App
                 pso.carregar();
                 pso.mostrarResultados();
 
-                efetPsoExec.add(pso.getResultado());
-                
-                Weka ad = new Weka(pso.getKPasta(), kpastas, tabela, colId, colSaida);
+                efetPSO.add(pso.getResultado());
+
+                Weka ad = new Weka(pso.getKPasta(), K, tabela, colId, colSaida);
                 double[] efetArray = ad.getEfetividadeArray();
-                efetJ48Exec.add(efetArray[0]);
-                efetSMOExec.add(efetArray[1]);
-                efetRBFExec.add(efetArray[2]);
+                efetJ48.add(efetArray[0]);
+                efetSMO.add(efetArray[1]);
+                efetRBF.add(efetArray[2]);
             }
+
+            SummaryStatistics statsPso = new SummaryStatistics();
+            for (int i = 0, size = efetPSO.size(); i < size; i++)
+            {
+                statsPso.addValue(efetPSO.get(i));
+            }
+
+            SummaryStatistics statsJ48 = new SummaryStatistics();
+            for (int i = 0, size = efetJ48.size(); i < size; i++)
+            {
+                statsJ48.addValue(efetJ48.get(i));
+            }
+
+            SummaryStatistics statsSMO = new SummaryStatistics();
+            for (int i = 0, size = efetSMO.size(); i < size; i++)
+            {
+                statsSMO.addValue(efetSMO.get(i));
+            }
+
+            SummaryStatistics statsRBF = new SummaryStatistics();
+            for (int i = 0, size = efetRBF.size(); i < size; i++)
+            {
+                statsRBF.addValue(efetRBF.get(i));
+            }            
+
+            System.out.println("\nAlg. \tMéd. \tDesv.\n");
+            
+            System.out.printf("PSO \t%s \t%s \n", 
+                    fmt.formatar(statsPso.getMean()), 
+                    fmt.formatar(statsPso.getStandardDeviation()));
+            
+            System.out.printf("J48 \t%s \t%s\n", 
+                    fmt.formatar(statsJ48.getMean()), 
+                    fmt.formatar(statsJ48.getStandardDeviation()));
+            
+            System.out.printf("SMO \t%s \t%s\n", 
+                    fmt.formatar(statsSMO.getMean()), 
+                    fmt.formatar(statsSMO.getStandardDeviation()));
+            
+            System.out.printf("RBF \t%s \t%s\n", 
+                    fmt.formatar(statsRBF.getMean()), 
+                    fmt.formatar(statsRBF.getStandardDeviation()));
 
             // mostra o gráfico
             final String tituloGrafico = StringUtils
@@ -78,10 +119,10 @@ public class App
             final String eixoX = "Execução";
             final String eixoY = "Sensibilidade x Especificidade";
             Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
-            g.adicionaSerie("MOPSO", efetPsoExec);
-            g.adicionaSerie("J48", efetJ48Exec);
-            g.adicionaSerie("SMO", efetSMOExec);
-            g.adicionaSerie("RBF", efetRBFExec);
+            g.adicionaSerie("MOPSO", efetPSO);
+            g.adicionaSerie("J48", efetJ48);
+            g.adicionaSerie("SMO", efetSMO);
+            g.adicionaSerie("RBF", efetRBF);
             g.mostra();
         }
         else
