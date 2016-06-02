@@ -6,8 +6,7 @@ import org.apache.commons.math3.ml.distance.EuclideanDistance;
 public class Distancia
 {
 
-    private static EuclideanDistance distanciaEuclidiana
-            = new EuclideanDistance();
+    private static EuclideanDistance distanciaEuclidiana = new EuclideanDistance();
 
     /**
      * Retorna a partícula mais próxima dentre a lista de partícula passada,
