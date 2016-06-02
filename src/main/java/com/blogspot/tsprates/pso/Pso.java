@@ -165,7 +165,7 @@ public class Pso
         // tempo inicial
         long tempoInicial = System.nanoTime();
 
-        Map<String, Double> execKpastasClasses = iniciarMapaSaida();
+        Map<String, Double> execKpastasClasses = iniciarValorMedioExecKpastas();
 
         for (int ki = 0; ki < NUM_K; ki++)
         {
@@ -200,7 +200,7 @@ public class Pso
 //                solucoesNaoDominadas.limparSolucoesDominadasSalvas();
             } // fim: iterações
 
-            calcularEfetividadeKpastas(execKpastasClasses);
+            selecionarEfetividadeExecKpastas(execKpastasClasses);
         } // fim: k-pastas
 
         this.resultado = getValorMedioExecKpastas(execKpastasClasses);
@@ -257,7 +257,7 @@ public class Pso
      *
      * @return
      */
-    private Map<String, Double> iniciarMapaSaida()
+    private Map<String, Double> iniciarValorMedioExecKpastas()
     {
         Map<String, Double> execKpastasClasses = new HashMap<>();
         for (String saida : tipoSaidas)
@@ -272,7 +272,7 @@ public class Pso
      *
      * @param execKpastasClasses
      */
-    private void calcularEfetividadeKpastas(Map<String, Double> execKpastasClasses)
+    private void selecionarEfetividadeExecKpastas(Map<String, Double> execKpastasClasses)
     {
         Map<String, List<Double[]>> resultado = fitness.validar(repositorio);
 
