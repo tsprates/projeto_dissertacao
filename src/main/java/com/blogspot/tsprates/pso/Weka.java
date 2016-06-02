@@ -1,6 +1,7 @@
 package com.blogspot.tsprates.pso;
 
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,18 +27,31 @@ public class Weka
     private final String colId;
 
     private final String colSaida;
+    
+    private final String optsJ48, optsSMO, optsRBF;
 
     public Weka(List<List<String>> kpastas,
             final int K,
-            final String tabela,
-            final String colId,
-            final String colSaida)
+            Properties config)
     {
         this.kpastas = kpastas;
         this.K = K;
-        this.tabela = tabela;
-        this.colId = colId;
-        this.colSaida = colSaida;
+        
+        this.tabela = config.getProperty("tabela");
+        this.colSaida = config.getProperty("saida");
+        this.colId = config.getProperty("id");
+        
+        this.optsJ48 = String.format("-C %s", 
+                config.getProperty("J48.confidence_factor"));
+        
+        this.optsSMO = String.format("-C %s -K %s -E %s", 
+                config.getProperty("SMO.complexity_parameter_c"),
+                config.getProperty("SMO.kernel_function"),
+                config.getProperty("SMO.function_exponent"));
+        
+        this.optsRBF = String.format("-B %s -W %s", 
+                config.getProperty("RBF.clusters"),
+                config.getProperty("RBF.min_std_dev_clusters"));
     }
 
     public double[] getEfetividadeArray()
@@ -69,12 +83,15 @@ public class Weka
 
                 // criar classificadores
                 J48 j48 = new J48();
+                j48.setOptions(Utils.splitOptions(optsJ48));
                 j48.buildClassifier(trainData);
-
+                
                 SMO smo = new SMO();
+                smo.setOptions(Utils.splitOptions(optsSMO));
                 smo.buildClassifier(trainData);
                 
                 RBFNetwork rbf = new RBFNetwork();
+                rbf.setOptions(Utils.splitOptions(optsRBF));
                 rbf.buildClassifier(trainData);
                 
                 // teste

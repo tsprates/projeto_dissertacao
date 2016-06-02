@@ -48,10 +48,6 @@ public class App
             List<Double> efetSMO = new ArrayList<>();
             List<Double> efetRBF = new ArrayList<>();
 
-            String tabela = config.getProperty("tabela");
-            String colSaida = config.getProperty("saida");
-            String colId = config.getProperty("id");
-
             final int EXEC = 50;
             for (int iter = 0; iter < EXEC; iter++)
             {
@@ -64,8 +60,8 @@ public class App
 
                 efetPSO.add(pso.getResultado());
 
-                Weka ad = new Weka(pso.getKPasta(), K, tabela, colId, colSaida);
-                double[] efetArray = ad.getEfetividadeArray();
+                Weka w = new Weka(pso.getKPasta(), K, config);
+                double[] efetArray = w.getEfetividadeArray();
                 efetJ48.add(efetArray[0]);
                 efetSMO.add(efetArray[1]);
                 efetRBF.add(efetArray[2]);
@@ -130,7 +126,6 @@ public class App
             System.err.println(
                     "É necessário definir um arquivo de configuração.");
         }
-
     }
 
     /**

@@ -113,7 +113,7 @@ public class Pso
             final int numKpastas)
     {
         this.conexao = conexao;
-        this.tabela = (props.getProperty("tabela"));
+        this.tabela = props.getProperty("tabela");
         this.colSaida = props.getProperty("saida");
         this.colId = props.getProperty("id");
 

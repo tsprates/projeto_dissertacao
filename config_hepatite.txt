@@ -1,3 +1,10 @@
+J48.confidence_factor=0.025
+SMO.complexity_parameter_c=1.0
+SMO.kernel_function=weka.classifiers.functions.supportVector.PolyKernel
+SMO.function_exponent=2.0
+RBF.clusters=3
+RBF.min_std_dev_clusters=0.1
+
 saida=classe
 id=cod
 npop=200
