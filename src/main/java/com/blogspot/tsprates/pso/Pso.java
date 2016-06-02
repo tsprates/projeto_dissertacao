@@ -200,7 +200,7 @@ public class Pso
 //                solucoesNaoDominadas.limparSolucoesDominadasSalvas();
             } // fim: iterações
 
-            kpastasResultado(execKpastasClasses);
+            selecionarEfetKpastas(execKpastasClasses);
         } // fim: k-pastas
 
         this.resultado = getValorMedioResultado(execKpastasClasses);
@@ -266,11 +266,11 @@ public class Pso
     }
 
     /**
-     * Calcular um mapa de resultado para cada classe de saída.
+     * Seleciona a melhor efetividade para cada classe de saída.
      *
      * @param execKpastasClasses
      */
-    private void kpastasResultado(Map<String, Double> execKpastasClasses)
+    private void selecionarEfetKpastas(Map<String, Double> execKpastasClasses)
     {
         Map<String, List<Double[]>> resultado = fitness.validar(repositorio);
 
