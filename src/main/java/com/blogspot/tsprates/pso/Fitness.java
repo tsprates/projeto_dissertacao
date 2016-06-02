@@ -252,7 +252,7 @@ public class Fitness
      * @param repositorio
      * @return
      */
-    public Map<String, List<Double[]>> avaliar(Map<String, List<Particula>> repositorio)
+    public Map<String, List<Double[]>> validar(Map<String, List<Particula>> repositorio)
     {
         Map<String, List<Double[]>> map = new HashMap<>();
 
@@ -265,7 +265,8 @@ public class Fitness
             List<Particula> parts = ent.getValue();
             for (Particula part : parts)
             {
-                map.get(saida).add(ArrayUtils.toObject(calcular(part, false)));
+                double[] calcularValidacao = calcular(part, false);
+                map.get(saida).add(ArrayUtils.toObject(calcularValidacao));
             }
         }
 

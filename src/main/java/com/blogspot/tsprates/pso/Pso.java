@@ -200,7 +200,7 @@ public class Pso
 //                solucoesNaoDominadas.limparSolucoesDominadasSalvas();
             } // fim: iterações
 
-            calcularResultado(mapaTotal);
+            kpastasResultado(mapaTotal);
         } // fim: k-pastas
 
         this.resultado = getValorMedioResultado(mapaTotal);
@@ -266,13 +266,13 @@ public class Pso
     }
 
     /**
-     * Calcular resultado para cada classe de saída.
+     * Calcular um mapa de resultado para cada classe de saída.
      *
      * @param total
      */
-    private void calcularResultado(Map<String, Double> total)
+    private void kpastasResultado(Map<String, Double> total)
     {
-        Map<String, List<Double[]>> resultado = fitness.avaliar(repositorio);
+        Map<String, List<Double[]>> resultado = fitness.validar(repositorio);
 
         for (Entry<String, List<Double[]>> entrada : resultado.entrySet())
         {
