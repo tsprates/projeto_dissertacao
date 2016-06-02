@@ -165,7 +165,7 @@ public class Pso
         // tempo inicial
         long tempoInicial = System.nanoTime();
 
-        Map<String, Double> mapaTotal = iniciarMapaSaidaNumTotal();
+        Map<String, Double> execKpastasClasses = iniciarMapaSaidaNumTotal();
 
         for (int ki = 0; ki < NUM_K; ki++)
         {
@@ -200,10 +200,10 @@ public class Pso
 //                solucoesNaoDominadas.limparSolucoesDominadasSalvas();
             } // fim: iterações
 
-            kpastasResultado(mapaTotal);
+            kpastasResultado(execKpastasClasses);
         } // fim: k-pastas
 
-        this.resultado = getValorMedioResultado(mapaTotal);
+        this.resultado = getValorMedioResultado(execKpastasClasses);
 
         for (String saida : tipoSaidas)
         {
@@ -228,13 +228,13 @@ public class Pso
 
     /**
      *
-     * @param mapaTotal
+     * @param execKpastasClasses
      * @return
      */
-    private double getValorMedioResultado(Map<String, Double> mapaTotal)
+    private double getValorMedioResultado(Map<String, Double> execKpastasClasses)
     {
         double total = 0.0;
-        for (Double d : mapaTotal.values())
+        for (Double d : execKpastasClasses.values())
         {
             total += d;
         }
@@ -257,20 +257,20 @@ public class Pso
      */
     private Map<String, Double> iniciarMapaSaidaNumTotal()
     {
-        Map<String, Double> total = new HashMap<>();
+        Map<String, Double> execKpastasClasses = new HashMap<>();
         for (String saida : tipoSaidas)
         {
-            total.put(saida, 0.0);
+            execKpastasClasses.put(saida, 0.0);
         }
-        return total;
+        return execKpastasClasses;
     }
 
     /**
      * Calcular um mapa de resultado para cada classe de saída.
      *
-     * @param total
+     * @param execKpastasClasses
      */
-    private void kpastasResultado(Map<String, Double> total)
+    private void kpastasResultado(Map<String, Double> execKpastasClasses)
     {
         Map<String, List<Double[]>> resultado = fitness.validar(repositorio);
 
@@ -290,7 +290,7 @@ public class Pso
                 }
             }
 
-            total.put(saida, total.get(saida) + maior);
+            execKpastasClasses.put(saida, execKpastasClasses.get(saida) + maior);
         }
     }
 
