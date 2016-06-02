@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -93,7 +94,7 @@ public class App
 
             System.out.println("\nAlg. \tMéd. \tDesv.\n");
             
-            System.out.printf("PSO \t%s \t%s \n", 
+            System.out.printf("MOPSO \t%s \t%s \n", 
                     fmt.formatar(statsPso.getMean()), 
                     fmt.formatar(statsPso.getStandardDeviation()));
             
@@ -109,6 +110,13 @@ public class App
                     fmt.formatar(statsRBF.getMean()), 
                     fmt.formatar(statsRBF.getStandardDeviation()));
 
+            
+            // ordena gráfico
+            Collections.sort(efetPSO);
+            Collections.sort(efetJ48);
+            Collections.sort(efetSMO);
+            Collections.sort(efetRBF);            
+            
             // mostra o gráfico
             final String tituloGrafico = StringUtils
                     .capitalize(config.getProperty("tabela"));
