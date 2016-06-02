@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.RandomUtils;
@@ -300,7 +301,7 @@ public class Pso
     {
         System.out.println();
 
-        Map<String, List<Particula>> solucoes = repositorio;
+        Map<String, List<Particula>> solucoes = new TreeMap<>(repositorio);
 
         StringBuilder builder = new StringBuilder(
                 "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
