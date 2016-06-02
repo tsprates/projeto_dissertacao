@@ -165,7 +165,7 @@ public class Pso
         // tempo inicial
         long tempoInicial = System.nanoTime();
 
-        Map<String, Double> execKpastasClasses = iniciarMapaSaidaNumTotal();
+        Map<String, Double> execKpastasClasses = iniciarMapaSaida();
 
         for (int ki = 0; ki < NUM_K; ki++)
         {
@@ -200,10 +200,10 @@ public class Pso
 //                solucoesNaoDominadas.limparSolucoesDominadasSalvas();
             } // fim: iterações
 
-            selecionarEfetKpastas(execKpastasClasses);
+            calcularEfetividadeKpastas(execKpastasClasses);
         } // fim: k-pastas
 
-        this.resultado = getValorMedioResultado(execKpastasClasses);
+        this.resultado = getValorMedioExecKpastas(execKpastasClasses);
 
         for (String saida : tipoSaidas)
         {
@@ -227,11 +227,12 @@ public class Pso
     }
 
     /**
+     * Calcula o resultado médio.
      *
      * @param execKpastasClasses
      * @return
      */
-    private double getValorMedioResultado(Map<String, Double> execKpastasClasses)
+    private double getValorMedioExecKpastas(Map<String, Double> execKpastasClasses)
     {
         double total = 0.0;
         for (Double d : execKpastasClasses.values())
@@ -242,6 +243,7 @@ public class Pso
     }
 
     /**
+     * Retorna o resultado.
      *
      * @return
      */
@@ -255,7 +257,7 @@ public class Pso
      *
      * @return
      */
-    private Map<String, Double> iniciarMapaSaidaNumTotal()
+    private Map<String, Double> iniciarMapaSaida()
     {
         Map<String, Double> execKpastasClasses = new HashMap<>();
         for (String saida : tipoSaidas)
@@ -266,11 +268,11 @@ public class Pso
     }
 
     /**
-     * Seleciona a melhor efetividade para cada classe de saída.
+     * Calcula a efetividade da melhor efetividade de cada classe de saída.
      *
      * @param execKpastasClasses
      */
-    private void selecionarEfetKpastas(Map<String, Double> execKpastasClasses)
+    private void calcularEfetividadeKpastas(Map<String, Double> execKpastasClasses)
     {
         Map<String, List<Double[]>> resultado = fitness.validar(repositorio);
 
