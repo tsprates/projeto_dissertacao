@@ -97,9 +97,8 @@ public class Pso
     private List<List<String>> kpastas;
 
     private double resultado;
-    
-//    private final SolucoesNaoDominadas solucoesNaoDominadas;
 
+//    private final SolucoesNaoDominadas solucoesNaoDominadas;
     /**
      * Construtor.
      *
@@ -134,13 +133,13 @@ public class Pso
         enxameNicho = dividirNichoEnxame();
 
         format = formatador;
-        
+
         NUM_K = numKpastas;
 
         criaRepositorio();
 
         this.fitness = new Fitness(conexao, colId, tabela, mapaSaida);
-        
+
 //        this.solucoesNaoDominadas = new SolucoesNaoDominadas(conexao, tabela, tipoSaidas);
     }
 
@@ -149,15 +148,15 @@ public class Pso
      */
     public void carregar()
     {
-        
+
         resetRepositorio();
 
         // validação cruzada
         criarKpastas();
         fitness.setKPastas(kpastas);
-        
+
         // reset contaddor de número de avaliações
-        fitness.setNumAvaliacao(0); 
+        fitness.setNumAvaliacao(0);
 
         // enxame
         this.particulas = getEnxameInicial();
@@ -194,7 +193,7 @@ public class Pso
 
                 System.out.println("Iteração: " + (i + 1));
                 i++;
-                
+
                 // soluções não dominadas
 //                solucoesNaoDominadas.salvar(repositorio);
 //                solucoesNaoDominadas.limparSolucoesDominadasSalvas();
@@ -274,21 +273,21 @@ public class Pso
      */
     private void selecionarEfetividadeExecKpastas(Map<String, Double> execKpastasClasses)
     {
-        Map<String, List<Double[]>> resultado = fitness.validar(repositorio);
+        Map<String, List<Double[]>> result = fitness.validar(repositorio);
 
-        for (Entry<String, List<Double[]>> entrada : resultado.entrySet())
+        for (Entry<String, List<Double[]>> entrada : result.entrySet())
         {
             String saida = entrada.getKey();
-            List<Double[]> val = entrada.getValue();
+            List<Double[]> fits = entrada.getValue();
 
             // vetor fitness na posição 2 (efetividade)
-            Double[] temp = val.get(0);
+            Double[] temp = fits.get(0);
             double maior = temp[1];
-            for (Double[] fitness : val)
+            for (Double[] fit : fits)
             {
-                if (fitness[1] > maior)
+                if (fit[1] > maior)
                 {
-                    maior = fitness[1];
+                    maior = fit[1];
                 }
             }
 
@@ -332,7 +331,6 @@ public class Pso
         }
 
 //        builder.append("\n");
-
         System.out.println(builder.toString());
     }
 
@@ -364,7 +362,7 @@ public class Pso
         final int partPosSize = partPos.size();
 
         perturbar(part, w, true);
-        
+
         // pbest
         if (c1 > Math.random())
         {
@@ -383,20 +381,18 @@ public class Pso
 
     /**
      * Aplicar operação de recombinação (crossover).
-     * 
+     *
      * @param best
      * @param part
      * @param partPos
-     * @param partPosSize 
+     * @param partPosSize
      */
-    private void aplicarRecomb(List<Particula> best, 
-            Particula part, 
-            List<String> partPos, 
-            final int partPosSize) {
+    private void aplicarRecomb(List<Particula> best, Particula part,
+            List<String> partPos, final int partPosSize)
+    {
         Particula partProx = Distancia.retornarParticulaMaisProxima(best, part);
         recombinar(partProx, part, partPos, partPosSize);
     }
-
 
     /**
      * Operador de crossover.
@@ -767,15 +763,15 @@ public class Pso
     /**
      * Retorna uma lista com clásulas WHERE.
      *
-     * @return Lista com clásulas WHERE.
+     * @return Lista de clásulas WHERE.
      */
     private Set<String> criarWhere()
     {
         int numCols = colunas.length;
         Set<String> listaWhere = new HashSet<>();
 
-        double r = RandomUtils.nextDouble(1, numCols);
-        int maxWhere = (int) Math.ceil(FastMath.log(2.0, r)) + 1;
+        double R = RandomUtils.nextDouble(1, numCols);
+        int maxWhere = (int) Math.ceil(FastMath.log(2.0, R)) + 1;
 //        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
 
         for (int i = 0; i < maxWhere; i++)
@@ -922,20 +918,20 @@ public class Pso
         List<Particula> rep = new ArrayList<>(gbestLista);
 
         repositorio.put(classe, rep);
-        
+
         // verifica tamanho do repositório
         FronteiraPareto.verificarTamanhoDoRepositorio(rep);
     }
 
     /**
      * Faz a validação cruzada k-pastas.
-     * 
+     *
      * @param numKpastas
      */
     private void criarKpastas()
     {
         kpastas = new ArrayList<>();
-        
+
         for (int i = 0; i < NUM_K; i++)
         {
             kpastas.add(new ArrayList<String>());
@@ -943,7 +939,7 @@ public class Pso
 
         dividirKPastas(NUM_K);
     }
-    
+
     /**
      * Validação Cruzada k-pastas.
      *
@@ -960,24 +956,23 @@ public class Pso
             temp.put(saida, new ArrayList<String>());
 
             List<String> mapaSaidaLista = mapaSaida.get(saida);
-            
+
             for (int i = 0, size = mapaSaidaLista.size(); i < size; i++)
             {
                 temp.get(saida).add(mapaSaidaLista.get(i));
                 total++;
             }
-            
+
             Collections.shuffle(temp.get(saida));
         }
-        
+
 //        for (String s : temp.keySet())
 //        {
 //            System.out.println(temp.get(s));
 //        }
-
         int k = 0;
         List<String> listaTipoSaidas = new ArrayList<>(tipoSaidas);
-        
+
         for (int i = 0; i < total;)
         {
             for (int j = 0, size = listaTipoSaidas.size(); j < size;)
