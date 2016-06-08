@@ -6,7 +6,7 @@ RBF.clusters=3
 RBF.min_std_dev_clusters=0.1
 
 saida=classificacao
-id=id
+id=cod
 npop=200
 tabela=heart_class
 maxiter=100000
