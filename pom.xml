@@ -36,6 +36,7 @@
             <version>3.8.1</version>
             <scope>test</scope>
         </dependency>
+        <!-- http://mvnrepository.com/artifact/org.postgis/postgis-jdbc -->
         <dependency>
             <!-- http://stackoverflow.com/questions/29181574/caused-by-java-lang-nosuchmethoderror-org-postgresql-core-baseconnection-geten -->
             <groupId>org.postgis</groupId>
@@ -49,30 +50,35 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- http://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.4.1207</version>
+            <version>9.4.1208</version>
         </dependency>
+        <!-- http://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>4.1</version>
         </dependency>
+        <!-- http://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.4</version>
         </dependency>
-        <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-            <version>1.0.19</version>
-        </dependency>
+        <!-- http://mvnrepository.com/artifact/org.apache.commons/commons-math3 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
+        </dependency>
+        <!-- http://mvnrepository.com/artifact/org.jfree/jfreechart -->
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.0.19</version>
         </dependency>
         <!-- http://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable -->
         <dependency>
