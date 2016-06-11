@@ -5,10 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -254,7 +254,7 @@ public class Fitness
      */
     public Map<String, List<Double[]>> validar(Map<String, List<Particula>> repositorio)
     {
-        Map<String, List<Double[]>> map = new HashMap<>();
+        Map<String, List<Double[]>> map = new TreeMap<>();
 
         for (Entry<String, List<Particula>> ent : repositorio.entrySet())
         {

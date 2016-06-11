@@ -123,7 +123,9 @@ public class Weka
                 for (int j = 0; j < numClasses; j++)
                 {
                     totalJ48 += evalJ48.precision(j) * evalJ48.recall(j);
+                    
                     totalSMO += evalSMO.precision(j) * evalSMO.recall(j);
+                    
                     totalRBF += evalRBF.precision(j) * evalRBF.recall(j);
                 }
                 

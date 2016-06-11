@@ -57,7 +57,7 @@ public class App
                 System.out.println();
 
                 pso.carregar();
-                pso.mostrarResultados();
+//                pso.mostrarResultados();
 
                 efetPSO.add(pso.getResultado());
 
@@ -90,33 +90,32 @@ public class App
             for (int i = 0, size = efetRBF.size(); i < size; i++)
             {
                 statsRBF.addValue(efetRBF.get(i));
-            }            
+            }
 
             System.out.println("\nAlg. \tMéd. \tDesv.\n");
-            
-            System.out.printf("MOPSO \t%s \t%s \n", 
-                    fmt.formatar(statsPso.getMean()), 
+
+            System.out.printf("MOPSO \t%s \t%s \n",
+                    fmt.formatar(statsPso.getMean()),
                     fmt.formatar(statsPso.getStandardDeviation()));
-            
-            System.out.printf("J48 \t%s \t%s\n", 
-                    fmt.formatar(statsJ48.getMean()), 
+
+            System.out.printf("J48 \t%s \t%s\n",
+                    fmt.formatar(statsJ48.getMean()),
                     fmt.formatar(statsJ48.getStandardDeviation()));
-            
-            System.out.printf("SMO \t%s \t%s\n", 
-                    fmt.formatar(statsSMO.getMean()), 
+
+            System.out.printf("SMO \t%s \t%s\n",
+                    fmt.formatar(statsSMO.getMean()),
                     fmt.formatar(statsSMO.getStandardDeviation()));
-            
-            System.out.printf("RBF \t%s \t%s\n", 
-                    fmt.formatar(statsRBF.getMean()), 
+
+            System.out.printf("RBF \t%s \t%s\n",
+                    fmt.formatar(statsRBF.getMean()),
                     fmt.formatar(statsRBF.getStandardDeviation()));
 
-            
             // ordena gráfico
             Collections.sort(efetPSO);
             Collections.sort(efetJ48);
             Collections.sort(efetSMO);
-            Collections.sort(efetRBF);            
-            
+            Collections.sort(efetRBF);
+
             // mostra o gráfico
             final String tituloGrafico = StringUtils
                     .capitalize(config.getProperty("tabela"));

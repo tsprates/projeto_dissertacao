@@ -50,6 +50,8 @@ public class Pso
         0.94, 1.0
     };
 
+    private final static String CABECALHO = "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n";
+
     private final Random rand = new Random();
 
     private List<Particula> particulas = new ArrayList<>();
@@ -82,7 +84,7 @@ public class Pso
 
     private final Fitness fitness;
 
-    private final Formatador format;
+    private final Formatador fmt;
 
     private final Map<String, List<Double>> efetividade = new HashMap<>();
 
@@ -132,7 +134,7 @@ public class Pso
 
         enxameNicho = dividirNichoEnxame();
 
-        format = formatador;
+        fmt = formatador;
 
         NUM_K = numKpastas;
 
@@ -140,7 +142,7 @@ public class Pso
 
         this.fitness = new Fitness(conexao, colId, tabela, mapaSaida);
 
-//        this.solucoesNaoDominadas = new SolucoesNaoDominadas(conexao, tabela, tipoSaidas);
+//      this.solucoesNaoDominadas = new SolucoesNaoDominadas(conexao, tabela, tipoSaidas);
     }
 
     /**
@@ -148,29 +150,35 @@ public class Pso
      */
     public void carregar()
     {
-
-        resetRepositorio();
+        // tempo inicial
+        long tempoInicial = System.nanoTime();
 
         // validação cruzada
         criarKpastas();
         fitness.setKPastas(kpastas);
 
-        // reset contaddor de número de avaliações
-        fitness.setNumAvaliacao(0);
-
-        // enxame
-        this.particulas = getEnxameInicial();
-
-        // tempo inicial
-        long tempoInicial = System.nanoTime();
-
         Map<String, Double> execKpastasClasses = iniciarValorMedioExecKpastas();
 
-        for (int ki = 0; ki < NUM_K; ki++)
+        for (int i = 0; i < NUM_K; i++)
         {
-            fitness.setK(ki);
+            fitness.setK(i);
 
-            int i = 0;
+            // cria enxame
+            this.particulas = getEnxameInicial();
+
+            // reseta repositório
+            resetRepositorio();
+
+            // reseta contaddor de número de avaliações
+            fitness.setNumAvaliacao(0);
+
+            System.out.println();
+            System.out.println("Partição: " + (i + 1));
+            System.out.println();
+            System.out.println("Validação: " + kpastas.get(i));
+            System.out.println();
+
+//            int j = 0;
             while (fitness.getNumAvaliacao() < maxIter)
             {
 
@@ -191,17 +199,22 @@ public class Pso
                     atualizaPosicao(particula);
                 }
 
-                System.out.println("Iteração: " + (i + 1));
-                i++;
-
-                // soluções não dominadas
+//                System.out.println("Iteração: " + (j + 1));
+//                j++;
+//                
+//                // soluções não dominadas
 //                solucoesNaoDominadas.salvar(repositorio);
 //                solucoesNaoDominadas.limparSolucoesDominadasSalvas();
             } // fim: iterações
 
+            System.out.println("Fase de treinamento:");
+            System.out.println();
+            mostrarResultados();
+
             selecionarEfetividadeExecKpastas(execKpastasClasses);
         } // fim: k-pastas
 
+//        mostrarResultados();
         this.resultado = getValorMedioExecKpastas(execKpastasClasses);
 
         for (String saida : tipoSaidas)
@@ -275,6 +288,31 @@ public class Pso
     {
         Map<String, List<Double[]>> result = fitness.validar(repositorio);
 
+        System.out.println("Fase de validação:");
+        System.out.println();
+        System.out.print(CABECALHO);
+
+        for (String saida : tipoSaidas)
+        {
+            List<Double[]> classe = result.get(saida);
+
+            for (int i = 0, len = classe.size(); i < len; i++)
+            {
+                System.out.print(saida + "\t");
+
+                Double[] arr = classe.get(i);
+                for (int j = 0, len2 = arr.length; j < len2; j++)
+                {
+                    System.out.print(fmt.formatar(arr[j]));
+                    System.out.print("\t");
+                }
+                System.out.println(repositorio.get(saida).get(i));
+            }
+//            System.out.println();
+        }
+
+        System.out.println();
+
         for (Entry<String, List<Double[]>> entrada : result.entrySet())
         {
             String saida = entrada.getKey();
@@ -300,12 +338,9 @@ public class Pso
      */
     public void mostrarResultados()
     {
-        System.out.println();
-
         Map<String, List<Particula>> solucoes = new TreeMap<>(repositorio);
 
-        StringBuilder builder = new StringBuilder(
-                "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n");
+        StringBuilder builder = new StringBuilder(CABECALHO);
 
         for (Entry<String, List<Particula>> parts : solucoes.entrySet())
         {
@@ -323,7 +358,7 @@ public class Pso
                 double[] d = part.fitness();
                 for (int i = 0, len = d.length; i < len; i++)
                 {
-                    builder.append("\t").append(format.formatar(d[i]));
+                    builder.append("\t").append(fmt.formatar(d[i]));
                 }
 
                 builder.append("\t").append(part.whereSql()).append("\n");
@@ -966,10 +1001,6 @@ public class Pso
             Collections.shuffle(temp.get(saida));
         }
 
-//        for (String s : temp.keySet())
-//        {
-//            System.out.println(temp.get(s));
-//        }
         int k = 0;
         List<String> listaTipoSaidas = new ArrayList<>(tipoSaidas);
 
