@@ -10,8 +10,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
 
 /**
  * Particles Swarm Optimization (PSO).
@@ -37,12 +39,12 @@ public class App
         if (args.length > 0 && Files.exists(Paths.get(args[0])))
         {
             Connection db = new DbFactory().conectar();
-            Properties config = carregarConfigArquivo(args[0]);
+            Properties config = carregarArquivoConfig(args[0]);
 
-            final Formatador fmt = new Formatador();
+            final Formatador formatador = new Formatador();
 
             final int K = 10;
-            Pso pso = new Pso(db, config, fmt, K);
+            Pso pso = new Pso(db, config, formatador, K);
 
             List<Double> efetPSO = new ArrayList<>();
             List<Double> efetJ48 = new ArrayList<>();
@@ -61,72 +63,18 @@ public class App
 
                 efetPSO.add(pso.getResultado());
 
-                Weka w = new Weka(pso.getKPasta(), K, config);
-                double[] efetArray = w.getEfetividadeArray();
+                Weka weka = new Weka(pso.getKPasta(), K, config);
+                double[] efetArray = weka.getEfetividadeArray();
                 efetJ48.add(efetArray[0]);
                 efetSMO.add(efetArray[1]);
                 efetRBF.add(efetArray[2]);
             }
 
-            SummaryStatistics statsPso = new SummaryStatistics();
-            for (int i = 0, size = efetPSO.size(); i < size; i++)
-            {
-                statsPso.addValue(efetPSO.get(i));
-            }
+            mostraValorMedioExec(formatador, efetPSO, efetJ48, efetSMO, efetRBF);
 
-            SummaryStatistics statsJ48 = new SummaryStatistics();
-            for (int i = 0, size = efetJ48.size(); i < size; i++)
-            {
-                statsJ48.addValue(efetJ48.get(i));
-            }
+            wilcoxonTeste(formatador, efetPSO, efetJ48, efetSMO, efetRBF);
 
-            SummaryStatistics statsSMO = new SummaryStatistics();
-            for (int i = 0, size = efetSMO.size(); i < size; i++)
-            {
-                statsSMO.addValue(efetSMO.get(i));
-            }
-
-            SummaryStatistics statsRBF = new SummaryStatistics();
-            for (int i = 0, size = efetRBF.size(); i < size; i++)
-            {
-                statsRBF.addValue(efetRBF.get(i));
-            }
-
-            System.out.println("\nAlg. \tMéd. \tDesv.\n");
-
-            System.out.printf("MOPSO \t%s \t%s \n",
-                    fmt.formatar(statsPso.getMean()),
-                    fmt.formatar(statsPso.getStandardDeviation()));
-
-            System.out.printf("J48 \t%s \t%s\n",
-                    fmt.formatar(statsJ48.getMean()),
-                    fmt.formatar(statsJ48.getStandardDeviation()));
-
-            System.out.printf("SMO \t%s \t%s\n",
-                    fmt.formatar(statsSMO.getMean()),
-                    fmt.formatar(statsSMO.getStandardDeviation()));
-
-            System.out.printf("RBF \t%s \t%s\n",
-                    fmt.formatar(statsRBF.getMean()),
-                    fmt.formatar(statsRBF.getStandardDeviation()));
-
-            // ordena gráfico
-            Collections.sort(efetPSO);
-            Collections.sort(efetJ48);
-            Collections.sort(efetSMO);
-            Collections.sort(efetRBF);
-
-            // mostra o gráfico
-            final String tituloGrafico = StringUtils
-                    .capitalize(config.getProperty("tabela"));
-            final String eixoX = "Execução";
-            final String eixoY = "Sensibilidade x Especificidade";
-            Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
-            g.adicionaSerie("MOPSO", efetPSO);
-            g.adicionaSerie("J48", efetJ48);
-            g.adicionaSerie("SMO", efetSMO);
-            g.adicionaSerie("RBF", efetRBF);
-            g.mostra();
+            mostraGrafico(config, efetPSO, efetJ48, efetSMO, efetRBF);
         }
         else
         {
@@ -136,12 +84,12 @@ public class App
     }
 
     /**
-     * Retorna arquivo de configurações.
+     * Carrega arquivo de configurações.
      *
      * @param configFile Configurations
      * @return Properties
      */
-    private static Properties carregarConfigArquivo(String configFile)
+    private static Properties carregarArquivoConfig(String configFile)
     {
         try (FileInputStream fis = new FileInputStream(configFile))
         {
@@ -154,5 +102,140 @@ public class App
             throw new RuntimeException(
                     "Arquivo de configurações não encontrado.", e);
         }
+    }
+
+    /**
+     * Gráfico valor médio execuções.
+     *
+     * @param config
+     * @param efetPSO
+     * @param efetJ48
+     * @param efetSMO
+     * @param efetRBF
+     */
+    private static void mostraGrafico(Properties config, List<Double> efetPSO,
+            List<Double> efetJ48, List<Double> efetSMO, List<Double> efetRBF)
+    {
+        List<Double> tempEfetPSO = new ArrayList<>(efetPSO);
+        List<Double> tempEfetJ48 = new ArrayList<>(efetJ48);
+        List<Double> tempEfetSMO = new ArrayList<>(efetSMO);
+        List<Double> tempEfetRBF = new ArrayList<>(efetRBF);
+
+        // Ordena efetividade
+        Collections.sort(tempEfetPSO);
+        Collections.sort(tempEfetJ48);
+        Collections.sort(tempEfetSMO);
+        Collections.sort(tempEfetRBF);
+
+        // Gráfico Efetividade Média
+        final String tituloGrafico = StringUtils.capitalize(config.getProperty("tabela"));
+        final String eixoX = "Execução";
+        final String eixoY = "Sensibilidade x Especificidade";
+
+        Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
+        g.adicionaSerie("MOPSO", tempEfetPSO);
+        g.adicionaSerie("J48", tempEfetJ48);
+        g.adicionaSerie("SMO", tempEfetSMO);
+        g.adicionaSerie("RBF", tempEfetRBF);
+        g.mostra();
+    }
+
+    /**
+     * Teste não-paramétrico para verificar se os resultados médios pertencem a
+     * mesma distribuição estatística.
+     *
+     * @param f
+     * @param efetPSO
+     * @param efetJ48
+     * @param efetSMO
+     * @param efetRBF
+     */
+    private static void wilcoxonTeste(final Formatador f,
+            List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
+            List<Double> efetRBF)
+    {
+        // Wilcoxon Test
+        WilcoxonSignedRankTest w = new WilcoxonSignedRankTest();
+
+        Double[] tempArrPSO = (Double[]) efetPSO.toArray(new Double[0]);
+        Double[] tempArrJ48 = (Double[]) efetJ48.toArray(new Double[0]);
+        Double[] tempArrSMO = (Double[]) efetSMO.toArray(new Double[0]);
+        Double[] tempArrRBF = (Double[]) efetRBF.toArray(new Double[0]);
+
+        double[] arrPSO = ArrayUtils.toPrimitive(tempArrPSO);
+        double[] arrJ48 = ArrayUtils.toPrimitive(tempArrJ48);
+        double[] arrSMO = ArrayUtils.toPrimitive(tempArrSMO);
+        double[] arrRBF = ArrayUtils.toPrimitive(tempArrRBF);
+
+        String pvaluePSO_J48 = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrJ48, false));
+        String pvaluePSO_SMO = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrSMO, false));
+        String pvaluePSO_RBF = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrRBF, false));
+        String pvalueJ48_SMO = f.formatar(w.wilcoxonSignedRankTest(arrJ48, arrSMO, false));
+        String pvalueJ48_RBF = f.formatar(w.wilcoxonSignedRankTest(arrJ48, arrRBF, false));
+        String pvalueSMO_RBF = f.formatar(w.wilcoxonSignedRankTest(arrSMO, arrRBF, false));
+
+        System.out.println("\nTeste Wilcoxon MOPSO:\n");
+        System.out.println("\t MOPSO  \t   J48   \t   SMO  \t   RBF ");
+        System.out.printf("MOPSO \t ------ \t %s \t %s \t %s \n", pvaluePSO_J48, pvaluePSO_SMO, pvaluePSO_RBF);
+        System.out.printf("J48 \t %s \t ------ \t %s \t %s \n", pvaluePSO_J48, pvalueJ48_SMO, pvalueJ48_RBF);
+        System.out.printf("SMO \t %s \t %s \t ------ \t %s \n", pvaluePSO_SMO, pvalueJ48_SMO, pvalueSMO_RBF);
+        System.out.printf("RBF \t %s \t %s \t %s \t ------ \n", pvaluePSO_RBF, pvalueJ48_RBF, pvalueSMO_RBF);
+
+    }
+
+    /**
+     * Imprime a média e desvio padrão das execuções dos algoritmos.
+     *
+     * @param f
+     * @param efetPSO
+     * @param efetJ48
+     * @param efetSMO
+     * @param efetRBF
+     */
+    private static void mostraValorMedioExec(final Formatador f,
+            List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
+            List<Double> efetRBF)
+    {
+        SummaryStatistics statsPSO = new SummaryStatistics();
+        for (int i = 0, size = efetPSO.size(); i < size; i++)
+        {
+            statsPSO.addValue(efetPSO.get(i));
+        }
+
+        SummaryStatistics statsJ48 = new SummaryStatistics();
+        for (int i = 0, size = efetJ48.size(); i < size; i++)
+        {
+            statsJ48.addValue(efetJ48.get(i));
+        }
+
+        SummaryStatistics statsSMO = new SummaryStatistics();
+        for (int i = 0, size = efetSMO.size(); i < size; i++)
+        {
+            statsSMO.addValue(efetSMO.get(i));
+        }
+
+        SummaryStatistics statsRBF = new SummaryStatistics();
+        for (int i = 0, size = efetRBF.size(); i < size; i++)
+        {
+            statsRBF.addValue(efetRBF.get(i));
+        }
+
+        System.out.println("\nAlg. \tMéd. \tDesv.\n");
+
+        System.out.printf("MOPSO \t%s \t%s \n",
+                f.formatar(statsPSO.getMean()),
+                f.formatar(statsPSO.getStandardDeviation()));
+
+        System.out.printf("J48 \t%s \t%s\n",
+                f.formatar(statsJ48.getMean()),
+                f.formatar(statsJ48.getStandardDeviation()));
+
+        System.out.printf("SMO \t%s \t%s\n",
+                f.formatar(statsSMO.getMean()),
+                f.formatar(statsSMO.getStandardDeviation()));
+
+        System.out.printf("RBF \t%s \t%s\n",
+                f.formatar(statsRBF.getMean()),
+                f.formatar(statsRBF.getStandardDeviation()));
     }
 }
