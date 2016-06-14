@@ -17,7 +17,7 @@ public class Formatador
         // Decimal formatter
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
         symbols.setDecimalSeparator('.');
-        this.fmt = new DecimalFormat("0.0000", symbols);
+        this.fmt = new DecimalFormat("0.000000", symbols);
     }
 
     /**

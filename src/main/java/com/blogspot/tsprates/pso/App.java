@@ -19,7 +19,6 @@ import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
  * Particles Swarm Optimization (PSO).
  *
  * @author thiago
- *
  */
 public class App
 {
@@ -157,16 +156,16 @@ public class App
         // Wilcoxon Test
         WilcoxonSignedRankTest w = new WilcoxonSignedRankTest();
 
-        Double[] tempArrPSO = (Double[]) efetPSO.toArray(new Double[0]);
-        Double[] tempArrJ48 = (Double[]) efetJ48.toArray(new Double[0]);
-        Double[] tempArrSMO = (Double[]) efetSMO.toArray(new Double[0]);
-        Double[] tempArrRBF = (Double[]) efetRBF.toArray(new Double[0]);
+        Double[] tempArrPSO = efetPSO.toArray(new Double[0]);
+        Double[] tempArrJ48 = efetJ48.toArray(new Double[0]);
+        Double[] tempArrSMO = efetSMO.toArray(new Double[0]);
+        Double[] tempArrRBF = efetRBF.toArray(new Double[0]);
 
         double[] arrPSO = ArrayUtils.toPrimitive(tempArrPSO);
         double[] arrJ48 = ArrayUtils.toPrimitive(tempArrJ48);
         double[] arrSMO = ArrayUtils.toPrimitive(tempArrSMO);
         double[] arrRBF = ArrayUtils.toPrimitive(tempArrRBF);
-
+        
         String pvaluePSO_J48 = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrJ48, false));
         String pvaluePSO_SMO = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrSMO, false));
         String pvaluePSO_RBF = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrRBF, false));
@@ -174,13 +173,12 @@ public class App
         String pvalueJ48_RBF = f.formatar(w.wilcoxonSignedRankTest(arrJ48, arrRBF, false));
         String pvalueSMO_RBF = f.formatar(w.wilcoxonSignedRankTest(arrSMO, arrRBF, false));
 
-        System.out.println("\nTeste Wilcoxon MOPSO:\n");
-        System.out.println("\t MOPSO  \t   J48   \t   SMO  \t   RBF ");
+        System.out.println("\n\nTeste Wilcoxon MOPSO:\n");
+        System.out.println("\t MOPSO  \t   J48   \t   SMO  \t   RBF \n");
         System.out.printf("MOPSO \t ------ \t %s \t %s \t %s \n", pvaluePSO_J48, pvaluePSO_SMO, pvaluePSO_RBF);
         System.out.printf("J48 \t %s \t ------ \t %s \t %s \n", pvaluePSO_J48, pvalueJ48_SMO, pvalueJ48_RBF);
         System.out.printf("SMO \t %s \t %s \t ------ \t %s \n", pvaluePSO_SMO, pvalueJ48_SMO, pvalueSMO_RBF);
         System.out.printf("RBF \t %s \t %s \t %s \t ------ \n", pvaluePSO_RBF, pvalueJ48_RBF, pvalueSMO_RBF);
-
     }
 
     /**
@@ -220,21 +218,21 @@ public class App
             statsRBF.addValue(efetRBF.get(i));
         }
 
-        System.out.println("\nAlg. \tMéd. \tDesv.\n");
+        System.out.println("\nAlg. \t  Média \t  Desvio\n");
 
-        System.out.printf("MOPSO \t%s \t%s \n",
+        System.out.printf("MOPSO \t %s \t %s \n",
                 f.formatar(statsPSO.getMean()),
                 f.formatar(statsPSO.getStandardDeviation()));
 
-        System.out.printf("J48 \t%s \t%s\n",
+        System.out.printf("J48 \t %s \t %s\n",
                 f.formatar(statsJ48.getMean()),
                 f.formatar(statsJ48.getStandardDeviation()));
 
-        System.out.printf("SMO \t%s \t%s\n",
+        System.out.printf("SMO \t %s \t %s\n",
                 f.formatar(statsSMO.getMean()),
                 f.formatar(statsSMO.getStandardDeviation()));
 
-        System.out.printf("RBF \t%s \t%s\n",
+        System.out.printf("RBF \t %s \t %s\n",
                 f.formatar(statsRBF.getMean()),
                 f.formatar(statsRBF.getStandardDeviation()));
     }

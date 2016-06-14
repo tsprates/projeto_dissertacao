@@ -50,7 +50,7 @@ public class Pso
         0.94, 1.0
     };
 
-    private final static String CABECALHO = "Classe \tCompl. \tEfet. \tAcur. \tRegra \n\n";
+    private final static String CABECALHO = "Classe \t  Compl. \t  Efet. \t  Acur. \t  Regra \n\n";
 
     private final Random rand = new Random();
 
@@ -207,7 +207,7 @@ public class Pso
 //                solucoesNaoDominadas.limparSolucoesDominadasSalvas();
             } // fim: iterações
 
-            System.out.println("Fase de treinamento:");
+            System.out.println("\nFase de treinamento:");
             System.out.println();
             mostrarResultados();
 
@@ -288,7 +288,7 @@ public class Pso
     {
         Map<String, List<Double[]>> result = fitness.validar(repositorio);
 
-        System.out.println("Fase de validação:");
+        System.out.println("\nFase de validação:");
         System.out.println();
         System.out.print(CABECALHO);
 
