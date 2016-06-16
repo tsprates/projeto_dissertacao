@@ -50,7 +50,7 @@ public class App
             List<Double> efetSMO = new ArrayList<>();
             List<Double> efetRBF = new ArrayList<>();
 
-            final int EXEC = 50;
+            final int EXEC = 30;
             for (int iter = 0; iter < EXEC; iter++)
             {
                 System.out.println();
