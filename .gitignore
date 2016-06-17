@@ -3,3 +3,8 @@ target/
 .settings/
 .project
 nbactions.xml
+
+.idea/
+pso.iml
+src/main/main.iml
+src/test/test.iml
