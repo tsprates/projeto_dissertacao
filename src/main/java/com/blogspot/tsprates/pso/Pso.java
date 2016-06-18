@@ -940,8 +940,6 @@ public class Pso
      * Atualiza repositório de partículas não dominadas.
      *
      * @param particula
-     * @param classe
-     * @param gbestLista
      */
     private void atualizarRepositorio(Particula particula)
     {
@@ -961,7 +959,6 @@ public class Pso
     /**
      * Faz a validação cruzada k-pastas.
      *
-     * @param numKpastas
      */
     private void criarKpastas()
     {
@@ -976,9 +973,9 @@ public class Pso
     }
 
     /**
-     * Validação Cruzada k-pastas.
+     * Validação Cruzada.
      *
-     * @param k Número de pastas.
+     * @param numPastas Número de pastas.
      */
     private void dividirKPastas(int numPastas)
     {
@@ -1041,7 +1038,7 @@ public class Pso
     /**
      * Retorna k-pastas.
      *
-     * @return Lista estratificada de k-pastas.
+     * @return Lista de k-pastas estratificada.
      */
     public List<List<String>> getKPasta()
     {
