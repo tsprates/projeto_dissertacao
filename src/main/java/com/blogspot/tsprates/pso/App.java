@@ -143,13 +143,13 @@ public class App
      * Teste não-paramétrico para verificar se os resultados médios pertencem a
      * mesma distribuição estatística.
      *
-     * @param f
+     * @param fmt
      * @param efetPSO
      * @param efetJ48
      * @param efetSMO
      * @param efetRBF
      */
-    private static void wilcoxonTeste(final Formatador f,
+    private static void wilcoxonTeste(final Formatador fmt,
             List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
             List<Double> efetRBF)
     {
@@ -165,32 +165,35 @@ public class App
         double[] arrJ48 = ArrayUtils.toPrimitive(tempArrJ48);
         double[] arrSMO = ArrayUtils.toPrimitive(tempArrSMO);
         double[] arrRBF = ArrayUtils.toPrimitive(tempArrRBF);
-        
-        String pvaluePSO_J48 = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrJ48, false));
-        String pvaluePSO_SMO = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrSMO, false));
-        String pvaluePSO_RBF = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrRBF, false));
-        String pvalueJ48_SMO = f.formatar(w.wilcoxonSignedRankTest(arrJ48, arrSMO, false));
-        String pvalueJ48_RBF = f.formatar(w.wilcoxonSignedRankTest(arrJ48, arrRBF, false));
-        String pvalueSMO_RBF = f.formatar(w.wilcoxonSignedRankTest(arrSMO, arrRBF, false));
+
+        String pvaluePSO_J48 = fmt.formatar(w.wilcoxonSignedRankTest(arrPSO, arrJ48, false));
+        String pvaluePSO_SMO = fmt.formatar(w.wilcoxonSignedRankTest(arrPSO, arrSMO, false));
+        String pvaluePSO_RBF = fmt.formatar(w.wilcoxonSignedRankTest(arrPSO, arrRBF, false));
+        String pvalueJ48_SMO = fmt.formatar(w.wilcoxonSignedRankTest(arrJ48, arrSMO, false));
+        String pvalueJ48_RBF = fmt.formatar(w.wilcoxonSignedRankTest(arrJ48, arrRBF, false));
+        String pvalueSMO_RBF = fmt.formatar(w.wilcoxonSignedRankTest(arrSMO, arrRBF, false));
 
         System.out.println("\n\nTeste Wilcoxon MOPSO:\n");
-        System.out.println("\t MOPSO  \t   J48   \t   SMO  \t   RBF \n");
-        System.out.printf("MOPSO \t ------ \t %s \t %s \t %s \n", pvaluePSO_J48, pvaluePSO_SMO, pvaluePSO_RBF);
-        System.out.printf("J48 \t %s \t ------ \t %s \t %s \n", pvaluePSO_J48, pvalueJ48_SMO, pvalueJ48_RBF);
-        System.out.printf("SMO \t %s \t %s \t ------ \t %s \n", pvaluePSO_SMO, pvalueJ48_SMO, pvalueSMO_RBF);
-        System.out.printf("RBF \t %s \t %s \t %s \t ------ \n", pvaluePSO_RBF, pvalueJ48_RBF, pvalueSMO_RBF);
+
+        String strFormat = "%-10s %-10s %-10s %-10s\n";
+        
+        System.out.printf(strFormat, "", "MOPSO", "J48", "SMO", "RBF");
+        System.out.printf(strFormat, "MOPSO", "-", pvaluePSO_J48, pvaluePSO_SMO, pvaluePSO_RBF);
+        System.out.printf(strFormat, "J48", pvaluePSO_J48, "-", pvalueJ48_SMO, pvalueJ48_RBF);
+        System.out.printf(strFormat, "SMO", pvaluePSO_SMO, pvalueJ48_SMO, "-", pvalueSMO_RBF);
+        System.out.printf(strFormat, "RBF", pvaluePSO_RBF, pvalueJ48_RBF, pvalueSMO_RBF, "-");
     }
 
     /**
      * Imprime a média e desvio padrão das execuções dos algoritmos.
      *
-     * @param f
+     * @param fmt
      * @param efetPSO
      * @param efetJ48
      * @param efetSMO
      * @param efetRBF
      */
-    private static void mostraValorMedioExec(final Formatador f,
+    private static void mostraValorMedioExec(final Formatador fmt,
             List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
             List<Double> efetRBF)
     {
@@ -218,22 +221,29 @@ public class App
             statsRBF.addValue(efetRBF.get(i));
         }
 
-        System.out.println("\nAlg. \t  Média \t  Desvio\n");
+        System.out.println();
+        System.out.printf("%-10s %-10s %-10s\n\n", "Alg.", "Méd.", "Desv.");
 
-        System.out.printf("MOPSO \t %s \t %s \n",
-                f.formatar(statsPSO.getMean()),
-                f.formatar(statsPSO.getStandardDeviation()));
+        String strFormat = "%-10s %-10s %-10s\n";
+        
+        System.out.printf(strFormat,
+                "MOPSO",
+                fmt.formatar(statsPSO.getMean()),
+                fmt.formatar(statsPSO.getStandardDeviation()));
 
-        System.out.printf("J48 \t %s \t %s\n",
-                f.formatar(statsJ48.getMean()),
-                f.formatar(statsJ48.getStandardDeviation()));
+        System.out.printf(strFormat,
+                "J48",
+                fmt.formatar(statsJ48.getMean()),
+                fmt.formatar(statsJ48.getStandardDeviation()));
 
-        System.out.printf("SMO \t %s \t %s\n",
-                f.formatar(statsSMO.getMean()),
-                f.formatar(statsSMO.getStandardDeviation()));
+        System.out.printf(strFormat,
+                "SMO",
+                fmt.formatar(statsSMO.getMean()),
+                fmt.formatar(statsSMO.getStandardDeviation()));
 
-        System.out.printf("RBF \t %s \t %s\n",
-                f.formatar(statsRBF.getMean()),
-                f.formatar(statsRBF.getStandardDeviation()));
+        System.out.printf(strFormat,
+                "RBF",
+                fmt.formatar(statsRBF.getMean()),
+                fmt.formatar(statsRBF.getStandardDeviation()));
     }
 }

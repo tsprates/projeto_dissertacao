@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.distribution.NormalDistribution;
@@ -50,7 +51,14 @@ public class Pso
         0.94, 1.0
     };
 
-    private final static String CABECALHO = "Classe \t  Compl. \t  Efet. \t  Acur. \t  Regra \n\n";
+    private static final String STR_FORMAT = "%-10s %-10s %-10s %-10s %s\n";
+    
+    private static final String CABECALHO_TAB;
+
+    static
+    {
+        CABECALHO_TAB = String.format(STR_FORMAT, "Classe", "Compl.", "Efet.", "Acur.", "Regra");
+    }
 
     private final Random rand = new Random();
 
@@ -172,11 +180,8 @@ public class Pso
             // reseta contaddor de número de avaliações
             fitness.setNumAvaliacao(0);
 
-            System.out.println();
-            System.out.println("Partição: " + (i + 1));
-            System.out.println();
-            System.out.println("Validação: " + kpastas.get(i));
-            System.out.println();
+            System.out.printf("\nPartição: %d \n", i + 1);
+            System.out.printf("\nValidação: %s \n", kpastas.get(i));
 
 //            int j = 0;
             while (fitness.getNumAvaliacao() < maxIter)
@@ -207,12 +212,16 @@ public class Pso
 //                solucoesNaoDominadas.limparSolucoesDominadasSalvas();
             } // fim: iterações
 
-            System.out.println("\nFase de treinamento:");
-            System.out.println();
+            System.out.println("\nFase de treinamento:\n");
+
             mostrarResultados();
 
-            selecionarEfetividadeExecKpastas(execKpastasClasses);
-        } // fim: k-pastas
+            // Fase de validação
+            Map<String, List<Double[]>> validacao = fitness.validar(repositorio);
+
+            mostrarEfetividadeExecKpastas(validacao);
+            selecionarEfetividadeExecKpastas(validacao, execKpastasClasses);
+        }
 
 //        mostrarResultados();
         this.resultado = getValorMedioExecKpastas(execKpastasClasses);
@@ -282,38 +291,14 @@ public class Pso
     /**
      * Calcula a efetividade da melhor efetividade de cada classe de saída.
      *
+     * @param validacao Mapa de fitness encontrados por saída.
      * @param execKpastasClasses
      */
-    private void selecionarEfetividadeExecKpastas(Map<String, Double> execKpastasClasses)
+    private void selecionarEfetividadeExecKpastas(
+            Map<String, List<Double[]>> validacao,
+            Map<String, Double> execKpastasClasses)
     {
-        Map<String, List<Double[]>> result = fitness.validar(repositorio);
-
-        System.out.println("\nFase de validação:");
-        System.out.println();
-        System.out.print(CABECALHO);
-
-        for (String saida : tipoSaidas)
-        {
-            List<Double[]> classe = result.get(saida);
-
-            for (int i = 0, len = classe.size(); i < len; i++)
-            {
-                System.out.print(saida + "\t");
-
-                Double[] arr = classe.get(i);
-                for (int j = 0, len2 = arr.length; j < len2; j++)
-                {
-                    System.out.print(fmt.formatar(arr[j]));
-                    System.out.print("\t");
-                }
-                System.out.println(repositorio.get(saida).get(i));
-            }
-//            System.out.println();
-        }
-
-        System.out.println();
-
-        for (Entry<String, List<Double[]>> entrada : result.entrySet())
+        for (Entry<String, List<Double[]>> entrada : validacao.entrySet())
         {
             String saida = entrada.getKey();
             List<Double[]> fits = entrada.getValue();
@@ -334,13 +319,42 @@ public class Pso
     }
 
     /**
-     * Mostra Resultados.
+     * Mostra a efetividade de cada classe de saída.
+     *
+     * @param validacao Lista de fitness encontrados por saída.
+     */
+    private void mostrarEfetividadeExecKpastas(Map<String, List<Double[]>> validacao)
+    {
+        System.out.println("\nFase de validação:");
+        System.out.println();
+
+        // tabela de resultado validação
+        System.out.print(CABECALHO_TAB);
+        System.out.println();
+
+        for (String saida : tipoSaidas)
+        {
+            List<Double[]> r = validacao.get(saida);
+            List<Particula> rep = repositorio.get(saida);
+
+            for (int i = 0, l = r.size(); i < l; i++)
+            {
+                double[] f = ArrayUtils.toPrimitive(r.get(i));
+                mostrarFmtSaida(saida, f, rep.get(i).whereSql());
+            }
+        }
+
+        System.out.println();
+    }
+
+    /**
+     * Mostra tabela de saída dos resultados.
      */
     public void mostrarResultados()
     {
         Map<String, List<Particula>> solucoes = new TreeMap<>(repositorio);
 
-        StringBuilder builder = new StringBuilder(CABECALHO);
+        System.out.println(CABECALHO_TAB);
 
         for (Entry<String, List<Particula>> parts : solucoes.entrySet())
         {
@@ -351,22 +365,28 @@ public class Pso
 
             Collections.sort(listaParts);
 
+            // tabela de resultado
             for (Particula part : listaParts)
             {
-                builder.append(classe);
-
-                double[] d = part.fitness();
-                for (int i = 0, len = d.length; i < len; i++)
-                {
-                    builder.append("\t").append(fmt.formatar(d[i]));
-                }
-
-                builder.append("\t").append(part.whereSql()).append("\n");
+                double[] f = part.fitness();
+                mostrarFmtSaida(classe, f, part.whereSql());
             }
         }
+    }
 
-//        builder.append("\n");
-        System.out.println(builder.toString());
+    /**
+     * Monta uma linha formatada de saída.
+     *
+     * @param classe Saída.
+     * @param fo Vetor de funções objetivo.
+     * @param whereSql SQL encontrado.
+     */
+    private void mostrarFmtSaida(String classe, double[] fo, String whereSql)
+    {
+        String compl = fmt.formatar(fo[0]);
+        String efet = fmt.formatar(fo[1]);
+        String acur = fmt.formatar(fo[2]);
+        System.out.printf(STR_FORMAT, classe, compl, efet, acur, whereSql);
     }
 
     /**
