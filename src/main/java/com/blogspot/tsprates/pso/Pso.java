@@ -242,7 +242,6 @@ public class Pso
         long tempoFinal = System.nanoTime();
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
 
-        System.out.println();
         System.out.println("Tempo decorrido: " + tempoDecorrido);
         System.out.println();
     }
