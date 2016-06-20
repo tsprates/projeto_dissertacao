@@ -219,8 +219,8 @@ public class Pso
             // Fase de validação
             Map<String, List<Double[]>> validacao = fitness.validar(repositorio);
 
-            mostrarEfetividadeExecKpastas(validacao);
-            selecionarEfetividadeExecKpastas(validacao, execKpastasClasses);
+            mostrarResultadoValidacao(validacao);
+            selecionarEfetividadeValidacao(validacao, execKpastasClasses);
         }
 
 //        mostrarResultados();
@@ -289,12 +289,12 @@ public class Pso
     }
 
     /**
-     * Calcula a efetividade da melhor efetividade de cada classe de saída.
+     * Calcula a melhor efetividade de cada classe de saída.
      *
      * @param validacao Mapa de fitness encontrados por saída.
      * @param execKpastasClasses
      */
-    private void selecionarEfetividadeExecKpastas(
+    private void selecionarEfetividadeValidacao(
             Map<String, List<Double[]>> validacao,
             Map<String, Double> execKpastasClasses)
     {
@@ -319,11 +319,11 @@ public class Pso
     }
 
     /**
-     * Mostra a efetividade de cada classe de saída.
+     * Mostra validação.
      *
      * @param validacao Lista de fitness encontrados por saída.
      */
-    private void mostrarEfetividadeExecKpastas(Map<String, List<Double[]>> validacao)
+    private void mostrarResultadoValidacao(Map<String, List<Double[]>> validacao)
     {
         System.out.println("\nFase de validação:");
         System.out.println();
