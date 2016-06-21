@@ -175,7 +175,7 @@ public class App
 
         System.out.println("\n\nTeste Wilcoxon MOPSO:\n");
 
-        String strFormat = "%-10s %-10s %-10s %-10s\n";
+        String strFormat = "%-10s %-10s %-10s %-10s %-10s\n";
         
         System.out.printf(strFormat, "", "MOPSO", "J48", "SMO", "RBF");
         System.out.printf(strFormat, "MOPSO", "-", pvaluePSO_J48, pvaluePSO_SMO, pvaluePSO_RBF);
