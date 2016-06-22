@@ -69,11 +69,11 @@ public class App
                 efetRBF.add(efetArray[2]);
             }
 
-            mostraValorMedioExec(formatador, efetPSO, efetJ48, efetSMO, efetRBF);
+            mostrarValorMedioExec(formatador, efetPSO, efetJ48, efetSMO, efetRBF);
 
             wilcoxonTeste(formatador, efetPSO, efetJ48, efetSMO, efetRBF);
 
-            mostraGrafico(config, efetPSO, efetJ48, efetSMO, efetRBF);
+            mostrarGrafico(config, efetPSO, efetJ48, efetSMO, efetRBF);
         }
         else
         {
@@ -112,7 +112,7 @@ public class App
      * @param efetSMO
      * @param efetRBF
      */
-    private static void mostraGrafico(Properties config, List<Double> efetPSO,
+    private static void mostrarGrafico(Properties config, List<Double> efetPSO,
             List<Double> efetJ48, List<Double> efetSMO, List<Double> efetRBF)
     {
         List<Double> tempEfetPSO = new ArrayList<>(efetPSO);
@@ -193,7 +193,7 @@ public class App
      * @param efetSMO
      * @param efetRBF
      */
-    private static void mostraValorMedioExec(final Formatador fmt,
+    private static void mostrarValorMedioExec(final Formatador fmt,
             List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
             List<Double> efetRBF)
     {
