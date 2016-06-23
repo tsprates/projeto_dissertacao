@@ -132,10 +132,10 @@ public class App
         final String eixoY = "Sensibilidade x Especificidade";
 
         Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
-        g.adicionaSerie("MOPSO", tempEfetPSO);
-        g.adicionaSerie("J48", tempEfetJ48);
-        g.adicionaSerie("SMO", tempEfetSMO);
-        g.adicionaSerie("RBF", tempEfetRBF);
+        g.adicionarSerie("MOPSO", tempEfetPSO);
+        g.adicionarSerie("J48", tempEfetJ48);
+        g.adicionarSerie("SMO", tempEfetSMO);
+        g.adicionarSerie("RBF", tempEfetRBF);
         g.mostra();
     }
 

@@ -28,6 +28,13 @@ public class Grafico extends ApplicationFrame
 
     private int numSeries = 0;
 
+    /**
+     * Construtor.
+     *
+     * @param titulo
+     * @param tituloX
+     * @param tituloY
+     */
     public Grafico(String titulo, String tituloX, String tituloY)
     {
         super(titulo);
@@ -36,7 +43,15 @@ public class Grafico extends ApplicationFrame
         this.eixoY = tituloY;
     }
 
-    public Grafico adicionaSerie(String legenda, List<? extends Number> xData,
+    /**
+     * Adiciona série.
+     *
+     * @param legenda
+     * @param xData
+     * @param yData
+     * @return
+     */
+    public Grafico adicionarSerie(String legenda, List<? extends Number> xData,
             List<? extends Number> yData)
     {
         final XYSeries serie = new XYSeries(legenda);
@@ -50,7 +65,14 @@ public class Grafico extends ApplicationFrame
         return this;
     }
 
-    public Grafico adicionaSerie(String legenda, List<? extends Number> yData)
+    /**
+     * Adiciona série.
+     *
+     * @param legenda
+     * @param yData
+     * @return
+     */
+    public Grafico adicionarSerie(String legenda, List<? extends Number> yData)
     {
         final XYSeries serie = new XYSeries(legenda);
 
@@ -65,6 +87,9 @@ public class Grafico extends ApplicationFrame
         return this;
     }
 
+    /**
+     * Mostra gráfico resultante.
+     */
     public void mostra()
     {
         JFreeChart chart = ChartFactory.createXYLineChart(titulo,
@@ -78,9 +103,14 @@ public class Grafico extends ApplicationFrame
         setLineRenderer(plot);
 
         chart.setAntiAlias(true);
-        createChart(chart);
+        criarGrafico(chart);
     }
 
+    /**
+     * Formata eixo X.
+     *
+     * @param plot
+     */
     private void setEixoY(XYPlot plot)
     {
         NumberAxis range = (NumberAxis) plot.getRangeAxis();
@@ -91,14 +121,21 @@ public class Grafico extends ApplicationFrame
         range.setNumberFormatOverride(df);
     }
 
+    /**
+     * Formata gráfico.
+     *
+     * @param plot
+     */
     private void setLineRenderer(XYPlot plot)
     {
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+
         for (int i = 0; i < numSeries; i++)
         {
             renderer.setSeriesLinesVisible(i, true);
             renderer.setSeriesShapesVisible(i, true);
         }
+
         plot.setRenderer(renderer);
     }
 
@@ -108,8 +145,13 @@ public class Grafico extends ApplicationFrame
 //        plot.setDomainGridlinePaint(Color.GRAY);
 //        plot.setRangeGridlinePaint(Color.GRAY);
 //    }
-
-    private void createChart(JFreeChart chart)
+    
+    /**
+     * Criar gráfico.
+     *
+     * @param chart
+     */
+    private void criarGrafico(JFreeChart chart)
     {
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new Dimension(800, 600));
