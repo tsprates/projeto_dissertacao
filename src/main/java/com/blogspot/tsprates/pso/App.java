@@ -1,5 +1,6 @@
 package com.blogspot.tsprates.pso;
 
+import java.awt.BorderLayout;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,16 +50,15 @@ public class App
             List<Double> efetJ48 = new ArrayList<>();
             List<Double> efetSMO = new ArrayList<>();
             List<Double> efetRBF = new ArrayList<>();
+            
+            System.out.printf("\nTabela: %s\n\n", config.getProperty("tabela"));
 
             final int EXEC = 30;
             for (int iter = 0; iter < EXEC; iter++)
             {
-                System.out.println();
-                System.out.println("Execução: " + (iter + 1));
-                System.out.println();
+                System.out.printf("\nExecução: %d\n\n", iter + 1);
 
                 pso.carregar();
-//                pso.mostrarResultados();
 
                 efetPSO.add(pso.getResultado());
 
