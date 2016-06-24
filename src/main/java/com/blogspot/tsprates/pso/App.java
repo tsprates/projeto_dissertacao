@@ -1,6 +1,5 @@
 package com.blogspot.tsprates.pso;
 
-import java.awt.BorderLayout;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
