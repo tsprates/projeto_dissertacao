@@ -5,10 +5,10 @@ SMO.function_exponent=2.0
 RBF.clusters=3
 RBF.min_std_dev_clusters=0.1
 
-saida=classificacao
-id=cod
+saida=class_
+id=id
 npop=200
-tabela=heart_class
+tabela=diabetes
 maxiter=50000
 w=0.9
 c1=0.8
