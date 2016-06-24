@@ -48,7 +48,6 @@ public class Fitness
      * @param colId
      * @param tabela
      * @param classesSaida
-     * @param kpastas
      */
     public Fitness(Connection conexao,
             final String colId,

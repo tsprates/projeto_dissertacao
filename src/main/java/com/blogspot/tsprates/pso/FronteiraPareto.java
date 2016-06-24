@@ -54,11 +54,12 @@ public class FronteiraPareto
             boolean dominada = false;
 
             Iterator<Particula> iter = particulas.iterator();
+
             while (iter.hasNext())
             {
                 double[] pfitAtual = iter.next().fitness();
 
-                // testa se a primeira partícula domina outra partícula
+                // testa se a partícula domina partícula atual
                 if (testarDominancia(pfit, pfitAtual))
                 {
                     iter.remove();

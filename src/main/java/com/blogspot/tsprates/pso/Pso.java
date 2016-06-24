@@ -223,7 +223,6 @@ public class Pso
             selecionarEfetividadeValidacao(validacao, execKpastasClasses);
         }
 
-//        mostrarResultados();
         this.resultado = getValorMedioExecKpastas(execKpastasClasses);
 
         for (String saida : tipoSaidas)
