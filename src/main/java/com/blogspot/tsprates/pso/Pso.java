@@ -183,7 +183,6 @@ public class Pso
             System.out.printf("\nPartição: %d \n", i + 1);
             System.out.printf("\nValidação: %s \n", kpastas.get(i));
 
-//            int j = 0;
             while (fitness.getNumAvaliacao() < maxIter)
             {
 
@@ -204,9 +203,6 @@ public class Pso
                     atualizaPosicao(particula);
                 }
 
-//                System.out.println("Iteração: " + (j + 1));
-//                j++;
-//                
 //                // soluções não dominadas
 //                solucoesNaoDominadas.salvar(repositorio);
 //                solucoesNaoDominadas.limparSolucoesDominadasSalvas();
