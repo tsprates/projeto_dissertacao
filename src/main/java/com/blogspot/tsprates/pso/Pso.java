@@ -149,8 +149,6 @@ public class Pso
         criaRepositorio();
 
         this.fitness = new Fitness(conexao, colId, tabela, mapaSaida);
-
-//      this.solucoesNaoDominadas = new SolucoesNaoDominadas(conexao, tabela, tipoSaidas);
     }
 
     /**
@@ -202,10 +200,6 @@ public class Pso
                     // atualiza posição da partícula
                     atualizaPosicao(particula);
                 }
-
-//                // soluções não dominadas
-//                solucoesNaoDominadas.salvar(repositorio);
-//                solucoesNaoDominadas.limparSolucoesDominadasSalvas();
             } // fim: iterações
 
             System.out.println("\nFase de treinamento:\n");
