@@ -107,8 +107,7 @@ public class Pso
     private List<List<String>> kpastas;
 
     private double resultado;
-
-//    private final SolucoesNaoDominadas solucoesNaoDominadas;
+    
     /**
      * Construtor.
      *
