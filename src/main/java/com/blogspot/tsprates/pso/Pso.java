@@ -216,9 +216,12 @@ public class Pso
             Map<String, List<Double[]>> validacao = fitness.validar(repositorio);
 
             mostrarResultadoValidacao(validacao);
+            
+            // Seleciona melhores efetividade
             selecionarEfetividadeValidacao(validacao, execKpastasClasses);
         }
 
+        // Média das melhores efetividades
         this.resultado = getValorMedioExecKpastas(execKpastasClasses);
 
         for (String saida : tipoSaidas)
