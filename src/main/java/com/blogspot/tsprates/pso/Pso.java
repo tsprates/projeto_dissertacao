@@ -480,11 +480,11 @@ public class Pso
      * Perturbação.
      *
      * @param p Partícula.
-     * @param distNorm Distribuição Normal.
+     * @param distnorm Distribuição Normal.
      */
-    private void perturbar(Particula p, boolean distNorm)
+    private void perturbar(Particula p, boolean distnorm)
     {
-        perturbar(p, 1.0, distNorm);
+        perturbar(p, 1.0, distnorm);
     }
 
     /**
