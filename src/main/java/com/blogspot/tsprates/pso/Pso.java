@@ -492,15 +492,16 @@ public class Pso
      *
      * @param p Partícula.
      * @param pm Taxa de mutação.
-     * @param distNorm Distribuição Normal.
+     * @param distnorm Distribuição Normal.
      */
-    private void perturbar(Particula p, double pm, boolean distNorm)
+    private void perturbar(Particula p, double pm, boolean distnorm)
     {
         if (pm > Math.random())
         {
             List<String> pos = new ArrayList<>(p.posicao());
-            final int i = rand.nextInt(pos.size());
-            String[] clausula = pos.get(i).split(" ");
+            
+            final int index = rand.nextInt(pos.size());
+            String[] clausula = pos.get(index).split(" ");
 
             if (StringUtils.isNumeric(clausula[2]))
             {
@@ -508,7 +509,7 @@ public class Pso
                 final double valor = Double.parseDouble(clausula[2]);
                 double newValor;
 
-                if (distNorm)
+                if (distnorm)
                 {
                     // Proposta de Higashi et al. (2003)
                     final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0]));
@@ -520,18 +521,15 @@ public class Pso
                     // Proposta de Michalewitz (1996)
                     if (Math.random() < 0.5)
                     {
-                        newValor = valor + (max.get(clausula[1]) - valor)
-                                * Math.random();
+                        newValor = valor + (max.get(clausula[1]) - valor) * Math.random();
                     }
                     else
                     {
-                        newValor = valor - (valor - min.get(clausula[1]))
-                                * Math.random();
+                        newValor = valor - (valor - min.get(clausula[1])) * Math.random();
                     }
                 }
 
-                pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0],
-                        clausula[1], newValor));
+                pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0], clausula[1], newValor));
             }
             else
             {
@@ -543,10 +541,10 @@ public class Pso
                 {
                     double sorteio = Math.random();
                     int indexOper = 0;
+                    
                     for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
                     {
-                        if (PROB_OPERADORES[k - 1] >= sorteio
-                                && PROB_OPERADORES[k] < sorteio)
+                        if (PROB_OPERADORES[k - 1] >= sorteio && PROB_OPERADORES[k] < sorteio)
                         {
                             indexOper = k - 1;
                         }
@@ -554,9 +552,7 @@ public class Pso
 
                     clausula[1] = LISTA_OPERADORES[indexOper];
 
-                    pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0],
-                            clausula[1], clausula[2]));
-
+                    pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
                 }
             }
 
