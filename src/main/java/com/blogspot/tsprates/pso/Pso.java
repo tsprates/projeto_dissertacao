@@ -52,7 +52,7 @@ public class Pso
     };
 
     private static final String STR_FORMAT = "%-10s %-10s %-10s %-10s %s\n";
-    
+
     private static final String CABECALHO_TAB;
 
     static
@@ -107,7 +107,7 @@ public class Pso
     private List<List<String>> kpastas;
 
     private double resultado;
-    
+
     /**
      * Construtor.
      *
@@ -209,7 +209,7 @@ public class Pso
             Map<String, List<Double[]>> validacao = fitness.validar(repositorio);
 
             mostrarResultadoValidacao(validacao);
-            
+
             // Seleciona melhores efetividade
             selecionarEfetividadeValidacao(validacao, execKpastasClasses);
         }
@@ -498,7 +498,7 @@ public class Pso
         if (pm > Math.random())
         {
             List<String> pos = new ArrayList<>(p.posicao());
-            
+
             final int index = rand.nextInt(pos.size());
             String[] clausula = pos.get(index).split(" ");
 
@@ -542,7 +542,7 @@ public class Pso
                 {
                     double sorteio = Math.random();
                     int indexOper = 0;
-                    
+
                     for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
                     {
                         if (PROB_OPERADORES[k - 1] >= sorteio && PROB_OPERADORES[k] < sorteio)
