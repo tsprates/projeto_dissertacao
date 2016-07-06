@@ -512,6 +512,7 @@ public class Pso
                 if (distnorm)
                 {
                     // Proposta de Higashi et al. (2003)
+                    // Mutação não uniforme
                     final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0]));
                     final double R = new NormalDistribution(0, alfa).sample();
                     newValor = valor + R;
@@ -519,6 +520,7 @@ public class Pso
                 else
                 {
                     // Proposta de Michalewitz (1996)
+                    // Mutação uniforme
                     if (Math.random() < 0.5)
                     {
                         newValor = valor + (max.get(clausula[1]) - valor) * Math.random();
