@@ -540,12 +540,12 @@ public class Pso
                 }
                 else
                 {
-                    double sorteio = Math.random();
+                    double rnd = Math.random();
                     int indexOper = 0;
 
                     for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
                     {
-                        if (PROB_OPERADORES[k - 1] >= sorteio && PROB_OPERADORES[k] < sorteio)
+                        if (PROB_OPERADORES[k - 1] >= rnd && PROB_OPERADORES[k] < rnd)
                         {
                             indexOper = k - 1;
                         }
@@ -846,11 +846,12 @@ public class Pso
         // verifica se a condição ocorrerá com o campo constante ou valor numérico
         if (rand.nextDouble() < prob)
         {
-            valor = String.format(
-                    Locale.ROOT,
-                    "%.3f",
-                    RandomUtils.nextDouble(min.get(colunas[colIndex]),
-                            max.get(colunas[colIndex])));
+            final String coluna = colunas[colIndex];
+            final Double minCol = min.get(coluna);
+            final Double maxCol = max.get(coluna);
+            final double newVal = RandomUtils.nextDouble(minCol, maxCol);
+            
+            valor = String.format(Locale.ROOT, "%.3f", newVal);
         }
         else
         {
