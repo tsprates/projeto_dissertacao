@@ -180,7 +180,7 @@ public class Fitness
      *
      * @param part Partícula.
      * @param treinamento Treinamento.
-     * @return Retorna o valor da acurácia obtido.
+     * @return Retorna a efetividade e acurácia.
      */
     private double[] realizarCalculo(Particula part, boolean treinamento)
     {
