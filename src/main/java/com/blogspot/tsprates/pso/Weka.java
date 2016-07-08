@@ -27,7 +27,7 @@ public class Weka
     private final String colId;
 
     private final String colSaida;
-    
+
     private final String optsJ48, optsSMO, optsRBF;
 
     public Weka(List<List<String>> kpastas,
@@ -36,39 +36,42 @@ public class Weka
     {
         this.kpastas = kpastas;
         this.K = K;
-        
+
         this.tabela = config.getProperty("tabela");
         this.colSaida = config.getProperty("saida");
         this.colId = config.getProperty("id");
-        
-        this.optsJ48 = String.format("-C %s", 
+
+        this.optsJ48 = String.format("-C %s",
                 config.getProperty("J48.confidence_factor"));
-        
-        this.optsSMO = String.format("-C %s -K %s -E %s", 
+
+        this.optsSMO = String.format("-C %s -K %s -E %s",
                 config.getProperty("SMO.complexity_parameter_c"),
                 config.getProperty("SMO.kernel_function"),
                 config.getProperty("SMO.function_exponent"));
-        
-        this.optsRBF = String.format("-B %s -W %s", 
+
+        this.optsRBF = String.format("-B %s -W %s",
                 config.getProperty("RBF.clusters"),
                 config.getProperty("RBF.min_std_dev_clusters"));
     }
 
     public double[] getEfetividadeArray()
     {
-        double[] total = new double[] { 0.0, 0.0, 0.0 };
-            
+        double[] total = new double[]
+        {
+            0.0, 0.0, 0.0
+        };
+
         try
         {
             InstanceQuery query = new InstanceQuery();
             query.setUsername("postgres");
             query.setPassword("admin");
-            
+
             for (int i = 0; i < K; i++)
             {
                 String ids = StringUtils.join(kpastas.get(i), ", ");
 
-                // validação
+                // treinamento
                 query.setQuery("SELECT * "
                         + "FROM " + tabela + " "
                         + "WHERE " + colId + " NOT IN (" + ids + ")");
@@ -76,25 +79,25 @@ public class Weka
                 Instances train = query.retrieveInstances();
                 train.setClassIndex(train.attribute(colSaida).index());
 
-                Remove removeAtribTrain = criarRemove(train);
-                Instances trainData = Filter.useFilter(train, removeAtribTrain);
-                
-//                System.out.println(new Instances(trainData, 0));
+                Remove remAtrTrain = criarRemove(train);
+                Instances trainData = Filter.useFilter(train, remAtrTrain);
 
-                // criar classificadores
+                // árvore de decisão
                 J48 j48 = new J48();
                 j48.setOptions(Utils.splitOptions(optsJ48));
                 j48.buildClassifier(trainData);
-                
+
+                // svm
                 SMO smo = new SMO();
                 smo.setOptions(Utils.splitOptions(optsSMO));
                 smo.buildClassifier(trainData);
-                
+
+                // rede neural de base radial
                 RBFNetwork rbf = new RBFNetwork();
                 rbf.setOptions(Utils.splitOptions(optsRBF));
                 rbf.buildClassifier(trainData);
-                
-                // teste
+
+                // Validação
                 query.setQuery("SELECT * "
                         + "FROM " + tabela + " "
                         + "WHERE " + colId + " IN (" + ids + ")");
@@ -102,33 +105,33 @@ public class Weka
                 Instances test = query.retrieveInstances();
                 test.setClassIndex(test.attribute(colSaida).index());
 
-                Remove removeAtribTest = criarRemove(test);
-                Instances testData = Filter.useFilter(test, removeAtribTest);
+                // Remove atributo id
+                Remove remAtrTest = criarRemove(test);
+                Instances testData = Filter.useFilter(test, remAtrTest);
 
+                // Validação
                 Evaluation evalJ48 = new Evaluation(trainData);
                 evalJ48.evaluateModel(j48, testData);
-                
+
                 Evaluation evalSMO = new Evaluation(trainData);
                 evalSMO.evaluateModel(smo, testData);
-                
+
                 Evaluation evalRBF = new Evaluation(trainData);
                 evalRBF.evaluateModel(rbf, testData);
 
-                // efetividade global
+                // Calcula efetividade global
                 int numClasses = trainData.numClasses();
                 double totalJ48 = 0.0;
                 double totalSMO = 0.0;
                 double totalRBF = 0.0;
-                
+
                 for (int j = 0; j < numClasses; j++)
                 {
                     totalJ48 += evalJ48.precision(j) * evalJ48.recall(j);
-                    
                     totalSMO += evalSMO.precision(j) * evalSMO.recall(j);
-                    
                     totalRBF += evalRBF.precision(j) * evalRBF.recall(j);
                 }
-                
+
                 total[0] += totalJ48 / numClasses;
                 total[1] += totalSMO / numClasses;
                 total[2] += totalRBF / numClasses;
@@ -142,16 +145,18 @@ public class Weka
         total[0] = total[0] / K;
         total[1] = total[1] / K;
         total[2] = total[2] / K;
-        
+
         return total;
     }
 
     private Remove criarRemove(Instances instance) throws Exception
     {
         int colIdIndex = instance.attribute(colId).index() + 1;
-        Remove removeAtrib = new Remove();
-        removeAtrib.setOptions(Utils.splitOptions("-R " + colIdIndex));
-        removeAtrib.setInputFormat(instance);
-        return removeAtrib;
+
+        Remove remAtr = new Remove();
+        remAtr.setOptions(Utils.splitOptions("-R " + colIdIndex));
+        remAtr.setInputFormat(instance);
+
+        return remAtr;
     }
 }
