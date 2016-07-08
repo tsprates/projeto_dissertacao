@@ -540,12 +540,12 @@ public class Pso
                 }
                 else
                 {
-                    double rnd = Math.random();
+                    double r = Math.random();
                     int indexOper = 0;
 
                     for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
                     {
-                        if (PROB_OPERADORES[k - 1] >= rnd && PROB_OPERADORES[k] < rnd)
+                        if (PROB_OPERADORES[k - 1] >= r && PROB_OPERADORES[k] < r)
                         {
                             indexOper = k - 1;
                         }
@@ -562,7 +562,7 @@ public class Pso
     }
 
     /**
-     * Mapa de todas as saídas (classes) possíves para cada id da tupla.
+     * Mapa de todas as saídas (classes) para cada id.
      *
      */
     private void mapaSaidaId()
