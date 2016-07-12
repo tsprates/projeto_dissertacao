@@ -87,7 +87,7 @@ public class Fitness
     }
 
     /**
-     * Calcula fitness, para treinamento.
+     * Calcula fitness.
      *
      * @param part Partícula.
      * @return Array contendo a complexidade WHERE, efetividade e acurácia.
@@ -176,11 +176,11 @@ public class Fitness
     }
 
     /**
-     * Calcula a especificidade de cada partícula.
+     * Calcula a especificidade e acurácia da partícula.
      *
      * @param part Partícula.
      * @param treinamento Treinamento.
-     * @return Retorna a efetividade e acurácia.
+     * @return Retorna a efetividade e acurácia calculada.
      */
     private double[] realizarCalculo(Particula part, boolean treinamento)
     {
@@ -264,8 +264,8 @@ public class Fitness
             List<Particula> parts = ent.getValue();
             for (Particula part : parts)
             {
-                double[] calcularValidacao = calcular(part, false);
-                map.get(saida).add(ArrayUtils.toObject(calcularValidacao));
+                double[] r = calcular(part, false);
+                map.get(saida).add(ArrayUtils.toObject(r));
             }
         }
 
