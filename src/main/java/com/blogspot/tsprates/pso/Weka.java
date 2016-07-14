@@ -9,6 +9,7 @@ import weka.classifiers.Evaluation;
 import weka.classifiers.functions.RBFNetwork;
 import weka.classifiers.functions.SMO;
 import weka.classifiers.trees.J48;
+import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.Utils;
 import weka.experiment.InstanceQuery;
@@ -30,6 +31,15 @@ public class Weka
 
     private final String optsJ48, optsSMO, optsRBF;
 
+    private int numClasses;
+
+    /**
+     * Construtor.
+     *
+     * @param kpastas
+     * @param K
+     * @param config
+     */
     public Weka(List<List<String>> kpastas,
             final int K,
             Properties config)
@@ -54,12 +64,15 @@ public class Weka
                 config.getProperty("RBF.min_std_dev_clusters"));
     }
 
-    public double[] getEfetividadeArray()
+    /**
+     * Retorna uma matriz de algoritmos do WEKA por classes da classificação.
+     *
+     * @return Matriz de resultado.
+     */
+    public double[][] getEfetividadeArray()
     {
-        double[] total = new double[]
-        {
-            0.0, 0.0, 0.0
-        };
+        double[][] efet = null;
+        int numCl = -1;
 
         try
         {
@@ -74,7 +87,8 @@ public class Weka
                 // treinamento
                 query.setQuery("SELECT * "
                         + "FROM " + tabela + " "
-                        + "WHERE " + colId + " NOT IN (" + ids + ")");
+                        + "WHERE " + colId + " NOT IN (" + ids + ")"
+                        + "ORDER BY " + colSaida + " ASC");
 
                 Instances train = query.retrieveInstances();
                 train.setClassIndex(train.attribute(colSaida).index());
@@ -100,10 +114,19 @@ public class Weka
                 // Validação
                 query.setQuery("SELECT * "
                         + "FROM " + tabela + " "
-                        + "WHERE " + colId + " IN (" + ids + ")");
+                        + "WHERE " + colId + " IN (" + ids + ")"
+                        + "ORDER BY " + colSaida + " ASC");
 
                 Instances test = query.retrieveInstances();
                 test.setClassIndex(test.attribute(colSaida).index());
+                
+//                System.out.println("Índices saídas:\n");
+//                Attribute attr = test.attribute(train.attribute(colSaida).index());
+//                for (int j = 0; j < attr.numValues(); j++)
+//                {
+//                    System.out.println(j + " : " + attr.value(j));
+//                }
+//                System.out.println();
 
                 // Remove atributo id
                 Remove remAtrTest = criarRemove(test);
@@ -119,36 +142,57 @@ public class Weka
                 Evaluation evalRBF = new Evaluation(trainData);
                 evalRBF.evaluateModel(rbf, testData);
 
-                // Calcula efetividade global
-                int numClasses = trainData.numClasses();
-                double totalJ48 = 0.0;
-                double totalSMO = 0.0;
-                double totalRBF = 0.0;
-
-                for (int j = 0; j < numClasses; j++)
+                // total de classes 
+                if (numCl == -1)
                 {
-                    totalJ48 += evalJ48.precision(j) * evalJ48.recall(j);
-                    totalSMO += evalSMO.precision(j) * evalSMO.recall(j);
-                    totalRBF += evalRBF.precision(j) * evalRBF.recall(j);
+                    numCl = trainData.numClasses();
+
+                    efet = new double[3][numCl];
+
+                    for (int j = 0; j < numCl; j++)
+                    {
+                        efet[0][j] = 0.0;
+                        efet[1][j] = 0.0;
+                        efet[2][j] = 0.0;
+                    }
+
+                    this.numClasses = numCl;
                 }
 
-                total[0] += totalJ48 / numClasses;
-                total[1] += totalSMO / numClasses;
-                total[2] += totalRBF / numClasses;
+                for (int j = 0; j < numCl; j++)
+                {
+                    efet[0][j] += evalJ48.precision(j) * evalJ48.recall(j);
+                    efet[1][j] += evalSMO.precision(j) * evalSMO.recall(j);
+                    efet[2][j] += evalRBF.precision(j) * evalRBF.recall(j);
+                }
             }
+
+            if (efet != null)
+            {
+                for (int i = 0; i < numCl; i++)
+                {
+                    efet[0][i] = efet[0][i] / K;
+                    efet[1][i] = efet[1][i] / K;
+                    efet[2][i] = efet[2][i] / K;
+                }
+            }
+
+            return efet;
         }
         catch (Exception e)
         {
             throw new RuntimeException(e);
         }
 
-        total[0] = total[0] / K;
-        total[1] = total[1] / K;
-        total[2] = total[2] / K;
-
-        return total;
     }
 
+    /**
+     * Remove atributo ID sql.
+     *
+     * @param instance
+     * @return
+     * @throws Exception
+     */
     private Remove criarRemove(Instances instance) throws Exception
     {
         int colIdIndex = instance.attribute(colId).index() + 1;
@@ -158,5 +202,15 @@ public class Weka
         remAtr.setInputFormat(instance);
 
         return remAtr;
+    }
+
+    /**
+     * Retorna número de classes.
+     *
+     * @return Número de classes
+     */
+    public int numClasses()
+    {
+        return numClasses;
     }
 }

@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -49,8 +51,11 @@ public class App
             List<Double> efetJ48 = new ArrayList<>();
             List<Double> efetSMO = new ArrayList<>();
             List<Double> efetRBF = new ArrayList<>();
-            
-            System.out.printf("\nTabela: %s\n\n", config.getProperty("tabela"));
+
+            System.out.printf("\nTabela: %s\n", config.getProperty("tabela"));
+
+            // matriz de algoritmos x classes
+            double[][] matCls = null;
 
             final int EXEC = 30;
             for (int iter = 0; iter < EXEC; iter++)
@@ -62,10 +67,84 @@ public class App
                 efetPSO.add(pso.getResultado());
 
                 Weka weka = new Weka(pso.getKPasta(), K, config);
-                double[] efetArray = weka.getEfetividadeArray();
-                efetJ48.add(efetArray[0]);
-                efetSMO.add(efetArray[1]);
-                efetRBF.add(efetArray[2]);
+                double[][] efetWeka = weka.getEfetividadeArray();
+                int numCls = weka.numClasses();
+
+                // valor médio efetividade global
+                double medEfetJ48 = 0.0;
+                double medEfetSMO = 0.0;
+                double medEfetRBF = 0.0;
+
+                for (int i = 0; i < numCls; i++)
+                {
+                    medEfetJ48 += efetWeka[0][i];
+                    medEfetSMO += efetWeka[1][i];
+                    medEfetRBF += efetWeka[2][i];
+                }
+
+                // Adiciona Efetividade Global
+                efetJ48.add(medEfetJ48 / numCls);
+                efetSMO.add(medEfetSMO / numCls);
+                efetRBF.add(medEfetRBF / numCls);
+
+                // Verifica se matriz de classes foi instanciada
+                if (matCls == null)
+                {
+                    matCls = new double[4][numCls];
+
+                    for (int i = 0; i < numCls; i++)
+                    {
+                        matCls[0][i] = 0.0; // MOPSO
+                        matCls[1][i] = 0.0; // SMO
+                        matCls[2][i] = 0.0; // RBF
+                        matCls[3][i] = 0.0; // J48
+                    }
+                }
+
+                for (int i = 0; i < numCls; i++)
+                {
+                    matCls[1][i] += efetWeka[0][i];  // J48
+                    matCls[2][i] += efetWeka[1][i];  // SMO
+                    matCls[3][i] += efetWeka[2][i];  // RBF
+                }
+
+                int j = 0;
+                final Map<String, Double> resultadoPorClasses = pso.getResultadoPorClasses();
+                for (Entry<String, Double> classe : resultadoPorClasses.entrySet())
+                {
+                    matCls[0][j] += classe.getValue(); // MOPSO
+                    j++;
+                }
+            }
+
+            if (matCls != null)
+            {
+                for (int i = 0; i < pso.getClasses().size(); i++)
+                {
+                    matCls[0][i] /= EXEC;  // MOPSO
+                    matCls[1][i] /= EXEC;  // SMO
+                    matCls[2][i] /= EXEC;  // RBF
+                    matCls[3][i] /= EXEC;  // J48
+                }
+            }
+
+            if (matCls != null)
+            {
+                System.out.println("\nAlgoritmos por Classes:\n");
+                String[] alg =
+                {
+                    "MOPSO", "J48", "SMO", "RBF"
+                };
+                for (int i = 0; i < matCls.length; i++)
+                {
+                    System.out.printf("%-10s", alg[i]);
+                    for (int j = 0; j < matCls[i].length; j++)
+                    {
+                        String v = formatador.formatar(matCls[i][j]);
+                        System.out.printf(" %-10s", v);
+                    }
+                    System.out.println();
+                }
             }
 
             mostrarValorMedioExec(formatador, efetPSO, efetJ48, efetSMO, efetRBF);
@@ -175,7 +254,7 @@ public class App
         System.out.println("\n\nTeste Wilcoxon MOPSO:\n");
 
         String strFormat = "%-10s %-10s %-10s %-10s %-10s\n";
-        
+
         System.out.printf(strFormat, "", "MOPSO", "J48", "SMO", "RBF");
         System.out.printf(strFormat, "MOPSO", "-", pvaluePSO_J48, pvaluePSO_SMO, pvaluePSO_RBF);
         System.out.printf(strFormat, "J48", pvaluePSO_J48, "-", pvalueJ48_SMO, pvalueJ48_RBF);
@@ -220,11 +299,11 @@ public class App
             statsRBF.addValue(efetRBF.get(i));
         }
 
-        System.out.println();
+        System.out.println("\n");
         System.out.printf("%-10s %-10s %-10s\n\n", "Alg.", "Méd.", "Desv.");
 
         String strFormat = "%-10s %-10s %-10s\n";
-        
+
         System.out.printf(strFormat,
                 "MOPSO",
                 fmt.formatar(statsPSO.getMean()),
