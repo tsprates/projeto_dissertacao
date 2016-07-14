@@ -90,7 +90,7 @@ public class Fitness
      * Calcula fitness.
      *
      * @param part Partícula.
-     * @return Array contendo a complexidade WHERE, efetividade e acurácia.
+     * @return Array contendo a complexidade, efetividade e acurácia.
      */
     public double[] calcular(Particula part)
     {
@@ -253,22 +253,22 @@ public class Fitness
      */
     public Map<String, List<Double[]>> validar(Map<String, List<Particula>> repositorio)
     {
-        Map<String, List<Double[]>> map = new TreeMap<>();
+        Map<String, List<Double[]>> mapFit = new TreeMap<>();
 
-        for (Entry<String, List<Particula>> ent : repositorio.entrySet())
+        for (Entry<String, List<Particula>> classePart : repositorio.entrySet())
         {
-            String saida = ent.getKey();
+            String saida = classePart.getKey();
 
-            map.put(saida, new ArrayList<Double[]>());
+            mapFit.put(saida, new ArrayList<Double[]>());
 
-            List<Particula> parts = ent.getValue();
+            List<Particula> parts = classePart.getValue();
             for (Particula part : parts)
             {
                 double[] r = calcular(part, false);
-                map.get(saida).add(ArrayUtils.toObject(r));
+                mapFit.get(saida).add(ArrayUtils.toObject(r));
             }
         }
 
-        return map;
+        return mapFit;
     }
 }
