@@ -1,10 +1,6 @@
 package com.blogspot.tsprates.pso;
 
-import java.util.List;
-import java.util.Properties;
-
 import org.apache.commons.lang3.StringUtils;
-
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.RBFNetwork;
 import weka.classifiers.functions.SMO;
@@ -14,6 +10,9 @@ import weka.core.Utils;
 import weka.experiment.InstanceQuery;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Remove;
+
+import java.util.List;
+import java.util.Properties;
 
 public class Weka
 {

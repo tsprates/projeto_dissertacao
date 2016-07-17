@@ -1,7 +1,8 @@
 package com.blogspot.tsprates.pso;
 
-import java.util.List;
 import org.apache.commons.math3.ml.distance.EuclideanDistance;
+
+import java.util.List;
 
 public class Distancia
 {

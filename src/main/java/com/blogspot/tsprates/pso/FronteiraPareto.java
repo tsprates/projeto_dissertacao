@@ -1,12 +1,8 @@
 package com.blogspot.tsprates.pso;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.lang3.RandomUtils;
+
+import java.util.*;
 
 /**
  * Fronteira Pareto.

@@ -1,12 +1,8 @@
 package com.blogspot.tsprates.pso;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
 
 /**
  * Classe Partícula.
