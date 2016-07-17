@@ -9,7 +9,6 @@ import weka.classifiers.Evaluation;
 import weka.classifiers.functions.RBFNetwork;
 import weka.classifiers.functions.SMO;
 import weka.classifiers.trees.J48;
-import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.Utils;
 import weka.experiment.InstanceQuery;
@@ -71,8 +70,9 @@ public class Weka
      */
     public double[][] getEfetividadeArray()
     {
-        double[][] efet = null;
-        int numCl = -1;
+        double[][] efet = null; // efetividade
+        
+        int numCls = -1;
 
         try
         {
@@ -143,23 +143,23 @@ public class Weka
                 evalRBF.evaluateModel(rbf, testData);
 
                 // total de classes 
-                if (numCl == -1)
+                if (numCls == -1)
                 {
-                    numCl = trainData.numClasses();
+                    numCls = trainData.numClasses();
 
-                    efet = new double[3][numCl];
+                    efet = new double[3][numCls];
 
-                    for (int j = 0; j < numCl; j++)
+                    for (int j = 0; j < numCls; j++)
                     {
                         efet[0][j] = 0.0;
                         efet[1][j] = 0.0;
                         efet[2][j] = 0.0;
                     }
 
-                    this.numClasses = numCl;
+                    this.numClasses = numCls;
                 }
 
-                for (int j = 0; j < numCl; j++)
+                for (int j = 0; j < numCls; j++)
                 {
                     efet[0][j] += evalJ48.precision(j) * evalJ48.recall(j);
                     efet[1][j] += evalSMO.precision(j) * evalSMO.recall(j);
@@ -169,11 +169,11 @@ public class Weka
 
             if (efet != null)
             {
-                for (int i = 0; i < numCl; i++)
+                for (int i = 0; i < numCls; i++)
                 {
-                    efet[0][i] = efet[0][i] / K;
-                    efet[1][i] = efet[1][i] / K;
-                    efet[2][i] = efet[2][i] / K;
+                    efet[0][i] /= K;
+                    efet[1][i] /= K;
+                    efet[2][i] /= K;
                 }
             }
 
