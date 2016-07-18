@@ -14,6 +14,12 @@ public class FronteiraPareto
 
     private final static int LIMITE_REPO = 30;
 
+    /**
+     * Verifica e remove partículas da coleção repositório, 
+     * caso este seja maior que o limite definido.
+     * 
+     * @param repositorio Lista de partículas.
+     */
     public static void verificarTamanhoDoRepositorio(Collection<Particula> repositorio)
     {
         List<Particula> rep = new ArrayList<>(repositorio);
