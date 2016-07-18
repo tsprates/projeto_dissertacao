@@ -154,10 +154,8 @@ public class Pso
         {
             fitness.setK(i);
 
-            // cria enxame
             this.particulas = getEnxameInicial();
 
-            // reseta repositório
             resetRepositorio();
 
             // reseta contaddor de número de avaliações
