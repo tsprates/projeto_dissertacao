@@ -134,7 +134,7 @@ public class Particula implements Comparable<Particula>
     /**
      * Retorna string de cláusulas WHERE.
      *
-     * @param where Cláusula where.
+     * @param where Cláusula WHERE.
      * @return String de cláusulas WHERE.
      */
     private String join(Set<String> where)
