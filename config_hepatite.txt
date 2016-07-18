@@ -7,7 +7,7 @@ RBF.min_std_dev_clusters=0.1
 
 saida=classe
 id=cod
-npop=200
+npop=150
 tabela=hepatite_correta
 maxiter=50000
 w=0.9
