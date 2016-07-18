@@ -20,16 +20,16 @@ public class Particula implements Comparable<Particula>
 
     private double[] fitness;
 
-    private final Fitness calculadorFitness;
+    private final Fitness calculadoraFitness;
 
     private Set<Particula> pbest;
 
     /**
      * Construtor.
      *
-     * @param posicao
-     * @param classe
-     * @param fitness
+     * @param posicao Conjunto de cláusulas WHERE que representa a posição da partícula.
+     * @param classe Rótulo da partícula.
+     * @param fitness Calculadora de fitness.
      */
     public Particula(Set<String> posicao, String classe, Fitness fitness)
     {
@@ -38,10 +38,10 @@ public class Particula implements Comparable<Particula>
         this.classe = classe;
         this.pbest = new TreeSet<>();
 
-        this.calculadorFitness = fitness;
+        this.calculadoraFitness = fitness;
 
         final Particula that = this;
-        this.fitness = calculadorFitness.calcular(that);
+        this.fitness = calculadoraFitness.calcular(that);
     }
 
     /**
@@ -50,7 +50,7 @@ public class Particula implements Comparable<Particula>
      */
     public Particula(Particula p)
     {
-        this(p.posicao, p.classe, p.calculadorFitness);
+        this(p.posicao, p.classe, p.calculadoraFitness);
     }
 
     /**
@@ -72,7 +72,7 @@ public class Particula implements Comparable<Particula>
     {
         this.posicao = new TreeSet<>(posicao);
         this.strPos = join(this.posicao);
-        this.fitness = calculadorFitness.calcular(this);
+        this.fitness = calculadoraFitness.calcular(this);
     }
 
     /**
@@ -134,12 +134,12 @@ public class Particula implements Comparable<Particula>
     /**
      * Retorna string de cláusulas WHERE.
      *
-     * @param l
+     * @param where Cláusula where.
      * @return String de cláusulas WHERE.
      */
-    private String join(Set<String> l)
+    private String join(Set<String> where)
     {
-        return "(" + StringUtils.join(l, ") AND (") + ")";
+        return "(" + StringUtils.join(where, ") AND (") + ")";
     }
 
     /**
@@ -170,7 +170,7 @@ public class Particula implements Comparable<Particula>
         FronteiraPareto.atualizarParticulas(pbest, this);
         this.pbest = new TreeSet<>(pbest);
 
-        // verifica tamanho do repositório
+        // verifica tamanho permitido do repositório
         FronteiraPareto.verificarTamanhoDoRepositorio(this.pbest);
 
     }
@@ -199,6 +199,7 @@ public class Particula implements Comparable<Particula>
         {
             return false;
         }
+
         Particula other = (Particula) obj;
         return Arrays.equals(fitness, other.fitness);
     }
