@@ -79,9 +79,9 @@ public class App
                 }
 
                 // Adiciona Efetividade Global
-                efetJ48.add(medEfetJ48 / numCls);
-                efetSMO.add(medEfetSMO / numCls);
-                efetRBF.add(medEfetRBF / numCls);
+                efetJ48.add(medEfetJ48 / (double) numCls);
+                efetSMO.add(medEfetSMO / (double) numCls);
+                efetRBF.add(medEfetRBF / (double) numCls);
 
                 // Verifica se matriz de classes foi instanciada
                 if (matCls == null)
@@ -91,9 +91,9 @@ public class App
                     for (int i = 0; i < numCls; i++)
                     {
                         matCls[0][i] = 0.0; // MOPSO
-                        matCls[1][i] = 0.0; // SMO
-                        matCls[2][i] = 0.0; // RBF
-                        matCls[3][i] = 0.0; // J48
+                        matCls[1][i] = 0.0; // J48
+                        matCls[2][i] = 0.0; // SMO
+                        matCls[3][i] = 0.0; // RBF
                     }
                 }
 
@@ -118,9 +118,9 @@ public class App
                 for (int i = 0; i < pso.getClasses().size(); i++)
                 {
                     matCls[0][i] /= EXEC;  // MOPSO
-                    matCls[1][i] /= EXEC;  // SMO
-                    matCls[2][i] /= EXEC;  // RBF
-                    matCls[3][i] /= EXEC;  // J48
+                    matCls[1][i] /= EXEC;  // J48
+                    matCls[2][i] /= EXEC;  // SMO
+                    matCls[3][i] /= EXEC;  // RBF
                 }
             }
 
