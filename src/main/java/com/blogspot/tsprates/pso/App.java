@@ -122,10 +122,7 @@ public class App
                     matCls[2][i] /= EXEC;  // SMO
                     matCls[3][i] /= EXEC;  // RBF
                 }
-            }
-
-            if (matCls != null)
-            {
+                
                 System.out.println("\nAlgoritmos por Classes:\n");
                 String[] alg =
                 {
