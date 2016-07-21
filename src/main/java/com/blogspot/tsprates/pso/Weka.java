@@ -17,9 +17,9 @@ import java.util.Properties;
 public class Weka
 {
 
-    private List<List<String>> kpastas;
+    private final List<List<String>> kpastas;
 
-    private int K;
+    private final int K;
 
     private final String tabela;
 
