@@ -187,10 +187,10 @@ public class App
      * Gráfico de Efetividade Global por execuções.
      *
      * @param config Configurações de execução dos algoritmos.
-     * @param efetPSO Efetividade obtida durante execuções pelo MOPSO.
-     * @param efetJ48 Efetividade obtida durante execuções pelo J48.
-     * @param efetSMO Efetividade obtida durante execuções pelo SMO.
-     * @param efetRBF Efetividade obtida durante execuções pelo RBF.
+     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
+     * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
+     * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
+     * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
      */
     private static void mostrarGraficoDeEfetividadeGlobal(Properties config,
             List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
@@ -224,10 +224,10 @@ public class App
      * Imprime a média e desvio padrão das execuções dos algoritmos.
      *
      * @param f Formatador para casas decimais.
-     * @param efetPSO Efetividade obtida durante execuções pelo MOPSO.
-     * @param efetJ48 Efetividade obtida durante execuções pelo J48.
-     * @param efetSMO Efetividade obtida durante execuções pelo SMO.
-     * @param efetRBF Efetividade obtida durante execuções pelo RBF.
+     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
+     * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
+     * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
+     * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
      */
     private static void mostrarValorMedioExec(final Formatador f,
             Map<String, SummaryStatistics> mapStats)
@@ -269,10 +269,10 @@ public class App
      *
      * @see https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test
      * @param f Formatador para casas decimais.
-     * @param efetPSO Efetividade obtida durante execuções pelo MOPSO.
-     * @param efetJ48 Efetividade obtida durante execuções pelo J48.
-     * @param efetSMO Efetividade obtida durante execuções pelo SMO.
-     * @param efetRBF Efetividade obtida durante execuções pelo RBF.
+     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
+     * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
+     * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
+     * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
      */
     private static void mostrarTesteWilcoxon(final Formatador f,
             List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
@@ -313,10 +313,10 @@ public class App
      * Cria mapa de estatísticas.
      *
      * @param f Formatador para casas decimais.
-     * @param efetPSO Efetividade obtida durante execuções pelo MOPSO.
-     * @param efetJ48 Efetividade obtida durante execuções pelo J48.
-     * @param efetSMO Efetividade obtida durante execuções pelo SMO.
-     * @param efetRBF Efetividade obtida durante execuções pelo RBF.
+     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
+     * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
+     * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
+     * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
      * @return
      */
     private static Map<String, SummaryStatistics> criarMapStats(
@@ -361,10 +361,10 @@ public class App
      *
      * @see https://en.wikipedia.org/wiki/One-way_analysis_of_variance
      * @param f Formatador para casas decimais.
-     * @param efetPSO Efetividade obtida durante execuções pelo MOPSO.
-     * @param efetJ48 Efetividade obtida durante execuções pelo J48.
-     * @param efetSMO Efetividade obtida durante execuções pelo SMO.
-     * @param efetRBF Efetividade obtida durante execuções pelo RBF.
+     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
+     * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
+     * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
+     * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
      */
     private static void mostrarTesteOneWayAnova(final Formatador f,
             List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
