@@ -233,7 +233,7 @@ public class App
             Map<String, SummaryStatistics> mapStats)
     {
 
-        System.out.println();
+        System.out.println("\n");
         System.out.printf("%-10s %-10s %-10s\n\n", "Alg.", "Méd.", "Desv.");
         String strFormat = "%-10s %-10s %-10s\n";
 
