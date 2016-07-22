@@ -442,40 +442,37 @@ public class App
         final SummaryStatistics SMO = mapStats.get("SMO");
         final SummaryStatistics RBF = mapStats.get("RBF");
 
-//        final double medPSO = MOPSO.getMean();
+        final double medPSO = MOPSO.getMean();
         final double desvPSO = MOPSO.getStandardDeviation();
 
-//        final double medJ48 = J48.getMean();
+        final double medJ48 = J48.getMean();
         final double desvJ48 = J48.getStandardDeviation();
 
-//        final double medSMO = SMO.getMean();
+        final double medSMO = SMO.getMean();
         final double desvSMO = SMO.getStandardDeviation();
 
-//        final double medRBF = RBF.getMean();
+        final double medRBF = RBF.getMean();
         final double desvRBF = RBF.getStandardDeviation();
 
         System.out.println("\n\nTeste de Normalidade (Kolmogorov-Smirnov):\n");
 
-//        double ksPSO = kolmogorovSmirnov(medPSO, desvPSO, efetPSO);
-        double ksPSO = kolmogorovSmirnov(desvPSO, efetPSO);
+        double ksPSO = kolmogorovSmirnov(medPSO, desvPSO, efetPSO);
         System.out.printf("MOPSO : %s\n", f.formatar(ksPSO));
 
-//        double ksJ48 = kolmogorovSmirnov(medJ48, desvJ48, efetJ48);
-        double ksJ48 = kolmogorovSmirnov(desvJ48, efetJ48);
+        double ksJ48 = kolmogorovSmirnov(medJ48, desvJ48, efetJ48);
         System.out.printf("J48   : %s\n", f.formatar(ksJ48));
 
-//        double ksSMO = kolmogorovSmirnov(medSMO, desvSMO, efetSMO);
-        double ksSMO = kolmogorovSmirnov(desvSMO, efetSMO);
+        double ksSMO = kolmogorovSmirnov(medSMO, desvSMO, efetSMO);
         System.out.printf("SMO   : %s\n", f.formatar(ksSMO));
 
-//        double ksRBF = kolmogorovSmirnov(medRBF, desvRBF, efetRBF);
-        double ksRBF = kolmogorovSmirnov(desvRBF, efetRBF);
+        double ksRBF = kolmogorovSmirnov(medRBF, desvRBF, efetRBF);
         System.out.printf("RBF   : %s\n", f.formatar(ksRBF));
     }
 
     /**
      * Teste de Normalidade (Kolmogorov-Smirnov Test).
      *
+     * @param mediaAlg Média do algoritmo.
      * @param desvAlg Desvio padrão do algoritmo.
      * @param efetAlg Efetividade Efetividade obtida durante as execuções pelo
      * algoritmo.
@@ -484,11 +481,10 @@ public class App
      * @throws NullArgumentException
      * @throws NotStrictlyPositiveException
      */
-    private static double kolmogorovSmirnov(final double desvAlg, 
-            List<Double> efetAlg) throws InsufficientDataException, NullArgumentException, NotStrictlyPositiveException
+    private static double kolmogorovSmirnov(final double mediaAlg,
+            final double desvAlg, List<Double> efetAlg) throws InsufficientDataException, NullArgumentException, NotStrictlyPositiveException
     {
-//        final NormalDistribution normdist = new NormalDistribution(mediaAlg, desvioAlg);
-        final NormalDistribution normdist = new NormalDistribution(0, desvAlg);
+        final NormalDistribution normdist = new NormalDistribution(mediaAlg, desvAlg);
         Double[] arrObj = efetAlg.toArray(new Double[0]);
         final double test = TestUtils.kolmogorovSmirnovTest(normdist, ArrayUtils.toPrimitive(arrObj), false);
         return test;
