@@ -2,8 +2,13 @@ package com.blogspot.tsprates.pso;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
+import org.apache.commons.math3.stat.inference.TestUtils;
+import org.apache.commons.math3.exception.InsufficientDataException;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.NullArgumentException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,11 +17,6 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.util.*;
 import java.util.Map.Entry;
-import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.exception.InsufficientDataException;
-import org.apache.commons.math3.exception.NotStrictlyPositiveException;
-import org.apache.commons.math3.exception.NullArgumentException;
-import org.apache.commons.math3.stat.inference.TestUtils;
 
 /**
  * Particles Swarm Optimization (PSO).
@@ -380,46 +380,16 @@ public class App
         double[] arrSMO = ArrayUtils.toPrimitive(objArrSMO);
         double[] arrRBF = ArrayUtils.toPrimitive(objArrRBF);
 
-        List<double[]> PSO_J48 = new ArrayList<>();
-        PSO_J48.add(arrPSO);
-        PSO_J48.add(arrJ48);
+        List<double[]> algs = new ArrayList<>();
+        algs.add(arrPSO);
+        algs.add(arrJ48);
+        algs.add(arrSMO);
+        algs.add(arrRBF);
 
-        List<double[]> PSO_SMO = new ArrayList<>();
-        PSO_SMO.add(arrPSO);
-        PSO_SMO.add(arrSMO);
-
-        List<double[]> PSO_RBF = new ArrayList<>();
-        PSO_RBF.add(arrPSO);
-        PSO_RBF.add(arrRBF);
-
-        List<double[]> J48_SMO = new ArrayList<>();
-        J48_SMO.add(arrJ48);
-        J48_SMO.add(arrSMO);
-
-        List<double[]> J48_RBF = new ArrayList<>();
-        J48_RBF.add(arrJ48);
-        J48_RBF.add(arrRBF);
-
-        List<double[]> SMO_RBF = new ArrayList<>();
-        SMO_RBF.add(arrSMO);
-        SMO_RBF.add(arrRBF);
-
-        String pvaluePSO_J48 = f.formatar(TestUtils.oneWayAnovaPValue(PSO_J48));
-        String pvaluePSO_SMO = f.formatar(TestUtils.oneWayAnovaPValue(PSO_SMO));
-        String pvaluePSO_RBF = f.formatar(TestUtils.oneWayAnovaPValue(PSO_RBF));
-        String pvalueJ48_SMO = f.formatar(TestUtils.oneWayAnovaPValue(J48_SMO));
-        String pvalueJ48_RBF = f.formatar(TestUtils.oneWayAnovaPValue(J48_RBF));
-        String pvalueSMO_RBF = f.formatar(TestUtils.oneWayAnovaPValue(SMO_RBF));
-
-        System.out.println("\n\nTeste OneWay Anova:\n");
-
-        String strFormat = "%-10s %-10s %-10s %-10s %-10s\n";
-
-        System.out.printf(strFormat, "", "MOPSO", "J48", "SMO", "RBF");
-        System.out.printf(strFormat, "MOPSO", "-", pvaluePSO_J48, pvaluePSO_SMO, pvaluePSO_RBF);
-        System.out.printf(strFormat, "J48", pvaluePSO_J48, "-", pvalueJ48_SMO, pvalueJ48_RBF);
-        System.out.printf(strFormat, "SMO", pvaluePSO_SMO, pvalueJ48_SMO, "-", pvalueSMO_RBF);
-        System.out.printf(strFormat, "RBF", pvaluePSO_RBF, pvalueJ48_RBF, pvalueSMO_RBF, "-");
+        System.out.println("\n");
+        final String pvalor = f.formatar(TestUtils.oneWayAnovaPValue(algs));
+        System.out.printf("Teste OneWay Anova P-valor (0.05) : %s", pvalor);
+        System.out.println("\n");
     }
 
     /**
