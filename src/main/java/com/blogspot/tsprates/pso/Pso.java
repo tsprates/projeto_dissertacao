@@ -64,7 +64,7 @@ public class Pso
 
     private String[] colunas;
 
-    private int[] tipoColunas;
+    private Map<String, Integer> tipoColunas = new HashMap<>();
 
     private final Map<String, Double> max = new HashMap<>();
 
@@ -591,7 +591,7 @@ public class Pso
             numCol = metadata.getColumnCount();
 
             colunas = new String[numCol - 2];
-            tipoColunas = new int[numCol - 2];
+//            tipoColunas = new int[numCol - 2];
 
             for (int i = 0, j = 0; i < numCol; i++)
             {
@@ -602,7 +602,8 @@ public class Pso
                         && !colId.equalsIgnoreCase(coluna))
                 {
                     colunas[j] = coluna;
-                    tipoColunas[j] = tipoColuna;
+//                    tipoColunas[j] = tipoColuna;
+                    tipoColunas.put(coluna, tipoColuna);
                     j++;
                 }
             }
