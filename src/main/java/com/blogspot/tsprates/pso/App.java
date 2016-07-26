@@ -4,7 +4,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
-import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
 import org.apache.commons.math3.stat.inference.TestUtils;
 import org.apache.commons.math3.exception.InsufficientDataException;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
@@ -25,6 +24,21 @@ import java.util.Map.Entry;
  */
 public class App
 {
+    // Número total de execuções
+    private final static int EXEC = 30; 
+
+    // Algoritmos analisados
+    private final static String[] algos = 
+    {
+        "MOPSO", "J48", "SMO", "RBF"
+    };
+    
+    // Kfold
+    private final static int K = 10; 
+    
+    // Formata casas decimais
+    private final static Formatador FORMAT = new Formatador();
+    
 
     /**
      * Main.
@@ -43,10 +57,7 @@ public class App
             Connection db = new DbFactory().conectar();
             Properties config = carregarArquivoConfig(args[0]);
 
-            final Formatador f = new Formatador();
-
-            final int K = 10;
-            Pso pso = new Pso(db, config, f, K);
+            Pso pso = new Pso(db, config, FORMAT, K);
 
             List<Double> efetPSO = new ArrayList<>();
             List<Double> efetJ48 = new ArrayList<>();
@@ -58,7 +69,6 @@ public class App
             // matriz de algoritmos x classes
             double[][] matCls = null;
 
-            final int EXEC = 30;
             for (int iter = 0; iter < EXEC; iter++)
             {
                 System.out.printf("\nExecução: %d\n\n", iter + 1);
@@ -92,14 +102,6 @@ public class App
                 if (matCls == null)
                 {
                     matCls = new double[4][numCls];
-
-                    for (int i = 0; i < numCls; i++)
-                    {
-                        matCls[0][i] = 0.0; // MOPSO
-                        matCls[1][i] = 0.0; // J48
-                        matCls[2][i] = 0.0; // SMO
-                        matCls[3][i] = 0.0; // RBF
-                    }
                 }
 
                 for (int i = 0; i < numCls; i++)
@@ -129,16 +131,13 @@ public class App
                 }
 
                 System.out.println("\nAlgoritmos por Classes:\n");
-                String[] alg =
-                {
-                    "MOPSO", "J48", "SMO", "RBF"
-                };
+
                 for (int i = 0; i < matCls.length; i++)
                 {
-                    System.out.printf("%-10s", alg[i]);
+                    System.out.printf("%-10s", algos[i]);
                     for (int j = 0; j < matCls[i].length; j++)
                     {
-                        String valor = f.formatar(matCls[i][j]);
+                        String valor = FORMAT.formatar(matCls[i][j]);
                         System.out.printf(" %-10s", valor);
                     }
                     System.out.println();
@@ -147,11 +146,12 @@ public class App
 
             Map<String, SummaryStatistics> statsEfet = criarMapStats(efetPSO, efetJ48, efetSMO, efetRBF);
 
-            mostrarValorMedioExec(f, statsEfet);
+            mostrarValorMedioExec(FORMAT, statsEfet);
 
 //            mostrarTesteWilcoxon(f, efetPSO, efetJ48, efetSMO, efetRBF);
-            mostrarTesteDeNormalidade(f, statsEfet, efetPSO, efetJ48, efetSMO, efetRBF);
-            mostrarTesteOneWayAnova(f, efetPSO, efetJ48, efetSMO, efetRBF);
+            mostrarTesteDeNormalidade(statsEfet, efetPSO, efetJ48, efetSMO, efetRBF);
+            mostrarTesteOneWayAnova(efetPSO, efetJ48, efetSMO, efetRBF);
+            mostrarPostHocTukey(efetPSO, efetJ48, efetSMO, efetRBF);
 
             mostrarGraficoDeEfetividadeGlobal(config, efetPSO, efetJ48, efetSMO, efetRBF);
         }
@@ -178,8 +178,7 @@ public class App
         }
         catch (IOException e)
         {
-            throw new RuntimeException(
-                    "Arquivo de configurações não encontrado.", e);
+            throw new RuntimeException("Arquivo de configurações não encontrado.", e);
         }
     }
 
@@ -274,41 +273,42 @@ public class App
      * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
      * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
      */
-    private static void mostrarTesteWilcoxon(final Formatador f,
-            List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
-            List<Double> efetRBF)
-    {
-        // Wilcoxon Test
-        WilcoxonSignedRankTest w = new WilcoxonSignedRankTest();
-
-        Double[] tempArrPSO = efetPSO.toArray(new Double[0]);
-        Double[] tempArrJ48 = efetJ48.toArray(new Double[0]);
-        Double[] tempArrSMO = efetSMO.toArray(new Double[0]);
-        Double[] tempArrRBF = efetRBF.toArray(new Double[0]);
-
-        double[] arrPSO = ArrayUtils.toPrimitive(tempArrPSO);
-        double[] arrJ48 = ArrayUtils.toPrimitive(tempArrJ48);
-        double[] arrSMO = ArrayUtils.toPrimitive(tempArrSMO);
-        double[] arrRBF = ArrayUtils.toPrimitive(tempArrRBF);
-
-        String pvaluePSO_J48 = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrJ48, false));
-        String pvaluePSO_SMO = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrSMO, false));
-        String pvaluePSO_RBF = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrRBF, false));
-        String pvalueJ48_SMO = f.formatar(w.wilcoxonSignedRankTest(arrJ48, arrSMO, false));
-        String pvalueJ48_RBF = f.formatar(w.wilcoxonSignedRankTest(arrJ48, arrRBF, false));
-        String pvalueSMO_RBF = f.formatar(w.wilcoxonSignedRankTest(arrSMO, arrRBF, false));
-
-        System.out.println("\n\nTeste Wilcoxon MOPSO:\n");
-
-        String strFormat = "%-10s %-10s %-10s %-10s %-10s\n";
-
-        System.out.printf(strFormat, "", "MOPSO", "J48", "SMO", "RBF");
-        System.out.printf(strFormat, "MOPSO", "-", pvaluePSO_J48, pvaluePSO_SMO, pvaluePSO_RBF);
-        System.out.printf(strFormat, "J48", pvaluePSO_J48, "-", pvalueJ48_SMO, pvalueJ48_RBF);
-        System.out.printf(strFormat, "SMO", pvaluePSO_SMO, pvalueJ48_SMO, "-", pvalueSMO_RBF);
-        System.out.printf(strFormat, "RBF", pvaluePSO_RBF, pvalueJ48_RBF, pvalueSMO_RBF, "-");
-    }
-
+//    private static void mostrarTesteWilcoxon(final Formatador f,
+//            List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
+//            List<Double> efetRBF)
+//    {
+//        // Wilcoxon Test
+//        WilcoxonSignedRankTest w = new WilcoxonSignedRankTest();
+//
+//        Double[] tempArrPSO = efetPSO.toArray(new Double[0]);
+//        Double[] tempArrJ48 = efetJ48.toArray(new Double[0]);
+//        Double[] tempArrSMO = efetSMO.toArray(new Double[0]);
+//        Double[] tempArrRBF = efetRBF.toArray(new Double[0]);
+//
+//        double[] arrPSO = ArrayUtils.toPrimitive(tempArrPSO);
+//        double[] arrJ48 = ArrayUtils.toPrimitive(tempArrJ48);
+//        double[] arrSMO = ArrayUtils.toPrimitive(tempArrSMO);
+//        double[] arrRBF = ArrayUtils.toPrimitive(tempArrRBF);
+//
+//        String pvaluePSO_J48 = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrJ48, false));
+//        String pvaluePSO_SMO = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrSMO, false));
+//        String pvaluePSO_RBF = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrRBF, false));
+//        String pvalueJ48_SMO = f.formatar(w.wilcoxonSignedRankTest(arrJ48, arrSMO, false));
+//        String pvalueJ48_RBF = f.formatar(w.wilcoxonSignedRankTest(arrJ48, arrRBF, false));
+//        String pvalueSMO_RBF = f.formatar(w.wilcoxonSignedRankTest(arrSMO, arrRBF, false));
+//
+//        System.out.println("\n\nTeste Wilcoxon MOPSO:\n");
+//
+//        String strFormat = "%-10s %-10s %-10s %-10s %-10s\n";
+//
+//        System.out.printf(strFormat, "", "MOPSO", "J48", "SMO", "RBF");
+//        System.out.printf(strFormat, "MOPSO", "-", pvaluePSO_J48, pvaluePSO_SMO, pvaluePSO_RBF);
+//        System.out.printf(strFormat, "J48", pvaluePSO_J48, "-", pvalueJ48_SMO, pvalueJ48_RBF);
+//        System.out.printf(strFormat, "SMO", pvaluePSO_SMO, pvalueJ48_SMO, "-", pvalueSMO_RBF);
+//        System.out.printf(strFormat, "RBF", pvaluePSO_RBF, pvalueJ48_RBF, pvalueSMO_RBF, "-");
+//    }
+    
+    
     /**
      * Cria mapa de estatísticas.
      *
@@ -360,15 +360,13 @@ public class App
      * Teste OneWay Anova.
      *
      * @see https://en.wikipedia.org/wiki/One-way_analysis_of_variance
-     * @param f Formatador para casas decimais.
      * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
      * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
      * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
      * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
      */
-    private static void mostrarTesteOneWayAnova(final Formatador f,
-            List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
-            List<Double> efetRBF)
+    private static void mostrarTesteOneWayAnova(List<Double> efetPSO, 
+            List<Double> efetJ48, List<Double> efetSMO, List<Double> efetRBF)
     {
         Double[] objArrPSO = efetPSO.toArray(new Double[0]);
         Double[] objArrJ48 = efetJ48.toArray(new Double[0]);
@@ -386,23 +384,20 @@ public class App
         algs.add(arrSMO);
         algs.add(arrRBF);
 
-        System.out.println("\n");
-        final String pvalor = f.formatar(TestUtils.oneWayAnovaPValue(algs));
-        System.out.printf("Teste OneWay Anova P-valor (0.05) : %s", pvalor);
-        System.out.println("\n");
+        final String pvalor = FORMAT.formatar(TestUtils.oneWayAnovaPValue(algs));
+        System.out.printf("\n\nTeste OneWay Anova P-valor (0.05) : %s\n", pvalor);
     }
 
     /**
      * Teste de normalidade Kolmogorov-Smirnov.
      *
      * @see https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test
-     * @param f Formatador para casas decimais.
      * @param efetPSO Efetividade obtida durante execuções pelo MOPSO.
      * @param efetJ48 Efetividade obtida durante execuções pelo J48.
      * @param efetSMO Efetividade obtida durante execuções pelo SMO.
      * @param efetRBF Efetividade obtida durante execuções pelo RBF.
      */
-    private static void mostrarTesteDeNormalidade(final Formatador f,
+    private static void mostrarTesteDeNormalidade(
             Map<String, SummaryStatistics> mapStats,
             List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
             List<Double> efetRBF)
@@ -427,16 +422,16 @@ public class App
         System.out.println("\n\nTeste de Normalidade (Kolmogorov-Smirnov):\n");
 
         double ksPSO = kolmogorovSmirnov(medPSO, desvPSO, efetPSO);
-        System.out.printf("MOPSO : %s\n", f.formatar(ksPSO));
+        System.out.printf("MOPSO : %s\n", FORMAT.formatar(ksPSO));
 
         double ksJ48 = kolmogorovSmirnov(medJ48, desvJ48, efetJ48);
-        System.out.printf("J48   : %s\n", f.formatar(ksJ48));
+        System.out.printf("J48   : %s\n", FORMAT.formatar(ksJ48));
 
         double ksSMO = kolmogorovSmirnov(medSMO, desvSMO, efetSMO);
-        System.out.printf("SMO   : %s\n", f.formatar(ksSMO));
+        System.out.printf("SMO   : %s\n", FORMAT.formatar(ksSMO));
 
         double ksRBF = kolmogorovSmirnov(medRBF, desvRBF, efetRBF);
-        System.out.printf("RBF   : %s\n", f.formatar(ksRBF));
+        System.out.printf("RBF   : %s\n", FORMAT.formatar(ksRBF));
     }
 
     /**
@@ -458,5 +453,172 @@ public class App
         Double[] arrObj = efetAlg.toArray(new Double[0]);
         final double test = TestUtils.kolmogorovSmirnovTest(normdist, ArrayUtils.toPrimitive(arrObj), false);
         return test;
+    }
+
+    /**
+     * Teste Tukey.
+     * 
+     * @param efetPSO
+     * @param efetJ48
+     * @param efetSMO
+     * @param efetRBF 
+     */
+    private static void mostrarPostHocTukey(List<Double> efetPSO, 
+            List<Double> efetJ48, List<Double> efetSMO, List<Double> efetRBF)
+    {
+        int k = 4;
+        int n = EXEC;
+        
+        System.out.println("\n\nTeste de PostHoc Tukey:\n");
+        
+        double[] groupTotals = new double[k];
+        for (int i = 0; i < n; ++i)
+        {
+            groupTotals[0] += efetPSO.get(i);
+            groupTotals[1] += efetJ48.get(i);
+            groupTotals[2] += efetSMO.get(i);
+            groupTotals[3] += efetRBF.get(i);
+        }
+
+        double[] groupMeans = new double[k];
+        groupMeans[0] = groupTotals[0] / n;
+        groupMeans[1] = groupTotals[1] / n;
+        groupMeans[2] = groupTotals[2] / n;
+        groupMeans[3] = groupTotals[3] / n;
+
+        int dfWG = (n * k) - k;
+
+        double[] ssGroup = new double[k];
+        for (int i = 0; i < n; ++i)
+        {
+            ssGroup[0] += efetPSO.get(i) * efetPSO.get(i);
+            ssGroup[1] += efetJ48.get(i) * efetJ48.get(i);
+            ssGroup[2] += efetSMO.get(i) * efetSMO.get(i);
+            ssGroup[3] += efetRBF.get(i) * efetRBF.get(i);
+        }
+
+        double ssWG = 0.0;
+        for (int i = 0; i < k; ++i)
+        {
+            ssWG += ssGroup[i] - (groupTotals[i] * groupTotals[i]) / n;
+        }
+
+        double msWG = ssWG / dfWG;
+
+        double cdHSD = getQ(k, dfWG) * Math.sqrt(msWG / n); // Sheskin, p. 910
+
+        for (int i = 0; i < groupMeans.length - 1; ++i)
+        {
+            for (int j = i + 1; j < groupMeans.length; ++j)
+            {
+                double dif = Math.abs(groupMeans[i] - groupMeans[j]);
+                
+                String signif = dif > cdHSD 
+                        ? "há diferenças significativas" 
+                        : "não há diferenças significativas";
+                
+                String fmtDif = FORMAT.formatar(dif);
+                String fmtCdHSD = FORMAT.formatar(cdHSD);
+                
+                System.out.printf("%5s <-> %-5s :   (%s > %s)   %s\n", algos[i], 
+                        algos[j], fmtDif, fmtCdHSD, signif);
+            }
+        }
+
+    }
+
+    /**
+     * Get the Studentized range statistic, <i>q</i> for <i>k</i> groups and
+     * <i>df</i> degrees of freedom.
+     * <p>
+     *
+     * The value is looked up in a table for &alpha; = 0.05 values of the
+     * Studentized range statistic. The value for <i>k</i> is the number of
+     * groups being compared. Only <i>k</i> = 2 to 10 is supported.
+     * <p>
+     *
+     * The table values were transcribed from
+     * <p>
+     *
+     * <blockquote> <a
+     * href="http://cse.niaes.affrc.go.jp/miwa/probcalc/s-range/srng_tbl.html#fivepercent"
+     * >http://cse.niaes.affrc.go.jp/miwa/probcalc/s-range/srng_tbl.html#fivepercent</a>
+     * </blockquote>
+     * <p>
+     *
+     * @param k the number of groups (<i>k</i> = 2 to 10)
+     * @param df the df-error for the omnibus <i>F</i> test
+     * @return q (Studentized range statistic) or -1 if 1 > <i>k</i> > 10.
+     */
+    private static double getQ(int k, int df)
+    {
+        final double[][] TABLE = {
+            {1, 17.969, 26.976, 32.819, 37.082, 40.408, 43.119, 45.397, 47.357, 49.071},
+            {2, 6.085, 8.331, 9.798, 10.881, 11.734, 12.435, 13.027, 13.539, 13.988},
+            {3, 4.501, 5.910, 6.825, 7.502, 8.037, 8.478, 8.852, 9.177, 9.462},
+            {4, 3.926, 5.040, 5.757, 6.287, 6.706, 7.053, 7.347, 7.602, 7.826},
+            {5, 3.635, 4.602, 5.218, 5.673, 6.033, 6.330, 6.582, 6.801, 6.995},
+            {6, 3.460, 4.339, 4.896, 5.305, 5.628, 5.895, 6.122, 6.319, 6.493},
+            {7, 3.344, 4.165, 4.681, 5.060, 5.359, 5.606, 5.815, 5.997, 6.158},
+            {8, 3.261, 4.041, 4.529, 4.886, 5.167, 5.399, 5.596, 5.767, 5.918},
+            {9, 3.199, 3.948, 4.415, 4.755, 5.024, 5.244, 5.432, 5.595, 5.738},
+            {10, 3.151, 3.877, 4.327, 4.654, 4.912, 5.124, 5.304, 5.460, 5.598},
+            {11, 3.113, 3.820, 4.256, 4.574, 4.823, 5.028, 5.202, 5.353, 5.486},
+            {12, 3.081, 3.773, 4.199, 4.508, 4.750, 4.950, 5.119, 5.265, 5.395},
+            {13, 3.055, 3.734, 4.151, 4.453, 4.690, 4.884, 5.049, 5.192, 5.318},
+            {14, 3.033, 3.701, 4.111, 4.407, 4.639, 4.829, 4.990, 5.130, 5.253},
+            {15, 3.014, 3.673, 4.076, 4.367, 4.595, 4.782, 4.940, 5.077, 5.198},
+            {16, 2.998, 3.649, 4.046, 4.333, 4.557, 4.741, 4.896, 5.031, 5.150},
+            {17, 2.984, 3.628, 4.020, 4.303, 4.524, 4.705, 4.858, 4.991, 5.108},
+            {18, 2.971, 3.609, 3.997, 4.276, 4.494, 4.673, 4.824, 4.955, 5.071},
+            {19, 2.960, 3.593, 3.977, 4.253, 4.468, 4.645, 4.794, 4.924, 5.037},
+            {20, 2.950, 3.578, 3.958, 4.232, 4.445, 4.620, 4.768, 4.895, 5.008},
+            {21, 2.941, 3.565, 3.942, 4.213, 4.424, 4.597, 4.743, 4.870, 4.981},
+            {22, 2.933, 3.553, 3.927, 4.196, 4.405, 4.577, 4.722, 4.847, 4.957},
+            {23, 2.926, 3.542, 3.914, 4.180, 4.388, 4.558, 4.702, 4.826, 4.935},
+            {24, 2.919, 3.532, 3.901, 4.166, 4.373, 4.541, 4.684, 4.807, 4.915},
+            {25, 2.913, 3.523, 3.890, 4.153, 4.358, 4.526, 4.667, 4.789, 4.897},
+            {26, 2.907, 3.514, 3.880, 4.141, 4.345, 4.511, 4.652, 4.773, 4.880},
+            {27, 2.902, 3.506, 3.870, 4.130, 4.333, 4.498, 4.638, 4.758, 4.864},
+            {28, 2.897, 3.499, 3.861, 4.120, 4.322, 4.486, 4.625, 4.745, 4.850},
+            {29, 2.892, 3.493, 3.853, 4.111, 4.311, 4.475, 4.613, 4.732, 4.837},
+            {30, 2.888, 3.486, 3.845, 4.102, 4.301, 4.464, 4.601, 4.720, 4.824},
+            {31, 2.884, 3.481, 3.838, 4.094, 4.292, 4.454, 4.591, 4.709, 4.812},
+            {32, 2.881, 3.475, 3.832, 4.086, 4.284, 4.445, 4.581, 4.698, 4.802},
+            {33, 2.877, 3.470, 3.825, 4.079, 4.276, 4.436, 4.572, 4.689, 4.791},
+            {34, 2.874, 3.465, 3.820, 4.072, 4.268, 4.428, 4.563, 4.680, 4.782},
+            {35, 2.871, 3.461, 3.814, 4.066, 4.261, 4.421, 4.555, 4.671, 4.773},
+            {36, 2.868, 3.457, 3.809, 4.060, 4.255, 4.414, 4.547, 4.663, 4.764},
+            {37, 2.865, 3.453, 3.804, 4.054, 4.249, 4.407, 4.540, 4.655, 4.756},
+            {38, 2.863, 3.449, 3.799, 4.049, 4.243, 4.400, 4.533, 4.648, 4.749},
+            {39, 2.861, 3.445, 3.795, 4.044, 4.237, 4.394, 4.527, 4.641, 4.741},
+            {40, 2.858, 3.442, 3.791, 4.039, 4.232, 4.388, 4.521, 4.634, 4.735},
+            {48, 2.843, 3.420, 3.764, 4.008, 4.197, 4.351, 4.481, 4.592, 4.690},
+            {60, 2.829, 3.399, 3.737, 3.977, 4.163, 4.314, 4.441, 4.550, 4.646},
+            {80, 2.814, 3.377, 3.711, 3.947, 4.129, 4.277, 4.402, 4.509, 4.603},
+            {120, 2.800, 3.356, 3.685, 3.917, 4.096, 4.241, 4.363, 4.468, 4.560},
+            {240, 2.786, 3.335, 3.659, 3.887, 4.063, 4.205, 4.324, 4.427, 4.517},
+            {999, 2.772, 3.314, 3.633, 3.858, 4.030, 4.170, 4.286, 4.387, 4.474}};
+
+        if (k < 2 || k > 10)
+        {
+            return -1.0; // not supported
+        }
+        int columnIndex = k - 1; // index for correct column (e.g., k = 3 is column 2)
+
+        // find pertinent row in table
+        int i = 0;
+        while (i < TABLE.length && df > TABLE[i][0])
+        {
+            ++i;
+        }
+
+        // don't allow i to go past end of table
+        if (i == TABLE.length)
+        {
+            --i;
+        }
+
+        return TABLE[i][columnIndex];
     }
 }
