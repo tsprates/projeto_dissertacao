@@ -7,9 +7,9 @@ RBF.min_std_dev_clusters=0.1
 
 saida=classificacao
 id=cod
-npop=200
+npop=100
 tabela=heart_class
-maxiter=50000
+maxiter=25000
 w=0.9
 c1=0.8
 c2=0.8
