@@ -830,7 +830,8 @@ public class Pso
             final String coluna = colunas[colIndex];
             final Double minCol = min.get(coluna);
             final Double maxCol = max.get(coluna);
-            final double newVal = RandomUtils.nextDouble(minCol, maxCol);
+//            final double newVal = RandomUtils.nextDouble(minCol, maxCol);
+            final double newVal = (maxCol - minCol) * Math.random() + minCol;
 
             valor = String.format(Locale.ROOT, "%.3f", newVal);
         }
