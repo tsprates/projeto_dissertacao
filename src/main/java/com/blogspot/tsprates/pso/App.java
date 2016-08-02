@@ -160,9 +160,8 @@ public class App
 
             mostrarGraficoDeEfetividadeGlobal(config, efetPSO, efetJ48, efetSMO, efetRBF);
             
-            // Salva resultados em CSV
-            salvarExecsEmCSV(config.getProperty("tabela"), efetPSO, efetJ48, 
-                    efetSMO, efetRBF);
+            // Salva Efetividade Global em CSV
+            salvarExecsEmCSV(config, efetPSO, efetJ48, efetSMO, efetRBF);
         }
         else
         {
@@ -636,19 +635,23 @@ public class App
     /**
      * Salva resultado das execuções me um arquivo CSV.
      * 
-     * @param tabela Tabela.
+     * @param Properties config.
      * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
      * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
      * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
      * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
      */
-    public static void salvarExecsEmCSV(String tabela, List<Double> efetPSO, 
+    public static void salvarExecsEmCSV(Properties config, List<Double> efetPSO, 
             List<Double> efetJ48, List<Double> efetSMO, List<Double> efetRBF)
     {
         CSVFormat format = CSVFormat.DEFAULT.withRecordSeparator("\n");
         
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
-        String arqCsv = String.format("%s_%s.csv", tabela, df.format(new Date()));
+        String arqCsv = String.format("%s_%s_%s_%s.csv", 
+                config.getProperty("tabela"), 
+                config.getProperty("npop"), 
+                config.getProperty("maxiter"), 
+                df.format(new Date()));
         
         try (FileWriter fw = new FileWriter(arqCsv); 
                 CSVPrinter printer = new CSVPrinter(fw, format))
@@ -665,7 +668,8 @@ public class App
                 printer.printRecord(rec);
             }
             
-            System.err.println("\n\n Efetividade Global salva em CSV.\n");
+            System.err.printf("\n\n Efetividade Global salva em CSV (%s).\n\n", 
+                    arqCsv);
         }
         catch (IOException ex)
         {
