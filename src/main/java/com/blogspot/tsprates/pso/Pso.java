@@ -35,13 +35,13 @@ public class Pso
         0.94, 1.0
     };
 
-    private static final String STR_FORMAT = "%-10s %-10s %-10s %-10s %s\n";
+    private static final String LINE_TAB_FORMAT = "%-15s %-10s %-10s %-10s %s\n";
 
     private static final String CABECALHO_TAB;
 
     static
     {
-        CABECALHO_TAB = String.format(STR_FORMAT, "Classe", "Compl.", "Efet.", "Acur.", "Regra");
+        CABECALHO_TAB = String.format(LINE_TAB_FORMAT, "Classe", "Compl.", "Efet.", "Acur.", "Regra");
     }
 
     private final Random rand = new Random();
@@ -356,7 +356,18 @@ public class Pso
         String compl = fmt.formatar(fo[0]);
         String efet = fmt.formatar(fo[1]);
         String acur = fmt.formatar(fo[2]);
-        System.out.printf(STR_FORMAT, classe, compl, efet, acur, whereSql);
+        
+        String cl;
+        if (classe.length() > 10)
+        {
+            cl = classe.substring(0, 10);
+        }
+        else
+        {
+            cl = classe;
+        }
+        
+        System.out.printf(LINE_TAB_FORMAT, cl, compl, efet, acur, whereSql);
     }
 
     /**
