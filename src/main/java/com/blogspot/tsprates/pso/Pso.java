@@ -563,6 +563,11 @@ public class Pso
                 String coluna = rs.getString(colSaida);
                 mapaSaida.get(coluna).add(rs.getString("col_id"));
             }
+            
+            if (mapaSaida.size() > numParts)
+            {
+                throw new RuntimeException("Tamanho do enxame é insuficiente.");
+            }
         }
         catch (SQLException e)
         {
