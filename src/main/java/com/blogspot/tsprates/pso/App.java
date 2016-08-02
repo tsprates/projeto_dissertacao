@@ -635,7 +635,7 @@ public class App
     /**
      * Salva resultado das execuções me um arquivo CSV.
      * 
-     * @param Properties config.
+     * @param config
      * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
      * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
      * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
