@@ -638,10 +638,11 @@ public class App
         CSVFormat format = CSVFormat.DEFAULT.withRecordSeparator("\n");
         
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
-        String arqCsv = String.format("%s_%s_%s_%s.csv", 
+        String arqCsv = String.format("%s_%s_%s_%s_%s.csv", 
                 config.getProperty("tabela"), 
                 config.getProperty("npop"), 
                 config.getProperty("maxiter"), 
+                EXECS,
                 df.format(new Date()));
         
         try (FileWriter fw = new FileWriter(arqCsv); 
