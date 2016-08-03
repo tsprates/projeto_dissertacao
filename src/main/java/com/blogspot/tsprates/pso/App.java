@@ -71,7 +71,7 @@ public class App
 
             System.out.printf("\nTabela: %s\n", config.getProperty("tabela"));
 
-            // matriz de algoritmos x classes
+            // Matriz de algoritmos por classes
             double[][] matCls = null;
 
             for (int iter = 0; iter < EXECS; iter++)
@@ -125,8 +125,14 @@ public class App
                 }
             }
 
+            final Map<String, SummaryStatistics> statsEfet = criarMapStats(
+                    efetPSO, efetJ48, efetSMO, efetRBF);
+
+            mostrarValorMedioExec(FORMAT, statsEfet);
+
             if (matCls != null)
             {
+                // Realiza média por execução de cada classe
                 for (int i = 0, size = pso.getClasses().size(); i < size; i++)
                 {
                     matCls[0][i] /= EXECS;  // MOPSO
@@ -135,23 +141,8 @@ public class App
                     matCls[3][i] /= EXECS;  // RBF
                 }
 
-                System.out.println("\nAlgoritmos por Classes:\n");
-
-                for (int i = 0; i < matCls.length; i++)
-                {
-                    System.out.printf("%-10s", ALGOS[i]);
-                    for (int j = 0; j < matCls[i].length; j++)
-                    {
-                        String valor = FORMAT.formatar(matCls[i][j]);
-                        System.out.printf(" %-10s", valor);
-                    }
-                    System.out.println();
-                }
+                mostrarClassesAlgoritmos(pso.getClasses(), matCls);
             }
-
-            final Map<String, SummaryStatistics> statsEfet = criarMapStats(efetPSO, efetJ48, efetSMO, efetRBF);
-
-            mostrarValorMedioExec(FORMAT, statsEfet);
 
             // Testes estatísticos
             mostrarTesteDeNormalidade(statsEfet, efetPSO, efetJ48, efetSMO, efetRBF);
@@ -676,5 +667,39 @@ public class App
             throw new RuntimeException("Erro ao salvar resultados no CSV.", ex);
         }
         
+    }
+    
+    /**
+     * Mostra tabela de desempenho de cada algoritmo por classe.
+     * 
+     * @param saidas Tipos classes (saídas).
+     * @param matCls Matriz de algoritmos por classes (saídas).
+     */
+    private static void mostrarClassesAlgoritmos(Collection<String> saidas, 
+            double[][] matCls)
+    {
+        System.out.println("\n\nAlgoritmos por Classes:\n");
+        
+        System.out.printf("%-10s", " ");
+        
+        for (String saida : saidas)
+        {
+            System.out.printf(" %-10s", saida);
+        }
+        
+        System.out.println();
+        
+        for (int i = 0; i < matCls.length; i++)
+        {
+            System.out.printf("%-10s", ALGOS[i]);
+            
+            for (int j = 0; j < matCls[i].length; j++)
+            {
+                String valor = FORMAT.formatar(matCls[i][j]);
+                System.out.printf(" %-10s", valor);
+            }
+            
+            System.out.println();
+        }
     }
 }
