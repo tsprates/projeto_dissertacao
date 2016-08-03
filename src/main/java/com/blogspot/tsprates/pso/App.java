@@ -685,7 +685,8 @@ public class App
         
         for (String saida : saidas)
         {
-            System.out.printf(" %-10s", saida);
+            String s = (saida.length() > 10) ? saida.substring(0, 10) : saida;
+            System.out.printf(" %-10s", s);
         }
         
         System.out.println();
