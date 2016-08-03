@@ -70,7 +70,7 @@ public class Weka
     public double[][] getEfetividadeArray()
     {
         double[][] efet = null; // efetividade
-        
+
         int numCls = -1;
 
         try
@@ -83,11 +83,12 @@ public class Weka
             {
                 String ids = StringUtils.join(kpastas.get(i), ", ");
 
-                // treinamento
-                query.setQuery("SELECT * "
+                // Treinamento
+                final String sqlTrain = "SELECT * "
                         + "FROM " + tabela + " "
                         + "WHERE " + colId + " NOT IN (" + ids + ")"
-                        + "ORDER BY " + colSaida + " ASC");
+                        + "ORDER BY " + colSaida + " ASC";
+                query.setQuery(sqlTrain);
 
                 Instances train = query.retrieveInstances();
                 train.setClassIndex(train.attribute(colSaida).index());
@@ -95,30 +96,31 @@ public class Weka
                 Remove remAtrTrain = criarRemove(train);
                 Instances trainData = Filter.useFilter(train, remAtrTrain);
 
-                // árvore de decisão
+                // Árvore de decisão
                 J48 j48 = new J48();
                 j48.setOptions(Utils.splitOptions(optsJ48));
                 j48.buildClassifier(trainData);
 
-                // svm
+                // SVM
                 SMO smo = new SMO();
                 smo.setOptions(Utils.splitOptions(optsSMO));
                 smo.buildClassifier(trainData);
 
-                // rede neural de base radial
+                // Rede Neural de base radial
                 RBFNetwork rbf = new RBFNetwork();
                 rbf.setOptions(Utils.splitOptions(optsRBF));
                 rbf.buildClassifier(trainData);
 
                 // Validação
-                query.setQuery("SELECT * "
+                final String sqlTest = "SELECT * "
                         + "FROM " + tabela + " "
                         + "WHERE " + colId + " IN (" + ids + ")"
-                        + "ORDER BY " + colSaida + " ASC");
+                        + "ORDER BY " + colSaida + " ASC";
+                query.setQuery(sqlTest);
 
                 Instances test = query.retrieveInstances();
                 test.setClassIndex(test.attribute(colSaida).index());
-                
+
 //                System.out.println("Índices saídas:\n");
 //                Attribute attr = test.attribute(train.attribute(colSaida).index());
 //                for (int j = 0; j < attr.numValues(); j++)
@@ -126,7 +128,6 @@ public class Weka
 //                    System.out.println(j + " : " + attr.value(j));
 //                }
 //                System.out.println();
-
                 // Remove atributo id
                 Remove remAtrTest = criarRemove(test);
                 Instances testData = Filter.useFilter(test, remAtrTest);
