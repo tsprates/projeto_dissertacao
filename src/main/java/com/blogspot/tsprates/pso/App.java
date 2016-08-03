@@ -59,7 +59,7 @@ public class App
 
         if (args.length > 0 && Files.exists(Paths.get(args[0])))
         {
-            Connection db = new DbFactory().conectar();
+            Connection db = new DB().conectar();
             Properties config = carregarArquivoConfig(args[0]);
 
             Pso pso = new Pso(db, config, FORMAT, K);
@@ -82,7 +82,7 @@ public class App
 
                 efetPSO.add(pso.getResultado());
 
-                Weka weka = new Weka(pso.getKPasta(), K, config);
+                Weka weka = new Weka(config, K, pso.getKPasta());
                 double[][] efetWeka = weka.getEfetividadeArray();
                 int numClasses = weka.numClasses();
 

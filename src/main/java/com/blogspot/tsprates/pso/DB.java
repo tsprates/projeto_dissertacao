@@ -10,23 +10,23 @@ import java.sql.SQLException;
  * @author thiago
  *
  */
-public class DbFactory
+public class DB
 {
 
     /**
      * Nome do banco de dados.
      */
-    private final String DB_NAME = "geominas";
+    public final static String DBNAME = "geominas";
 
     /**
      * Usuário do banco de dados.
      */
-    private final String USERNAME = "postgres";
+    public final static String USERNAME = "postgres";
 
     /**
      * Senha do banco de dados.
      */
-    private final String PASSWORD = "admin";
+    public final static String PASSWORD = "admin";
 
     /**
      * Conexão banco de dados.
@@ -38,7 +38,7 @@ public class DbFactory
         try
         {
             return DriverManager.getConnection("jdbc:postgresql://localhost/"
-                    + DB_NAME, USERNAME, PASSWORD);
+                    + DBNAME, USERNAME, PASSWORD);
         }
         catch (SQLException e)
         {

@@ -34,13 +34,11 @@ public class Weka
     /**
      * Construtor.
      *
-     * @param kpastas
-     * @param K
      * @param config
+     * @param K
+     * @param kpastas
      */
-    public Weka(List<List<String>> kpastas,
-            final int K,
-            Properties config)
+    public Weka(Properties config, final int K, List<List<String>> kpastas)
     {
         this.kpastas = kpastas;
         this.K = K;
@@ -76,8 +74,8 @@ public class Weka
         try
         {
             InstanceQuery query = new InstanceQuery();
-            query.setUsername("postgres");
-            query.setPassword("admin");
+            query.setUsername(DB.USERNAME);
+            query.setPassword(DB.PASSWORD);
 
             for (int i = 0; i < K; i++)
             {
@@ -96,7 +94,7 @@ public class Weka
                 Remove remAtrTrain = criarRemove(train);
                 Instances trainData = Filter.useFilter(train, remAtrTrain);
 
-                // Árvore de decisão
+                // Árvore de Decisão
                 J48 j48 = new J48();
                 j48.setOptions(Utils.splitOptions(optsJ48));
                 j48.buildClassifier(trainData);
@@ -106,7 +104,7 @@ public class Weka
                 smo.setOptions(Utils.splitOptions(optsSMO));
                 smo.buildClassifier(trainData);
 
-                // Rede Neural de base radial
+                // Rede Neural de Base Radial
                 RBFNetwork rbf = new RBFNetwork();
                 rbf.setOptions(Utils.splitOptions(optsRBF));
                 rbf.buildClassifier(trainData);
@@ -128,6 +126,7 @@ public class Weka
 //                    System.out.println(j + " : " + attr.value(j));
 //                }
 //                System.out.println();
+                
                 // Remove atributo id
                 Remove remAtrTest = criarRemove(test);
                 Instances testData = Filter.useFilter(test, remAtrTest);
