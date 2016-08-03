@@ -689,7 +689,7 @@ public class App
             System.out.printf(" %-10s", s);
         }
         
-        System.out.println();
+        System.out.println("\n");
         
         for (int i = 0; i < matCls.length; i++)
         {
