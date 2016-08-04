@@ -5,11 +5,11 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
-import org.apache.commons.math3.stat.inference.TestUtils;
 import org.apache.commons.math3.exception.InsufficientDataException;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
 import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+import org.apache.commons.math3.stat.inference.TestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -132,19 +132,16 @@ public class App
 
             mostrarValorMedioExec(FORMAT, statsEfet);
 
-            if (matCls != null)
+            // Realiza média por execução de cada classe
+            for (int i = 0, size = pso.getClasses().size(); i < size; i++)
             {
-                // Realiza média por execução de cada classe
-                for (int i = 0, size = pso.getClasses().size(); i < size; i++)
-                {
-                    matCls[0][i] /= EXECS;  // MOPSO
-                    matCls[1][i] /= EXECS;  // J48
-                    matCls[2][i] /= EXECS;  // SMO
-                    matCls[3][i] /= EXECS;  // RBF
-                }
-
-                mostrarClassesAlgoritmos(pso.getClasses(), matCls);
+                matCls[0][i] /= EXECS;  // MOPSO
+                matCls[1][i] /= EXECS;  // J48
+                matCls[2][i] /= EXECS;  // SMO
+                matCls[3][i] /= EXECS;  // RBF
             }
+
+            mostrarClassesAlgoritmos(pso.getClasses(), matCls);
 
             // Testes estatísticos
             mostrarTesteDeNormalidade(statsEfet, efetPSO, efetJ48, efetSMO, efetRBF);
@@ -223,10 +220,7 @@ public class App
      * Imprime a média e desvio padrão das execuções dos algoritmos.
      *
      * @param f Formatador para casas decimais.
-     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
-     * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
-     * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
-     * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
+     * @param mapStats Classe SummaryStatistics dos algoritmos.
      */
     private static void mostrarValorMedioExec(final Formatador f,
             Map<String, SummaryStatistics> mapStats)
@@ -263,16 +257,16 @@ public class App
 
     }
 
-    /**
-     * Teste de Postos Sinalizados de Wilcoxon.
-     *
-     * @see https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test
-     * @param f Formatador para casas decimais.
-     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
-     * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
-     * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
-     * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
-     */
+//    /**
+//     * Teste de Postos Sinalizados de Wilcoxon.
+//     *
+//     * @see https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test
+//     * @param f Formatador para casas decimais.
+//     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
+//     * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
+//     * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
+//     * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
+//     */
 //    private static void mostrarTesteWilcoxon(final Formatador f,
 //            List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
 //            List<Double> efetRBF)
@@ -312,12 +306,11 @@ public class App
     /**
      * Cria mapa de estatísticas.
      *
-     * @param f Formatador para casas decimais.
      * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
      * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
      * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
      * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
-     * @return
+     * @return Retorna um mapa de algoritmos por SummaryStatistics.
      */
     private static Map<String, SummaryStatistics> criarMapStats(
             List<Double> efetPSO, List<Double> efetJ48,
@@ -359,7 +352,7 @@ public class App
     /**
      * Teste OneWay Anova.
      *
-     * @see https://en.wikipedia.org/wiki/One-way_analysis_of_variance
+     * @link https://en.wikipedia.org/wiki/One-way_analysis_of_variance
      * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
      * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
      * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
@@ -391,7 +384,7 @@ public class App
     /**
      * Teste de normalidade Kolmogorov-Smirnov.
      *
-     * @see https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test
+     * @link https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test
      * @param efetPSO Efetividade obtida durante execuções pelo MOPSO.
      * @param efetJ48 Efetividade obtida durante execuções pelo J48.
      * @param efetSMO Efetividade obtida durante execuções pelo SMO.
@@ -443,7 +436,7 @@ public class App
      * @throws InsufficientDataException
      * @throws NullArgumentException
      * @throws NotStrictlyPositiveException
-     * @return
+     * @return Resultado do KS-test.
      */
     private static double kolmogorovSmirnov(final double mediaAlg,
             final double desvAlg, List<Double> efetAlg) 
@@ -628,7 +621,7 @@ public class App
     /**
      * Salva a Efetividade Global durante as execuções em um arquivo CSV.
      * 
-     * @param config
+     * @param config Configurações.
      * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
      * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
      * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
