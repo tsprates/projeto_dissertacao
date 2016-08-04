@@ -78,7 +78,7 @@ public class App
 
             for (int iter = 0; iter < EXECS; iter++)
             {
-                System.out.printf("\nExecução: %d\n\n", iter + 1);
+                System.out.printf("\n\nExecução: %d\n\n", iter + 1);
 
                 pso.carregar();
 
