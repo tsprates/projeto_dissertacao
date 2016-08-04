@@ -222,7 +222,6 @@ public class Pso
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
 
         System.out.println("\nTempo decorrido: " + tempoDecorrido);
-        System.out.println();
     }
 
     /**
