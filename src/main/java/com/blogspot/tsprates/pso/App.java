@@ -1,6 +1,5 @@
 package com.blogspot.tsprates.pso;
 
-import java.io.File;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.ArrayUtils;
@@ -12,6 +11,7 @@ import org.apache.commons.math3.exception.InsufficientDataException;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
 import org.apache.commons.math3.exception.NullArgumentException;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
