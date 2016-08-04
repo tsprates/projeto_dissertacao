@@ -1,5 +1,6 @@
 package com.blogspot.tsprates.pso;
 
+import java.io.File;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.ArrayUtils;
@@ -15,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.text.DateFormat;
@@ -624,7 +626,7 @@ public class App
     }
     
     /**
-     * Salva resultado das execuções me um arquivo CSV.
+     * Salva a Efetividade Global durante as execuções em um arquivo CSV.
      * 
      * @param config
      * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
@@ -637,15 +639,33 @@ public class App
     {
         CSVFormat format = CSVFormat.DEFAULT.withRecordSeparator("\n");
         
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
-        String arqCsv = String.format("%s_%s_%s_%s_%s.csv", 
+        final DateFormat datefmt = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
+        final String dataAtual = datefmt.format(new Date());
+                    
+        final Path pathExecs = Paths.get("execs");
+        if (!Files.exists(pathExecs))
+        {
+            try
+            {
+                Files.createDirectory(pathExecs);
+            }
+            catch (IOException ex)
+            {
+                throw new RuntimeException("Não foi possível criar o diretório "
+                        + "para salvar as execuções da Efetividade Global.", ex);
+            }
+        }
+        
+        String arqCSV = String.format("%s_%s_%s_%s_%s.csv", 
                 config.getProperty("tabela"), 
                 config.getProperty("npop"), 
                 config.getProperty("maxiter"), 
-                EXECS,
-                df.format(new Date()));
+                EXECS, 
+                dataAtual);
         
-        try (FileWriter fw = new FileWriter(arqCsv); 
+        String caminhoArqCSV = pathExecs.toString() + File.separator + arqCSV;
+        
+        try (FileWriter fw = new FileWriter(caminhoArqCSV); 
                 CSVPrinter printer = new CSVPrinter(fw, format))
         {
             printer.printRecord((Object[]) ALGOS);
@@ -660,8 +680,8 @@ public class App
                 printer.printRecord(rec);
             }
             
-            System.err.printf("\n\n Efetividade Global salva em CSV (%s).\n\n", 
-                    arqCsv);
+            System.out.printf("\n\nGravação da Efetividade Global em CSV "
+                    + "realizada com sucesso (%s).\n\n", arqCSV);
         }
         catch (IOException ex)
         {
