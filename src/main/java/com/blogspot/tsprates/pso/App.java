@@ -133,7 +133,7 @@ public class App
             mostrarValorMedioExec(FORMAT, statsEfet);
 
             // Realiza média por execução de cada classe
-            for (int i = 0, size = pso.getClasses().size(); i < size; i++)
+            for (int i = 0, size = pso.getTiposSaidas().size(); i < size; i++)
             {
                 matCls[0][i] /= EXECS;  // MOPSO
                 matCls[1][i] /= EXECS;  // J48
@@ -141,7 +141,7 @@ public class App
                 matCls[3][i] /= EXECS;  // RBF
             }
 
-            mostrarClassesAlgoritmos(pso.getClasses(), matCls);
+            mostrarClassesAlgoritmos(pso.getTiposSaidas(), matCls);
 
             // Testes estatísticos
             mostrarTesteDeNormalidade(statsEfet, efetPSO, efetJ48, efetSMO, efetRBF);

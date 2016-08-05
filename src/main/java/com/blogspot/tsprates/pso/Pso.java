@@ -98,33 +98,33 @@ public class Pso
     /**
      * Construtor.
      *
-     * @param conexao Conexão com banco de dados PostgreSQL.
-     * @param props Propriedades de configuração.
+     * @param conexao Conexão com banco de dados.
+     * @param config Configurações.
      * @param formatador Formatador de casas decimais.
-     * @param numKpastas Número para validação k-pastas.
+     * @param numKpastas Valor para validação k-pastas.
      */
     public Pso(Connection conexao,
-            final Properties props,
+            final Properties config,
             final Formatador formatador,
             final int numKpastas)
     {
         this.conexao = conexao;
-        this.tabela = props.getProperty("tabela");
-        this.colSaida = props.getProperty("saida");
-        this.colId = props.getProperty("id");
+        this.tabela = config.getProperty("tabela");
+        this.colSaida = config.getProperty("saida");
+        this.colId = config.getProperty("id");
 
-        this.w = Double.valueOf(props.getProperty("w"));
-        this.c1 = Double.valueOf(props.getProperty("c1"));
-        this.c2 = Double.valueOf(props.getProperty("c2"));
+        this.w = Double.valueOf(config.getProperty("w"));
+        this.c1 = Double.valueOf(config.getProperty("c1"));
+        this.c2 = Double.valueOf(config.getProperty("c2"));
 
-        this.crossover = Double.valueOf(props.getProperty("cr"));
-        this.numParts = Integer.valueOf(props.getProperty("npop"));
-        this.maxIter = Integer.valueOf(props.getProperty("maxiter"));
+        this.crossover = Double.valueOf(config.getProperty("cr"));
+        this.numParts = Integer.valueOf(config.getProperty("npop"));
+        this.maxIter = Integer.valueOf(config.getProperty("maxiter"));
 
-        carregarColunas();
-        carregarClassesDeSaida();
+        carregarColunasDaTabela();
+        carregarTiposDeSaida();
         mapaSaidaId();
-        carregarMaxMinEntradas();
+        carregarMaxMinColunasDaTabela();
 
         enxameNicho = dividirNichoEnxame();
 
@@ -345,7 +345,7 @@ public class Pso
     }
 
     /**
-     * Monta uma linha formatada de saída.
+     * Monta uma linha de tabela formatada de saída.
      *
      * @param classe Saída.
      * @param fo Vetor de funções objetivo.
@@ -590,7 +590,7 @@ public class Pso
     /**
      * Recupera colunas da tabela.
      */
-    private void carregarColunas()
+    private void carregarColunasDaTabela()
     {
         ResultSetMetaData metadata;
 
@@ -631,9 +631,9 @@ public class Pso
     }
 
     /**
-     * Recupera os valores da coluna de saída.
+     * Recupera os valores da coluna de saída (classes).
      */
-    private void carregarClassesDeSaida()
+    private void carregarTiposDeSaida()
     {
         String sql = "SELECT DISTINCT " + colSaida + " "
                 + "FROM " + tabela + " "
@@ -655,9 +655,9 @@ public class Pso
     }
 
     /**
-     * Recupera os máximos e mínimos de cada entradas.
+     * Recupera os máximos e mínimos das colunas.
      */
-    private void carregarMaxMinEntradas()
+    private void carregarMaxMinColunasDaTabela()
     {
         // faixa de valores de cada coluna
         StringBuilder sb = new StringBuilder();
@@ -870,7 +870,7 @@ public class Pso
     }
 
     /**
-     * Retorna a população de partículas
+     * Retorna a população de partículas.
      *
      * @return
      */
@@ -884,23 +884,24 @@ public class Pso
      *
      * @return Tipos de saída.
      */
-    public Set<String> getClasses()
+    public Set<String> getTiposSaidas()
     {
         return tipoSaidas;
     }
 
     /**
-     * Retorna tipos de saída.
+     * Mapa de classes (saídas) e os respectivos IDs de cada registro da tabela 
+     * no banco de dados.
      *
-     * @return Tipos de saída.
+     * @return Mapa de saídas (classes) por IDs.
      */
-    public Map<String, List<String>> getSaidasPorId()
+    public Map<String, List<String>> mapearSaidasPorId()
     {
         return mapaSaida;
     }
 
     /**
-     * Retorna mapa das classes com a efetividade de cada partícula.
+     * Retorna mapa das classes (saídas) com a efetividade de cada partícula.
      *
      * @return Mapa das classes com a efetividade de cada partícula.
      */
@@ -910,9 +911,9 @@ public class Pso
     }
 
     /**
-     * Retorna mapa das classes com a acuracia de cada partícula.
+     * Retorna mapa das classes (saídas) com a acuracia de cada partícula.
      *
-     * @return Mapa das classes com a efetividade de cada partícula.
+     * @return Mapa das classes (saídas) com a efetividade de cada partícula.
      */
     public Map<String, List<Double>> getAcuracia()
     {
