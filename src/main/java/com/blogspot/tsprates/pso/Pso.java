@@ -91,9 +91,9 @@ public class Pso
     private List<List<String>> kpastas;
 
     private double resultado;
-    
+
     private Map<String, Double> mapaRes;
-    
+
     /**
      * Construtor.
      *
@@ -199,9 +199,9 @@ public class Pso
         {
             kpastasClasses.put(it.getKey(), it.getValue() / NUM_K);
         }
-        
+
         this.mapaRes = new TreeMap<>(kpastasClasses);
-        
+
         // Média das melhores efetividades
         this.resultado = getValorMedioKpastas(kpastasClasses);
 
@@ -355,7 +355,7 @@ public class Pso
         String compl = fmt.formatar(fo[0]);
         String efet = fmt.formatar(fo[1]);
         String acur = fmt.formatar(fo[2]);
-        
+
         String cl;
         if (classe.length() > 10)
         {
@@ -365,7 +365,7 @@ public class Pso
         {
             cl = classe;
         }
-        
+
         System.out.printf(LINE_TAB_FORMAT, cl, compl, efet, acur, whereSql);
     }
 
@@ -573,7 +573,7 @@ public class Pso
                 String coluna = rs.getString(colSaida);
                 mapaSaida.get(coluna).add(rs.getString("col_id"));
             }
-            
+
             if (mapaSaida.size() > numParts)
             {
                 throw new RuntimeException("Tamanho do enxame é insuficiente.");
@@ -1050,7 +1050,7 @@ public class Pso
     {
         return kpastas;
     }
-    
+
     /**
      * Retorna o resultado.
      *
@@ -1066,7 +1066,7 @@ public class Pso
      *
      * @return
      */
-    public Map<String, Double>  getResultadoPorClasses()
+    public Map<String, Double> getResultadoPorClasses()
     {
         return mapaRes;
     }
