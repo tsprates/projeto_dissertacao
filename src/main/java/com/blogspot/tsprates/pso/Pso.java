@@ -132,7 +132,7 @@ public class Pso
 
         this.enxameNicho = dividirNichoEnxame();
 
-        criaRepositorio();
+        criarRepositorio();
 
         this.fitness = new Fitness(conexao, colId, tabela, mapaSaida);
     }
@@ -924,7 +924,7 @@ public class Pso
     /**
      * Cria GBest.
      */
-    private void criaRepositorio()
+    private void criarRepositorio()
     {
         // Lista não dominados (gbest)
         for (String saida : tipoSaidas)
@@ -966,7 +966,7 @@ public class Pso
     }
 
     /**
-     * Faz a validação cruzada k-pastas.
+     * Validação cruzada k-pastas.
      *
      */
     private void criarKpastas()
