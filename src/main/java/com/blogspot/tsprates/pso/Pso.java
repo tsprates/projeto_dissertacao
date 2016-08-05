@@ -101,7 +101,7 @@ public class Pso
      * @param conexao Conexão com banco de dados.
      * @param config Configurações.
      * @param formatador Formatador de casas decimais.
-     * @param numKpastas Valor para validação k-pastas.
+     * @param numKpastas Validação k-pastas.
      */
     public Pso(Connection conexao,
             final Properties config,
@@ -120,17 +120,17 @@ public class Pso
         this.crossover = Double.valueOf(config.getProperty("cr"));
         this.numParts = Integer.valueOf(config.getProperty("npop"));
         this.maxIter = Integer.valueOf(config.getProperty("maxiter"));
+        
+        this.fmt = formatador;
+
+        this.NUM_K = numKpastas;
 
         carregarColunasDaTabela();
         carregarTiposDeSaida();
-        mapaSaidaId();
+        carregarSaidaPorId();
         carregarMaxMinColunasDaTabela();
 
-        enxameNicho = dividirNichoEnxame();
-
-        fmt = formatador;
-
-        NUM_K = numKpastas;
+        this.enxameNicho = dividirNichoEnxame();
 
         criaRepositorio();
 
@@ -553,10 +553,11 @@ public class Pso
     }
 
     /**
-     * Mapa de todas as saídas (classes) para cada id.
+     * Carrega um mapa de todas as saídas (classes) para cada ID de cada 
+     * registro da tabela do banco de dados.
      *
      */
-    private void mapaSaidaId()
+    private void carregarSaidaPorId()
     {
         for (String saida : tipoSaidas)
         {
@@ -895,7 +896,7 @@ public class Pso
      *
      * @return Mapa de saídas (classes) por IDs.
      */
-    public Map<String, List<String>> mapearSaidasPorId()
+    public Map<String, List<String>> getSaidasPorId()
     {
         return mapaSaida;
     }
@@ -933,7 +934,7 @@ public class Pso
     }
 
     /**
-     * Cria GBest.
+     * Reset GBest.
      */
     private void resetRepositorio()
     {
@@ -960,7 +961,7 @@ public class Pso
 
         repositorio.put(classe, rep);
 
-        // verifica tamanho do repositório
+        // Verifica tamanho do repositório
         FronteiraPareto.verificarTamanhoDoRepositorio(rep);
     }
 
