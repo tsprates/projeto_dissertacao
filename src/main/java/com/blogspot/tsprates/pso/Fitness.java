@@ -213,28 +213,8 @@ public class Fitness
         double fn = listaVerdadeirosSize - tp;
         double tn = totalSize - fn - fp - tp;
 
-//        double sensibilidade = tp / (tp + fn);
-        double sensibilidade;
-        if ((tp + fn) == 0)
-        {
-            sensibilidade = 0;
-        }
-        else
-        {
-            sensibilidade = tp / (tp + fn);
-        }
-
-//        double especificidade = tn / (tn + fp);
-        double especificidade;
-        if ((tn + fp) == 0)
-        {
-            especificidade = 0;
-        }
-        else
-        {
-            especificidade = tn / (tn + fp);
-        }
-
+        double sensibilidade = tp / (tp + fn);
+        double especificidade = tn / (tn + fp);
         double acuracia = (tp + tn) / (tp + tn + fp + fn);
 
         double efetividade = especificidade * sensibilidade;
