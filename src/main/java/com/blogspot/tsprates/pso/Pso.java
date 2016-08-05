@@ -35,13 +35,14 @@ public class Pso
         0.94, 1.0
     };
 
-    private static final String LINE_TAB_FORMAT = "%-15s %-10s %-10s %-10s %s\n";
+    private static final String TAB_FORMAT = "%-15s %-10s %-10s %-10s %s\n";
 
-    private static final String CABECALHO_TAB;
+    private static final String TAB_CABECALHO;
 
     static
     {
-        CABECALHO_TAB = String.format(LINE_TAB_FORMAT, "Classe", "Compl.", "Efet.", "Acur.", "Regra");
+        TAB_CABECALHO = String.format(TAB_FORMAT, "Classe", "Compl.", 
+                "Efet.", "Acur.", "Regra");
     }
 
     private final Random rand = new Random();
@@ -296,7 +297,7 @@ public class Pso
         System.out.println();
 
         // tabela de resultado validação
-        System.out.print(CABECALHO_TAB);
+        System.out.print(TAB_CABECALHO);
         System.out.println();
 
         for (String saida : tipoSaidas)
@@ -323,7 +324,7 @@ public class Pso
 
         System.out.println("\nFase de treinamento:\n");
 
-        System.out.println(CABECALHO_TAB);
+        System.out.println(TAB_CABECALHO);
 
         for (Entry<String, List<Particula>> parts : solucoes.entrySet())
         {
@@ -366,7 +367,7 @@ public class Pso
             cl = classe;
         }
 
-        System.out.printf(LINE_TAB_FORMAT, cl, compl, efet, acur, whereSql);
+        System.out.printf(TAB_FORMAT, cl, compl, efet, acur, whereSql);
     }
 
     /**
