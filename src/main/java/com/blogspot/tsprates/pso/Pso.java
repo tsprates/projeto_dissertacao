@@ -1,6 +1,5 @@
 package com.blogspot.tsprates.pso;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.distribution.NormalDistribution;
@@ -41,7 +40,7 @@ public class Pso
 
     static
     {
-        TAB_CABECALHO = String.format(TAB_FORMAT, "Classe", "Compl.", 
+        TAB_CABECALHO = String.format(TAB_FORMAT, "Classe", "Compl.",
                 "Efet.", "Acur.", "Regra");
     }
 
@@ -91,9 +90,9 @@ public class Pso
 
     private List<List<String>> kpastas;
 
-    private double resultado;
+    private double[] valorMedioGlobal;
 
-    private Map<String, Double> mapaRes;
+    private Map<String, double[]> valorMedioPorClasses;
 
     /**
      * Construtor.
@@ -103,10 +102,8 @@ public class Pso
      * @param formatador Formatador de casas decimais.
      * @param numKpastas Validação k-pastas.
      */
-    public Pso(Connection conexao,
-            final Properties config,
-            final Formatador formatador,
-            final int numKpastas)
+    public Pso(Connection conexao, final Properties config,
+            final Formatador formatador, final int numKpastas)
     {
         this.conexao = conexao;
         this.tabela = config.getProperty("tabela");
@@ -120,7 +117,7 @@ public class Pso
         this.crossover = Double.valueOf(config.getProperty("cr"));
         this.numParts = Integer.valueOf(config.getProperty("npop"));
         this.maxIter = Integer.valueOf(config.getProperty("maxiter"));
-        
+
         this.fmt = formatador;
 
         this.NUM_K = numKpastas;
@@ -149,7 +146,7 @@ public class Pso
         criarKpastas();
         fitness.setKPastas(kpastas);
 
-        Map<String, Double> kpastasClasses = iniciarValorMedioKpastas();
+        Map<String, double[]> kpastasClasses = criarValorMedioKpastas();
 
         for (int i = 0; i < NUM_K; i++)
         {
@@ -188,36 +185,20 @@ public class Pso
             mostrarTreinamento();
 
             // Fase de validação
-            Map<String, List<Double[]>> validacao = fitness.validar(repositorio);
+            Map<String, List<double[]>> validacao = fitness.validar(repositorio);
             mostrarValidacao(validacao);
 
             // Seleciona melhores efetividade
             selecionarEfetividadeValidacao(validacao, kpastasClasses);
         }
 
-        // Atualiza média das K partições
-        for (Entry<String, Double> it : kpastasClasses.entrySet())
-        {
-            kpastasClasses.put(it.getKey(), it.getValue() / NUM_K);
-        }
+        calcularValorMedio(kpastasClasses);
 
-        this.mapaRes = new TreeMap<>(kpastasClasses);
+        // Efetividade dividida pelas saídas (classes)
+        this.valorMedioPorClasses = new TreeMap<>(kpastasClasses);
 
         // Média das melhores efetividades
-        this.resultado = getValorMedioKpastas(kpastasClasses);
-
-        for (String saida : tipoSaidas)
-        {
-            efetividade.put(saida, new ArrayList<Double>());
-            acuracia.put(saida, new ArrayList<Double>());
-        }
-
-        for (Particula part : particulas)
-        {
-            double[] fit = part.fitness();
-            efetividade.get(part.classe()).add(fit[1]);
-            acuracia.get(part.classe()).add(fit[2]);
-        }
+        this.valorMedioGlobal = valorMedioGlobalKpastas(kpastasClasses);
 
         long tempoFinal = System.nanoTime();
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
@@ -226,19 +207,45 @@ public class Pso
     }
 
     /**
-     * Calcula o resultado médio.
+     * Calcula o valor médio para as k partições.
+     *
+     * @param kpastasClasses
+     */
+    private void calcularValorMedio(Map<String, double[]> kpastasClasses)
+    {
+        // Atualiza média das K partições
+        for (Entry<String, double[]> it : kpastasClasses.entrySet())
+        {
+            double[] arr = it.getValue();
+            arr[0] /= NUM_K;
+            arr[1] /= NUM_K;
+            kpastasClasses.put(it.getKey(), arr);
+        }
+    }
+
+    /**
+     * Calcula o valor médio global.
      *
      * @param kpastasClasses
      * @return
      */
-    private double getValorMedioKpastas(Map<String, Double> kpastasClasses)
+    private double[] valorMedioGlobalKpastas(
+            Map<String, double[]> kpastasClasses)
     {
-        double total = 0.0;
-        for (Double d : kpastasClasses.values())
+        double[] total = new double[2];
+
+        for (double d[] : kpastasClasses.values())
         {
-            total += d;
+            total[0] += d[0];
+            total[1] += d[1];
         }
-        return total / tipoSaidas.size();
+
+        final int size = tipoSaidas.size();
+
+        total[0] /= size;
+        total[1] /= size;
+
+        return total;
     }
 
     /**
@@ -246,43 +253,52 @@ public class Pso
      *
      * @return
      */
-    private Map<String, Double> iniciarValorMedioKpastas()
+    private Map<String, double[]> criarValorMedioKpastas()
     {
-        Map<String, Double> kpastasClasses = new HashMap<>();
+        Map<String, double[]> kpastasClasses = new HashMap<>();
         for (String saida : tipoSaidas)
         {
-            kpastasClasses.put(saida, 0.0);
+            kpastasClasses.put(saida, new double[]
+            {
+                0.0, 0.0
+            });
         }
         return kpastasClasses;
     }
 
     /**
-     * Calcula a melhor efetividade de cada classe de saída.
+     * Seleciona a melhor efetividade para cada classe de saída.
      *
      * @param validacao Mapa de fitness encontrados por saída.
      * @param kpastasClasses
      */
     private void selecionarEfetividadeValidacao(
-            Map<String, List<Double[]>> validacao,
-            Map<String, Double> kpastasClasses)
+            Map<String, List<double[]>> validacao,
+            Map<String, double[]> kpastasClasses)
     {
-        for (Entry<String, List<Double[]>> entrada : validacao.entrySet())
+        for (Entry<String, List<double[]>> entrada : validacao.entrySet())
         {
             String saida = entrada.getKey();
-            List<Double[]> fits = entrada.getValue();
+            List<double[]> fits = entrada.getValue();
 
-            // vetor fitness na posição 2 (efetividade)
-            Double[] temp = fits.get(0);
-            double maior = temp[1];
-            for (Double[] fit : fits)
+            double[] f = fits.get(0);
+
+            double maiorEfet = f[1];
+            double acur = f[2];
+
+            for (double[] fit : fits)
             {
-                if (fit[1] > maior)
+                if (fit[1] > maiorEfet)
                 {
-                    maior = fit[1];
+                    maiorEfet = fit[1];
+                    acur = fit[2];
                 }
             }
 
-            kpastasClasses.put(saida, kpastasClasses.get(saida) + maior);
+            double[] arr = kpastasClasses.get(saida);
+            arr[0] += maiorEfet;
+            arr[1] += acur;
+            kpastasClasses.put(saida, arr);
         }
     }
 
@@ -291,24 +307,24 @@ public class Pso
      *
      * @param validacao Lista de fitness encontrados por saída.
      */
-    private void mostrarValidacao(Map<String, List<Double[]>> validacao)
+    private void mostrarValidacao(Map<String, List<double[]>> validacao)
     {
         System.out.println("\nFase de validação:");
         System.out.println();
 
-        // tabela de resultado validação
+        // tabela de resEfet validação
         System.out.print(TAB_CABECALHO);
         System.out.println();
 
         for (String saida : tipoSaidas)
         {
-            List<Double[]> r = validacao.get(saida);
+            List<double[]> r = validacao.get(saida);
             List<Particula> rep = repositorio.get(saida);
 
             for (int i = 0, l = r.size(); i < l; i++)
             {
-                double[] f = ArrayUtils.toPrimitive(r.get(i));
-                mostrarFmtSaida(saida, f, rep.get(i).whereSql());
+                final double[] fit = r.get(i);
+                mostrarFmtSaida(saida, fit, rep.get(i).whereSql());
             }
         }
 
@@ -335,7 +351,7 @@ public class Pso
 
             Collections.sort(listaParts);
 
-            // tabela de resultado
+            // tabela de resEfet
             for (Particula part : listaParts)
             {
                 double[] f = part.fitness();
@@ -553,7 +569,7 @@ public class Pso
     }
 
     /**
-     * Carrega um mapa de todas as saídas (classes) para cada ID de cada 
+     * Carrega um mapa de todas as saídas (classes) para cada ID de cada
      * registro da tabela do banco de dados.
      *
      */
@@ -891,7 +907,7 @@ public class Pso
     }
 
     /**
-     * Mapa de classes (saídas) e os respectivos IDs de cada registro da tabela 
+     * Mapa de classes (saídas) e os respectivos IDs de cada registro da tabela
      * no banco de dados.
      *
      * @return Mapa de saídas (classes) por IDs.
@@ -1055,22 +1071,23 @@ public class Pso
     }
 
     /**
-     * Retorna o resultado.
+     * Retorna o valor médio global (média da classes) das k partições. 
      *
-     * @return
+     * @return Retorna um array com o valor médio global da efetividade e 
+     * acurácia.
      */
-    public double getResultado()
+    public double[] valorMedioGlobal()
     {
-        return resultado;
+        return valorMedioGlobal;
     }
 
     /**
-     * Retorna o resultado.
+     * Retorna o valor médio por classes das k partições.
      *
-     * @return
+     * @return Retorna um mapa da efetividade e acurácia.
      */
-    public Map<String, Double> getResultadoPorClasses()
+    public Map<String, double[]> valorMedioPorClasses()
     {
-        return mapaRes;
+        return valorMedioPorClasses;
     }
 }

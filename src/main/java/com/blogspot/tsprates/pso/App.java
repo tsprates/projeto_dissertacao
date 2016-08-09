@@ -74,21 +74,23 @@ public class App
             System.out.printf("\nTabela: %s\n", config.getProperty("tabela"));
 
             // Matriz de algoritmos por classes
-            double[][] matCls = null;
+            double[][] matEfetCls = null;
 
             for (int iter = 0; iter < EXECS; iter++)
             {
                 System.out.printf("\n\nExecução: %d\n\n", iter + 1);
 
                 pso.carregar();
-
-                efetPSO.add(pso.getResultado());
+                
+                // Valor médio global da efetividade e acurácia
+                final double[] resultado = pso.valorMedioGlobal();
+                efetPSO.add(resultado[0]); 
 
                 Weka weka = new Weka(config, K, pso.getKPasta());
                 double[][] efetWeka = weka.getEfetividadeArray();
                 int numClasses = weka.numClasses();
 
-                // Valor médio efetividade global
+                // Valor médio efetividade global (WEKA)
                 double medEfetJ48 = 0.0;
                 double medEfetSMO = 0.0;
                 double medEfetRBF = 0.0;
@@ -105,43 +107,46 @@ public class App
                 efetSMO.add(medEfetSMO / (double) numClasses);
                 efetRBF.add(medEfetRBF / (double) numClasses);
 
-                // Verifica se a matriz de classes foi instanciada
-                if (matCls == null)
+                // Cria Matriz para Efetividade algoritmo x classe.
+                if (matEfetCls == null) 
                 {
-                    matCls = new double[4][numClasses];
+                    matEfetCls = new double[4][numClasses];
                 }
 
                 for (int i = 0; i < numClasses; i++)
                 {
-                    matCls[1][i] += efetWeka[0][i];  // J48
-                    matCls[2][i] += efetWeka[1][i];  // SMO
-                    matCls[3][i] += efetWeka[2][i];  // RBF
+                    matEfetCls[1][i] += efetWeka[0][i];  // J48
+                    matEfetCls[2][i] += efetWeka[1][i];  // SMO
+                    matEfetCls[3][i] += efetWeka[2][i];  // RBF
                 }
 
+                final Map<String, double[]> resultadoPorClasses = pso
+                        .valorMedioPorClasses();
+                
                 int j = 0;
-                final Map<String, Double> resultadoPorClasses = pso.getResultadoPorClasses();
-                for (Entry<String, Double> classe : resultadoPorClasses.entrySet())
+                for (Entry<String, double[]> classe : resultadoPorClasses.entrySet())
                 {
-                    matCls[0][j] += classe.getValue(); // MOPSO
+                    final double[] arr = classe.getValue();
+                    matEfetCls[0][j] += arr[0]; // MOPSO
                     j++;
                 }
             }
 
-            final Map<String, SummaryStatistics> statsEfet = criarMapStats(
+            final Map<String, SummaryStatistics> statsEfet = criarEfetStats(
                     efetPSO, efetJ48, efetSMO, efetRBF);
 
             mostrarValorMedioExec(FORMAT, statsEfet);
 
-            // Realiza média por execução de cada classe
+            // Média por execução de cada classe
             for (int i = 0, size = pso.getTiposSaidas().size(); i < size; i++)
             {
-                matCls[0][i] /= EXECS;  // MOPSO
-                matCls[1][i] /= EXECS;  // J48
-                matCls[2][i] /= EXECS;  // SMO
-                matCls[3][i] /= EXECS;  // RBF
+                matEfetCls[0][i] /= EXECS;  // MOPSO
+                matEfetCls[1][i] /= EXECS;  // J48
+                matEfetCls[2][i] /= EXECS;  // SMO
+                matEfetCls[3][i] /= EXECS;  // RBF
             }
-
-            mostrarClassesAlgoritmos(pso.getTiposSaidas(), matCls);
+            
+            mostrarEfetividadePorClasses(pso.getTiposSaidas(), matEfetCls);
 
             // Testes estatísticos
             mostrarTesteDeNormalidade(statsEfet, efetPSO, efetJ48, efetSMO, efetRBF);
@@ -225,10 +230,11 @@ public class App
     private static void mostrarValorMedioExec(final Formatador f,
             Map<String, SummaryStatistics> mapStats)
     {
-
-        System.out.println("\n");
-        System.out.printf("%-10s %-10s %-10s\n\n", "Alg.", "Méd.", "Desv.");
-        String strFormat = "%-10s %-10s %-10s\n";
+        // cabeçalho
+        System.out.printf("\n\n%-12s %-12s %-12s\n\n", "Algo.", "Efet. Méd.", 
+                "Efet. DP.");
+        
+        String strFormat = "%-12s %-12s %-12s\n";
 
         final SummaryStatistics MOPSO = mapStats.get("MOPSO");
         final SummaryStatistics J48 = mapStats.get("J48");
@@ -256,55 +262,9 @@ public class App
                 f.formatar(RBF.getStandardDeviation()));
 
     }
-
-//    /**
-//     * Teste de Postos Sinalizados de Wilcoxon.
-//     *
-//     * @see https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test
-//     * @param f Formatador para casas decimais.
-//     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
-//     * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
-//     * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
-//     * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
-//     */
-//    private static void mostrarTesteWilcoxon(final Formatador f,
-//            List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
-//            List<Double> efetRBF)
-//    {
-//        // Wilcoxon Test
-//        WilcoxonSignedRankTest w = new WilcoxonSignedRankTest();
-//
-//        Double[] tempArrPSO = efetPSO.toArray(new Double[0]);
-//        Double[] tempArrJ48 = efetJ48.toArray(new Double[0]);
-//        Double[] tempArrSMO = efetSMO.toArray(new Double[0]);
-//        Double[] tempArrRBF = efetRBF.toArray(new Double[0]);
-//
-//        double[] arrPSO = ArrayUtils.toPrimitive(tempArrPSO);
-//        double[] arrJ48 = ArrayUtils.toPrimitive(tempArrJ48);
-//        double[] arrSMO = ArrayUtils.toPrimitive(tempArrSMO);
-//        double[] arrRBF = ArrayUtils.toPrimitive(tempArrRBF);
-//
-//        String pvaluePSO_J48 = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrJ48, false));
-//        String pvaluePSO_SMO = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrSMO, false));
-//        String pvaluePSO_RBF = f.formatar(w.wilcoxonSignedRankTest(arrPSO, arrRBF, false));
-//        String pvalueJ48_SMO = f.formatar(w.wilcoxonSignedRankTest(arrJ48, arrSMO, false));
-//        String pvalueJ48_RBF = f.formatar(w.wilcoxonSignedRankTest(arrJ48, arrRBF, false));
-//        String pvalueSMO_RBF = f.formatar(w.wilcoxonSignedRankTest(arrSMO, arrRBF, false));
-//
-//        System.out.println("\n\nTeste Wilcoxon MOPSO:\n");
-//
-//        String strFormat = "%-10s %-10s %-10s %-10s %-10s\n";
-//
-//        System.out.printf(strFormat, "", "MOPSO", "J48", "SMO", "RBF");
-//        System.out.printf(strFormat, "MOPSO", "-", pvaluePSO_J48, pvaluePSO_SMO, pvaluePSO_RBF);
-//        System.out.printf(strFormat, "J48", pvaluePSO_J48, "-", pvalueJ48_SMO, pvalueJ48_RBF);
-//        System.out.printf(strFormat, "SMO", pvaluePSO_SMO, pvalueJ48_SMO, "-", pvalueSMO_RBF);
-//        System.out.printf(strFormat, "RBF", pvaluePSO_RBF, pvalueJ48_RBF, pvalueSMO_RBF, "-");
-//    }
-    
     
     /**
-     * Cria mapa de estatísticas.
+     * Cria mapa de estatísticas para Efetividade.
      *
      * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
      * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
@@ -312,7 +272,7 @@ public class App
      * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
      * @return Retorna um mapa de algoritmos por SummaryStatistics.
      */
-    private static Map<String, SummaryStatistics> criarMapStats(
+    private static Map<String, SummaryStatistics> criarEfetStats(
             List<Double> efetPSO, List<Double> efetJ48,
             List<Double> efetSMO, List<Double> efetRBF)
     {
@@ -684,13 +644,13 @@ public class App
     }
     
     /**
-     * Mostra tabela de desempenho de cada algoritmo por classe.
+     * Mostra a tabela de cada algoritmo por classe.
      * 
      * @param saidas Tipos classes (saídas).
-     * @param matCls Matriz de algoritmos por classes (saídas).
+     * @param matEfetCls Matriz de algoritmos por classes (saídas).
      */
-    private static void mostrarClassesAlgoritmos(Collection<String> saidas, 
-            double[][] matCls)
+    private static void mostrarEfetividadePorClasses(
+            Collection<String> saidas, double[][] matEfetCls)
     {
         System.out.println("\n\nAlgoritmos por Classes:\n");
         
@@ -704,13 +664,13 @@ public class App
         
         System.out.println("\n");
         
-        for (int i = 0; i < matCls.length; i++)
+        for (int i = 0; i < matEfetCls.length; i++)
         {
             System.out.printf("%-10s", ALGOS[i]);
             
-            for (int j = 0; j < matCls[i].length; j++)
+            for (int j = 0; j < matEfetCls[i].length; j++)
             {
-                String valor = FORMAT.formatar(matCls[i][j]);
+                String valor = FORMAT.formatar(matEfetCls[i][j]);
                 System.out.printf(" %-10s", valor);
             }
             

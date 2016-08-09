@@ -1,6 +1,5 @@
 package com.blogspot.tsprates.pso;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
@@ -251,21 +250,22 @@ public class Fitness
      * @param repositorio
      * @return
      */
-    public Map<String, List<Double[]>> validar(Map<String, List<Particula>> repositorio)
+    public Map<String, List<double[]>> validar(Map<String, 
+            List<Particula>> repositorio)
     {
-        Map<String, List<Double[]>> mapFit = new TreeMap<>();
+        Map<String, List<double[]>> mapFit = new TreeMap<>();
 
         for (Entry<String, List<Particula>> classePart : repositorio.entrySet())
         {
             String saida = classePart.getKey();
 
-            mapFit.put(saida, new ArrayList<Double[]>());
+            mapFit.put(saida, new ArrayList<double[]>());
 
             List<Particula> parts = classePart.getValue();
             for (Particula part : parts)
             {
-                double[] r = calcular(part, false);
-                mapFit.get(saida).add(ArrayUtils.toObject(r));
+                double[] arr = calcular(part, false);
+                mapFit.get(saida).add(arr);
             }
         }
 
