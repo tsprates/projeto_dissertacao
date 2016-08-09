@@ -87,7 +87,7 @@ public class App
                 efetPSO.add(resultado[0]); 
 
                 Weka weka = new Weka(config, K, pso.getKPasta());
-                double[][] efetWeka = weka.getEfetividadeArray();
+                double[][] efetWeka = weka.efetividade();
                 int numClasses = weka.numClasses();
 
                 // Valor médio efetividade global (WEKA)

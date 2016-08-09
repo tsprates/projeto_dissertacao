@@ -31,6 +31,10 @@ public class Weka
 
     private int numClasses;
 
+    private double[][] efet = null; // efetividade
+
+    private double[][] acur = null; // efetividade
+
     /**
      * Construtor.
      *
@@ -58,18 +62,15 @@ public class Weka
         this.optsRBF = String.format("-B %s -W %s",
                 config.getProperty("RBF.clusters"),
                 config.getProperty("RBF.min_std_dev_clusters"));
+        
+        classificar();
     }
 
     /**
-     * Retorna uma matriz de algoritmos do WEKA por classes da classificação.
-     *
-     * @return Matriz de resultado.
+     * Classifica algoritmos do WEKA por classes da classificação.
      */
-    public double[][] getEfetividadeArray()
+    private void classificar()
     {
-        double[][] efet = null; // efetividade
-
-        int numCls = -1;
 
         try
         {
@@ -91,7 +92,7 @@ public class Weka
                 Instances train = query.retrieveInstances();
                 train.setClassIndex(train.attribute(colSaida).index());
 
-                Remove remAtrTrain = criarRemove(train);
+                Remove remAtrTrain = criarRemoveColId(train);
                 Instances trainData = Filter.useFilter(train, remAtrTrain);
 
                 // Árvore de Decisão
@@ -126,9 +127,8 @@ public class Weka
 //                    System.out.println(j + " : " + attr.value(j));
 //                }
 //                System.out.println();
-                
                 // Remove atributo id
-                Remove remAtrTest = criarRemove(test);
+                Remove remAtrTest = criarRemoveColId(test);
                 Instances testData = Filter.useFilter(test, remAtrTest);
 
                 // Validação
@@ -142,41 +142,41 @@ public class Weka
                 evalRBF.evaluateModel(rbf, testData);
 
                 // total de classes 
-                if (numCls == -1)
+                this.numClasses = trainData.numClasses();
+
+                if (efet == null)
                 {
-                    numCls = trainData.numClasses();
-
-                    efet = new double[3][numCls];
-
-                    for (int j = 0; j < numCls; j++)
-                    {
-                        efet[0][j] = 0.0;
-                        efet[1][j] = 0.0;
-                        efet[2][j] = 0.0;
-                    }
-
-                    this.numClasses = numCls;
+                    efet = new double[3][numClasses];
+                }
+                
+                if (acur == null)
+                {
+                    acur = new double[3][numClasses];
                 }
 
-                for (int j = 0; j < numCls; j++)
+                for (int j = 0; j < numClasses; j++)
                 {
                     efet[0][j] += evalJ48.precision(j) * evalJ48.recall(j);
                     efet[1][j] += evalSMO.precision(j) * evalSMO.recall(j);
                     efet[2][j] += evalRBF.precision(j) * evalRBF.recall(j);
+
+                    acur[0][j] += (evalJ48.numTruePositives(j) + evalJ48.numTrueNegatives(j)) / (evalJ48.numTruePositives(j) + evalJ48.numTrueNegatives(j) + evalJ48.numFalsePositives(j) + evalJ48.numFalseNegatives(j));
+                    acur[1][j] += (evalSMO.numTruePositives(j) + evalSMO.numTrueNegatives(j)) / (evalSMO.numTruePositives(j) + evalSMO.numTrueNegatives(j) + evalSMO.numFalsePositives(j) + evalSMO.numFalseNegatives(j));
+                    acur[2][j] += (evalRBF.numTruePositives(j) + evalRBF.numTrueNegatives(j)) / (evalRBF.numTruePositives(j) + evalRBF.numTrueNegatives(j) + evalRBF.numFalsePositives(j) + evalRBF.numFalseNegatives(j));
+
                 }
             }
 
-            if (efet != null)
+            for (int i = 0; i < numClasses; i++)
             {
-                for (int i = 0; i < numCls; i++)
-                {
-                    efet[0][i] /= K;
-                    efet[1][i] /= K;
-                    efet[2][i] /= K;
-                }
-            }
+                efet[0][i] /= K;
+                efet[1][i] /= K;
+                efet[2][i] /= K;
 
-            return efet;
+                acur[0][i] /= K;
+                acur[1][i] /= K;
+                acur[2][i] /= K;
+            }
         }
         catch (Exception e)
         {
@@ -186,13 +186,13 @@ public class Weka
     }
 
     /**
-     * Remove atributo ID sql.
+     * Remove atributo ID SQL da tabela.
      *
      * @param instance
      * @return
      * @throws Exception
      */
-    private Remove criarRemove(Instances instance) throws Exception
+    private Remove criarRemoveColId(Instances instance) throws Exception
     {
         int colIdIndex = instance.attribute(colId).index() + 1;
 
@@ -211,5 +211,27 @@ public class Weka
     public int numClasses()
     {
         return numClasses;
+    }
+
+    /**
+     * Retorna matriz de algoritmos (J48, SMO e RBF) por classes para cálculo da
+     * acurácia.
+     *
+     * @return Matriz da acurácia.
+     */
+    public double[][] acuracia()
+    {
+        return acur;
+    }
+
+    /**
+     * Retorna matriz de algoritmos (J48, SMO e RBF) por classes para cálculo da
+     * efetividade.
+     *
+     * @return Matriz da efetividade.
+     */
+    public double[][] efetividade()
+    {
+        return efet;
     }
 }
