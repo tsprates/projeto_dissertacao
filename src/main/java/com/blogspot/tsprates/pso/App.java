@@ -70,11 +70,19 @@ public class App
             List<Double> efetJ48 = new ArrayList<>();
             List<Double> efetSMO = new ArrayList<>();
             List<Double> efetRBF = new ArrayList<>();
+            
+            List<Double> acurPSO = new ArrayList<>();
+            List<Double> acurJ48 = new ArrayList<>();
+            List<Double> acurSMO = new ArrayList<>();
+            List<Double> acurRBF = new ArrayList<>();
 
             System.out.printf("\nTabela: %s\n", config.getProperty("tabela"));
 
-            // Matriz de algoritmos por classes
+            // Matriz Efetividade
             double[][] matEfetCls = null;
+            
+            // Matriz Acurácia
+            double[][] matAcurCls = null;
 
             for (int iter = 0; iter < EXECS; iter++)
             {
@@ -85,32 +93,53 @@ public class App
                 // Valor médio global da efetividade e acurácia
                 final double[] resultado = pso.valorMedioGlobal();
                 efetPSO.add(resultado[0]); 
+                acurPSO.add(resultado[1]); 
 
                 Weka weka = new Weka(config, K, pso.getKPasta());
                 double[][] efetWeka = weka.efetividade();
+                double[][] acurWeka = weka.acuracia();
                 int numClasses = weka.numClasses();
 
-                // Valor médio efetividade global (WEKA)
+                // Valor médio global (WEKA)
                 double medEfetJ48 = 0.0;
                 double medEfetSMO = 0.0;
                 double medEfetRBF = 0.0;
+                
+                double medAcurJ48 = 0.0;
+                double medAcurSMO = 0.0;
+                double medAcurRBF = 0.0;
 
                 for (int i = 0; i < numClasses; i++)
                 {
                     medEfetJ48 += efetWeka[0][i];
                     medEfetSMO += efetWeka[1][i];
                     medEfetRBF += efetWeka[2][i];
+                    
+                    medAcurJ48 += acurWeka[0][i];
+                    medAcurSMO += acurWeka[1][i];
+                    medAcurRBF += acurWeka[2][i];
                 }
 
-                // Adiciona Efetividade Global
+                // Efetividade
                 efetJ48.add(medEfetJ48 / (double) numClasses);
                 efetSMO.add(medEfetSMO / (double) numClasses);
                 efetRBF.add(medEfetRBF / (double) numClasses);
+                
+                // Acurácia
+                acurJ48.add(medAcurJ48 / (double) numClasses);
+                acurSMO.add(medAcurSMO / (double) numClasses);
+                acurRBF.add(medAcurRBF / (double) numClasses);
 
-                // Cria Matriz para Efetividade algoritmo x classe.
+                // Matriz para Efetividade algoritmo x classe.
                 if (matEfetCls == null) 
                 {
                     matEfetCls = new double[4][numClasses];
+                }
+                
+                // Matriz para Efetividade algoritmo x classe.
+                if (matAcurCls == null) 
+                {
+                    matAcurCls = new double[4][numClasses];
                 }
 
                 for (int i = 0; i < numClasses; i++)
@@ -118,6 +147,10 @@ public class App
                     matEfetCls[1][i] += efetWeka[0][i];  // J48
                     matEfetCls[2][i] += efetWeka[1][i];  // SMO
                     matEfetCls[3][i] += efetWeka[2][i];  // RBF
+                    
+                    matAcurCls[1][i] += efetWeka[0][i];  // J48
+                    matAcurCls[2][i] += efetWeka[1][i];  // SMO
+                    matAcurCls[3][i] += efetWeka[2][i];  // RBF
                 }
 
                 final Map<String, double[]> resultadoPorClasses = pso
@@ -127,15 +160,19 @@ public class App
                 for (Entry<String, double[]> classe : resultadoPorClasses.entrySet())
                 {
                     final double[] arr = classe.getValue();
-                    matEfetCls[0][j] += arr[0]; // MOPSO
+                    matEfetCls[0][j] += arr[0];
+                    matAcurCls[0][j] += arr[1];
                     j++;
                 }
             }
 
-            final Map<String, SummaryStatistics> statsEfet = criarEfetStats(
+            final Map<String, SummaryStatistics> statsEfet = criarStats(
                     efetPSO, efetJ48, efetSMO, efetRBF);
+            
+            final Map<String, SummaryStatistics> statsAcur = criarStats(
+                    acurPSO, acurJ48, acurSMO, acurRBF);
 
-            mostrarValorMedioExec(FORMAT, statsEfet);
+            mostrarValorMedioExec(FORMAT, statsEfet, statsAcur);
 
             // Média por execução de cada classe
             for (int i = 0, size = pso.getTiposSaidas().size(); i < size; i++)
@@ -188,7 +225,7 @@ public class App
      * Gráfico de Efetividade Global por execuções.
      *
      * @param config Configurações de execução dos algoritmos.
-     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
+     * @param efetPSO Efetividade obtida durante as execuções pelo PSO.
      * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
      * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
      * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
@@ -225,84 +262,98 @@ public class App
      * Imprime a média e desvio padrão das execuções dos algoritmos.
      *
      * @param f Formatador para casas decimais.
-     * @param mapStats Classe SummaryStatistics dos algoritmos.
+     * @param mapEfetStats Efetividade.
      */
     private static void mostrarValorMedioExec(final Formatador f,
-            Map<String, SummaryStatistics> mapStats)
+            Map<String, SummaryStatistics> mapEfetStats, 
+            Map<String, SummaryStatistics> mapAcurStats)
     {
         // cabeçalho
-        System.out.printf("\n\n%-12s %-12s %-12s\n\n", "Algo.", "Efet. Méd.", 
-                "Efet. DP.");
+        System.out.printf("\n\n%-10s %-10s %-10s %-10s %-10s\n\n", 
+                "Algo.", "Ef. Méd.", "Ef. Desv.", "Ac. Méd.", "Ac. Desv.");
         
-        String strFormat = "%-12s %-12s %-12s\n";
+        final String lineFmt = "%-10s %-10s %-10s %-10s %-10s\n";
 
-        final SummaryStatistics MOPSO = mapStats.get("MOPSO");
-        final SummaryStatistics J48 = mapStats.get("J48");
-        final SummaryStatistics SMO = mapStats.get("SMO");
-        final SummaryStatistics RBF = mapStats.get("RBF");
+        final SummaryStatistics efetPSO = mapEfetStats.get("PSO");
+        final SummaryStatistics efetJ48 = mapEfetStats.get("J48");
+        final SummaryStatistics efetSMO = mapEfetStats.get("SMO");
+        final SummaryStatistics efetRBF = mapEfetStats.get("RBF");
+        
+        final SummaryStatistics acurPSO = mapAcurStats.get("PSO");
+        final SummaryStatistics acurJ48 = mapAcurStats.get("J48");
+        final SummaryStatistics acurSMO = mapAcurStats.get("SMO");
+        final SummaryStatistics acurRBF = mapAcurStats.get("RBF");
 
-        System.out.printf(strFormat,
-                "MOPSO",
-                f.formatar(MOPSO.getMean()),
-                f.formatar(MOPSO.getStandardDeviation()));
+        System.out.printf(lineFmt, "MOPSO",
+                f.formatar(efetPSO.getMean()),
+                f.formatar(efetPSO.getStandardDeviation()),
+                f.formatar(acurPSO.getMean()),
+                f.formatar(acurPSO.getStandardDeviation())
+        );
 
-        System.out.printf(strFormat,
-                "J48",
-                f.formatar(J48.getMean()),
-                f.formatar(J48.getStandardDeviation()));
+        System.out.printf(lineFmt, "J48",
+                f.formatar(efetJ48.getMean()),
+                f.formatar(efetJ48.getStandardDeviation()),
+                f.formatar(acurJ48.getMean()),
+                f.formatar(acurJ48.getStandardDeviation())
+        );
 
-        System.out.printf(strFormat,
-                "SMO",
-                f.formatar(SMO.getMean()),
-                f.formatar(SMO.getStandardDeviation()));
+        System.out.printf(lineFmt, "SMO",
+                f.formatar(efetSMO.getMean()),
+                f.formatar(efetSMO.getStandardDeviation()),
+                f.formatar(acurSMO.getMean()),
+                f.formatar(acurSMO.getStandardDeviation())
+        );
 
-        System.out.printf(strFormat,
-                "RBF",
-                f.formatar(RBF.getMean()),
-                f.formatar(RBF.getStandardDeviation()));
+        System.out.printf(lineFmt, "RBF",
+                f.formatar(efetRBF.getMean()),
+                f.formatar(efetRBF.getStandardDeviation()),
+                f.formatar(acurRBF.getMean()),
+                f.formatar(acurRBF.getStandardDeviation())
+        );
 
     }
     
     /**
      * Cria mapa de estatísticas para Efetividade.
      *
-     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
-     * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
-     * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
-     * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
+     * @param listaPSO
+     * @param listaJ48
+     * @param listaSMO
+     * @param listaRBF
      * @return Retorna um mapa de algoritmos por SummaryStatistics.
      */
-    private static Map<String, SummaryStatistics> criarEfetStats(
-            List<Double> efetPSO, List<Double> efetJ48,
-            List<Double> efetSMO, List<Double> efetRBF)
+    private static Map<String, SummaryStatistics> criarStats(
+            List<Double> listaPSO, List<Double> listaJ48,
+            List<Double> listaSMO, List<Double> listaRBF)
     {
         Map<String, SummaryStatistics> map = new HashMap<>();
 
         SummaryStatistics statsPSO = new SummaryStatistics();
-        for (int i = 0, size = efetPSO.size(); i < size; i++)
+        for (int i = 0, size = listaPSO.size(); i < size; i++)
         {
-            statsPSO.addValue(efetPSO.get(i));
+            statsPSO.addValue(listaPSO.get(i));
         }
-        map.put("MOPSO", statsPSO);
+        map.put("PSO", statsPSO);
 
         SummaryStatistics statsJ48 = new SummaryStatistics();
-        for (int i = 0, size = efetJ48.size(); i < size; i++)
+        for (int i = 0, size = listaJ48.size(); i < size; i++)
         {
-            statsJ48.addValue(efetJ48.get(i));
+            statsJ48.addValue(listaJ48.get(i));
         }
         map.put("J48", statsJ48);
 
         SummaryStatistics statsSMO = new SummaryStatistics();
-        for (int i = 0, size = efetSMO.size(); i < size; i++)
+        for (int i = 0, size = listaSMO.size(); i < size; i++)
         {
-            statsSMO.addValue(efetSMO.get(i));
+            statsSMO.addValue(listaSMO.get(i));
         }
         map.put("SMO", statsSMO);
 
         SummaryStatistics statsRBF = new SummaryStatistics();
-        for (int i = 0, size = efetRBF.size(); i < size; i++)
+        for (int i = 0, size = listaRBF.size(); i < size; i++)
         {
-            statsRBF.addValue(efetRBF.get(i));
+            statsRBF.addValue(listaRBF.get(i));
         }
         map.put("RBF", statsRBF);
 
@@ -345,7 +396,7 @@ public class App
      * Teste de normalidade Kolmogorov-Smirnov.
      *
      * @link https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test
-     * @param efetPSO Efetividade obtida durante execuções pelo MOPSO.
+     * @param efetPSO Efetividade obtida durante execuções pelo PSO.
      * @param efetJ48 Efetividade obtida durante execuções pelo J48.
      * @param efetSMO Efetividade obtida durante execuções pelo SMO.
      * @param efetRBF Efetividade obtida durante execuções pelo RBF.
@@ -355,13 +406,13 @@ public class App
             List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
             List<Double> efetRBF)
     {
-        final SummaryStatistics MOPSO = mapStats.get("MOPSO");
+        final SummaryStatistics PSO = mapStats.get("PSO");
         final SummaryStatistics J48 = mapStats.get("J48");
         final SummaryStatistics SMO = mapStats.get("SMO");
         final SummaryStatistics RBF = mapStats.get("RBF");
 
-        final double medPSO = MOPSO.getMean();
-        final double desvPSO = MOPSO.getStandardDeviation();
+        final double medPSO = PSO.getMean();
+        final double desvPSO = PSO.getStandardDeviation();
 
         final double medJ48 = J48.getMean();
         final double desvJ48 = J48.getStandardDeviation();
@@ -414,7 +465,7 @@ public class App
     /**
      * Teste Tukey.
      * 
-     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
+     * @param efetPSO Efetividade obtida durante as execuções pelo PSO.
      * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
      * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
      * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
@@ -582,7 +633,7 @@ public class App
      * Salva a Efetividade Global durante as execuções em um arquivo CSV.
      * 
      * @param config Configurações.
-     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
+     * @param efetPSO Efetividade obtida durante as execuções pelo PSO.
      * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
      * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
      * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
