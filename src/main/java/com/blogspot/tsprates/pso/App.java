@@ -62,7 +62,7 @@ public class App
         if (args.length > 0 && Files.exists(Paths.get(args[0])))
         {
             Connection db = new DB().conectar();
-            Properties config = carregarArquivoConfig(args[0]);
+            Properties config = carregarArquivoDeConfig(args[0]);
 
             Pso pso = new Pso(db, config, FORMAT, K);
 
@@ -130,13 +130,13 @@ public class App
                 acurSMO.add(medAcurSMO / (double) numClasses);
                 acurRBF.add(medAcurRBF / (double) numClasses);
 
-                // Matriz para Efetividade algoritmo x classe.
+                // Matriz de Efetividade algoritmo x classe.
                 if (matEfetCls == null) 
                 {
                     matEfetCls = new double[4][numClasses];
                 }
                 
-                // Matriz para Efetividade algoritmo x classe.
+                // Matriz de Acurácia algoritmo x classe.
                 if (matAcurCls == null) 
                 {
                     matAcurCls = new double[4][numClasses];
@@ -174,7 +174,7 @@ public class App
 
             mostrarValorMedioExec(FORMAT, statsEfet, statsAcur);
 
-            // Média por execução de cada classe
+            // Média de execução por classe
             for (int i = 0, size = pso.getTiposSaidas().size(); i < size; i++)
             {
                 matEfetCls[0][i] /= EXECS;  // MOPSO
@@ -186,14 +186,21 @@ public class App
             mostrarEfetividadePorClasses(pso.getTiposSaidas(), matEfetCls);
 
             // Testes estatísticos
-            mostrarTesteDeNormalidade(statsEfet, efetPSO, efetJ48, efetSMO, efetRBF);
+            mostrarTesteDeNormalidade(statsEfet, efetPSO, efetJ48, efetSMO, 
+                    efetRBF);
             mostrarTesteOneWayAnova(efetPSO, efetJ48, efetSMO, efetRBF);
             mostrarPostHocTukey(efetPSO, efetJ48, efetSMO, efetRBF);
 
-            mostrarGraficoDeEfetividadeGlobal(config, efetPSO, efetJ48, efetSMO, efetRBF);
+            mostrarGraficoDeEfetividadeGlobal(config, efetPSO, efetJ48, efetSMO, 
+                    efetRBF);
             
-            // Salva Efetividade Global em CSV
-            salvarExecsEmCSV(config, efetPSO, efetJ48, efetSMO, efetRBF);
+            // Efetividade Global
+            salvarExecsEmCSV("efetividade", config, efetPSO, efetJ48, efetSMO, 
+                efetRBF);
+            
+            // Acurácia Global
+            salvarExecsEmCSV("acuracia", config, acurPSO, acurJ48, acurSMO, 
+                acurRBF);
         }
         else
         {
@@ -207,7 +214,7 @@ public class App
      * @param arquivo Arquivo de configurações.
      * @return Retorna um objeto Properties contendas as configurações dos algoritmos.
      */
-    private static Properties carregarArquivoConfig(String arquivo)
+    private static Properties carregarArquivoDeConfig(String arquivo)
     {
         try (FileInputStream fis = new FileInputStream(arquivo))
         {
@@ -217,7 +224,8 @@ public class App
         }
         catch (IOException e)
         {
-            throw new RuntimeException("Arquivo de configurações não encontrado.", e);
+            throw new RuntimeException("Arquivo de configurações não "
+                    + "encontrado.", e);
         }
     }
 
@@ -389,7 +397,8 @@ public class App
         algs.add(arrRBF);
 
         final String pvalor = FORMAT.formatar(TestUtils.oneWayAnovaPValue(algs));
-        System.out.printf("\n\nTeste OneWay Anova (p-valor=0.05) : %s\n", pvalor);
+        System.out.printf("\n\nTeste OneWay Anova (p-valor=0.05) : %s "
+                + "(Efetividade)\n", pvalor);
     }
 
     /**
@@ -423,7 +432,8 @@ public class App
         final double medRBF = RBF.getMean();
         final double desvRBF = RBF.getStandardDeviation();
 
-        System.out.println("\n\nTeste de Normalidade (Kolmogorov-Smirnov):\n");
+        System.out.println("\n\nTeste de Normalidade (Kolmogorov-Smirnov) "
+                + " para Efetividade:\n");
 
         double ksPSO = kolmogorovSmirnov(medPSO, desvPSO, efetPSO);
         System.out.printf("MOPSO : %s\n", FORMAT.formatar(ksPSO));
@@ -476,7 +486,7 @@ public class App
         int k = 4;
         int n = EXECS;
         
-        System.out.println("\n\nTeste Post-Hoc Tukey:\n");
+        System.out.println("\n\nTeste Post-Hoc Tukey (Efetividade):\n");
         
         double[] groupTotals = new double[k];
         for (int i = 0; i < n; ++i)
@@ -521,8 +531,8 @@ public class App
                 double dif = Math.abs(groupMeans[i] - groupMeans[j]);
                 
                 String signif = dif > cdHSD 
-                        ? "Há diferenças significativas" 
-                        : "NÃO há diferenças significativas";
+                        ? "Significativa" 
+                        : "NÃO significativa";
                 
                 String fmtDif = FORMAT.formatar(dif);
                 String fmtCdHSD = FORMAT.formatar(cdHSD);
@@ -630,16 +640,18 @@ public class App
     }
     
     /**
-     * Salva a Efetividade Global durante as execuções em um arquivo CSV.
+     * Salva os resultados das execuções em arquivo CSV.
      * 
-     * @param config Configurações.
-     * @param efetPSO Efetividade obtida durante as execuções pelo PSO.
-     * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
-     * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
-     * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
+     * @param metrica Métrica.
+     * @param config Configurações do algoritmo.
+     * @param listaPSO Lista de resultados do PSO.
+     * @param listaJ48 Lista de resultados do J48.
+     * @param listaSMO Lista de resultados do SMO.
+     * @param listaRBF Lista de resultados do RBF.
      */
-    public static void salvarExecsEmCSV(Properties config, List<Double> efetPSO, 
-            List<Double> efetJ48, List<Double> efetSMO, List<Double> efetRBF)
+    public static void salvarExecsEmCSV(final String metrica, 
+            final Properties config, List<Double> listaPSO, 
+            List<Double> listaJ48, List<Double> listaSMO, List<Double> listaRBF)
     {
         CSVFormat format = CSVFormat.DEFAULT.withRecordSeparator("\n");
         
@@ -656,11 +668,12 @@ public class App
             catch (IOException ex)
             {
                 throw new RuntimeException("Não foi possível criar o diretório "
-                        + "para salvar as execuções da Efetividade Global.", ex);
+                        + "para salvar o CSV.", ex);
             }
         }
         
-        String arqCSV = String.format("%s_%s_%s_%s_%s.csv", 
+        String arqCSV = String.format("%s_%s_%s_%s_%s_%s.csv", 
+                metrica,
                 config.getProperty("tabela"), 
                 config.getProperty("npop"), 
                 config.getProperty("maxiter"), 
@@ -677,15 +690,15 @@ public class App
             for (int i = 0; i < EXECS; i++) 
             {
                 Object[] rec = new Object[ALGOS.length];
-                rec[0] = efetPSO.get(i);
-                rec[1] = efetJ48.get(i);
-                rec[2] = efetSMO.get(i);
-                rec[3] = efetRBF.get(i);
+                rec[0] = listaPSO.get(i);
+                rec[1] = listaJ48.get(i);
+                rec[2] = listaSMO.get(i);
+                rec[3] = listaRBF.get(i);
                 printer.printRecord(rec);
             }
             
-            System.out.printf("\n\nGravação da Efetividade Global em CSV "
-                    + "realizada com sucesso (%s).\n\n", arqCSV);
+            System.out.printf("\n\nGravação em CSV realizada com sucesso (%s).\n", 
+                    arqCSV);
         }
         catch (IOException ex)
         {
@@ -703,7 +716,7 @@ public class App
     private static void mostrarEfetividadePorClasses(
             Collection<String> saidas, double[][] matEfetCls)
     {
-        System.out.println("\n\nAlgoritmos por Classes:\n");
+        System.out.println("\n\nAlgoritmos por Classes (Efetividade):\n");
         
         System.out.printf("%-10s", " ");
         
