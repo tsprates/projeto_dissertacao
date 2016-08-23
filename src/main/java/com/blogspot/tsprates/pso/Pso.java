@@ -1,6 +1,8 @@
 package com.blogspot.tsprates.pso;
 
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.FastMath;
 
 import java.sql.*;
@@ -391,9 +393,13 @@ public class Pso
      */
     private void aplicarTurbulencia(int indexPart)
     {
-        if ((indexPart % turbulencia) == 0 || (indexPart % turbulencia) == 1)
+        if ((indexPart % turbulencia) == 0)
         {
-            perturbar(this.particulas.get(indexPart));
+            perturbar(this.particulas.get(indexPart), true);
+        }
+        else if ((indexPart % turbulencia) == 1)
+        {
+            perturbar(this.particulas.get(indexPart), false);
         }
     }
 
@@ -407,7 +413,7 @@ public class Pso
         List<String> partPos = new ArrayList<>(part.posicao());
         final int partPosSize = partPos.size();
 
-        perturbar(part, w);
+        perturbar(part, w, true);
 
         // pbest
         if (c1 > Math.random())
@@ -480,19 +486,21 @@ public class Pso
      * Perturbação.
      *
      * @param p Partícula.
+     * @param distnorm Distribuição Normal.
      */
-    private void perturbar(Particula p)
+    private void perturbar(Particula p, boolean distnorm)
     {
-        perturbar(p, 1.0);
+        perturbar(p, 1.0, distnorm);
     }
 
     /**
      * Mutação.
      *
      * @param p Partícula.
-     * @param pm Probabilidade de mutação.
+     * @param pm Taxa de mutação.
+     * @param distnorm Distribuição Normal.
      */
-    private void perturbar(Particula p, double pm)
+    private void perturbar(Particula p, double pm, boolean distnorm)
     {
         if (pm > Math.random())
         {
@@ -501,31 +509,63 @@ public class Pso
             final int index = rand.nextInt(pos.size());
             String[] clausula = pos.get(index).split(" ");
 
-            if (Math.random() < 0.5)
+            if (StringUtils.isNumeric(clausula[2]))
             {
-                pos.add(criarCondicao());
-            }
-            else
-            {
-                double r = Math.random();
-                int indexOper = 0;
+                // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
+                final double valor = Double.parseDouble(clausula[2]);
+                double newValor;
 
-                for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
+                if (distnorm)
                 {
-                    if (PROB_OPERADORES[k - 1] >= r && PROB_OPERADORES[k] < r)
+                    // Proposta de Higashi et al. (2003)
+                    // Mutação não uniforme
+                    final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0]));
+                    final double R = new NormalDistribution(0, alfa).sample();
+                    newValor = valor + R;
+                }
+                else
+                {
+                    // Proposta de Michalewitz (1996)
+                    // Mutação uniforme
+                    if (Math.random() < 0.5)
                     {
-                        indexOper = k - 1;
+                        newValor = valor + (max.get(clausula[1]) - valor) * Math.random();
+                    }
+                    else
+                    {
+                        newValor = valor - (valor - min.get(clausula[1])) * Math.random();
                     }
                 }
 
-                clausula[1] = LISTA_OPERADORES[indexOper];
+                pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0], clausula[1], newValor));
+            }
+            else
+            {
+                if (Math.random() < 0.5)
+                {
+                    pos.add(criarCondicao());
+                }
+                else
+                {
+                    double r = Math.random();
+                    int indexOper = 0;
 
-                pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
+                    for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
+                    {
+                        if (PROB_OPERADORES[k - 1] >= r && PROB_OPERADORES[k] < r)
+                        {
+                            indexOper = k - 1;
+                        }
+                    }
+
+                    clausula[1] = LISTA_OPERADORES[indexOper];
+
+                    pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
+                }
             }
 
             p.setPosicao(pos);
         }
-
     }
 
     /**
@@ -1031,9 +1071,9 @@ public class Pso
     }
 
     /**
-     * Retorna o valor médio global (média da classes) das k partições.
+     * Retorna o valor médio global (média da classes) das k partições. 
      *
-     * @return Retorna um array com o valor médio global da efetividade e
+     * @return Retorna um array com o valor médio global da efetividade e 
      * acurácia.
      */
     public double[] valorMedioGlobal()
