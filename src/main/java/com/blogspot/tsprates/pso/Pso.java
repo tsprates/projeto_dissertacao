@@ -1,13 +1,13 @@
 package com.blogspot.tsprates.pso;
 
 import org.apache.commons.lang3.RandomUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.FastMath;
 
 import java.sql.*;
 import java.util.*;
 import java.util.Map.Entry;
+import org.apache.commons.lang3.math.NumberUtils;
 
 // ALTER TABLE wine ADD COLUMN id SERIAL;
 // UPDATE wine SET id = nextval(pg_get_serial_sequence('wine','id'));
@@ -509,7 +509,7 @@ public class Pso
             final int index = rand.nextInt(pos.size());
             String[] clausula = pos.get(index).split(" ");
 
-            if (StringUtils.isNumeric(clausula[2]))
+            if (NumberUtils.isNumber(clausula[2]))
             {
                 // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
                 final double valor = Double.parseDouble(clausula[2]);
@@ -529,17 +529,18 @@ public class Pso
                     // Mutação uniforme
                     if (Math.random() < 0.5)
                     {
-                        newValor = valor + (max.get(clausula[1]) - valor) * Math.random();
+                        newValor = valor + (max.get(clausula[0]) - valor) * Math.random();
                     }
                     else
                     {
-                        newValor = valor - (valor - min.get(clausula[1])) * Math.random();
+                        newValor = valor - (valor - min.get(clausula[0])) * Math.random();
                     }
                 }
 
                 pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0], clausula[1], newValor));
             }
-            else
+            
+            if (0.9 > Math.random())
             {
                 if (Math.random() < 0.5)
                 {
