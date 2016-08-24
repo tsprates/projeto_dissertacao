@@ -277,7 +277,7 @@ public class App
             Map<String, SummaryStatistics> mapEfetStats, 
             Map<String, SummaryStatistics> mapAcurStats)
     {
-        System.out.printf("Médias Globais por Execuções (%d)\n\n", EXECS);
+        System.out.printf("\n\nMédias Globais por Execuções (%d)\n", EXECS);
         
         System.out.printf("\n\n%-10s %-10s %-10s %-10s %-10s\n\n", 
                 "Algo.", "Ef. Méd.", "Ef. Desv.", "Ac. Méd.", "Ac. Desv.");
