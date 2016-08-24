@@ -14,6 +14,11 @@ import weka.filters.unsupervised.attribute.Remove;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * WEKA.
+ *
+ * @author thiago
+ */
 public class Weka
 {
 
@@ -62,7 +67,7 @@ public class Weka
         this.optsRBF = String.format("-B %s -W %s",
                 config.getProperty("RBF.clusters"),
                 config.getProperty("RBF.min_std_dev_clusters"));
-        
+
         classificar();
     }
 
@@ -92,8 +97,7 @@ public class Weka
                 Instances train = query.retrieveInstances();
                 train.setClassIndex(train.attribute(colSaida).index());
 
-                Remove remAtrTrain = criarRemoveColId(train);
-                Instances trainData = Filter.useFilter(train, remAtrTrain);
+                Instances trainData = removerColId(train);
 
                 // Árvore de Decisão
                 J48 j48 = new J48();
@@ -127,9 +131,9 @@ public class Weka
 //                    System.out.println(j + " : " + attr.value(j));
 //                }
 //                System.out.println();
+                
                 // Remove atributo id
-                Remove remAtrTest = criarRemoveColId(test);
-                Instances testData = Filter.useFilter(test, remAtrTest);
+                Instances testData = removerColId(test);
 
                 // Validação
                 Evaluation evalJ48 = new Evaluation(trainData);
@@ -148,7 +152,7 @@ public class Weka
                 {
                     efet = new double[3][numClasses];
                 }
-                
+
                 if (acur == null)
                 {
                     acur = new double[3][numClasses];
@@ -186,13 +190,13 @@ public class Weka
     }
 
     /**
-     * Remove atributo ID SQL da tabela.
+     * Remove atributo ID da tabela (SQL) e retorna o objeto Intances do WEKA.
      *
      * @param instance
      * @return
      * @throws Exception
      */
-    private Remove criarRemoveColId(Instances instance) throws Exception
+    private Instances removerColId(Instances instance) throws Exception
     {
         int colIdIndex = instance.attribute(colId).index() + 1;
 
@@ -200,7 +204,7 @@ public class Weka
         remAtr.setOptions(Utils.splitOptions("-R " + colIdIndex));
         remAtr.setInputFormat(instance);
 
-        return remAtr;
+        return Filter.useFilter(instance, remAtr);
     }
 
     /**
@@ -214,8 +218,7 @@ public class Weka
     }
 
     /**
-     * Retorna matriz de algoritmos (J48, SMO e RBF) por classes para cálculo da
-     * acurácia.
+     * Retorna matriz de algoritmos (J48, SMO e RBF) por classes da acurácia.
      *
      * @return Matriz da acurácia.
      */
@@ -225,8 +228,7 @@ public class Weka
     }
 
     /**
-     * Retorna matriz de algoritmos (J48, SMO e RBF) por classes para cálculo da
-     * efetividade.
+     * Retorna matriz de algoritmos (J48, SMO e RBF) por classes da efetividade.
      *
      * @return Matriz da efetividade.
      */
