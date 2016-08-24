@@ -8,8 +8,10 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.exception.InsufficientDataException;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
 import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.apache.commons.math3.stat.inference.TestUtils;
+import org.apache.commons.math3.stat.StatUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,7 +39,7 @@ public class App
     // Algoritmos analisados
     private final static String[] ALGOS = 
     {
-        "MOPSO", "J48", "SMO", "RBF"
+        "PSO", "J48", "SMO", "RBF"
     };
     
     // Kfold
@@ -78,11 +80,11 @@ public class App
 
             System.out.printf("\nTabela: %s\n", config.getProperty("tabela"));
 
-            // Matriz Efetividade
-            double[][] matEfetCls = null;
+            // Efetividade
+            Map<String, Map<String, List<Double>>> efetCls = new HashMap<>();
             
-            // Matriz Acurácia
-            double[][] matAcurCls = null;
+            // Acurácia
+            Map<String, Map<String, List<Double>>> acurCls = new HashMap<>();
 
             for (int iter = 0; iter < EXECS; iter++)
             {
@@ -129,40 +131,48 @@ public class App
                 acurJ48.add(medAcurJ48 / (double) numClasses);
                 acurSMO.add(medAcurSMO / (double) numClasses);
                 acurRBF.add(medAcurRBF / (double) numClasses);
-
-                // Matriz de Efetividade algoritmo x classe.
-                if (matEfetCls == null) 
+                
+                // Cria mapa de algoritmos para cada média de classe
+                if (iter == 0)
                 {
-                    matEfetCls = new double[4][numClasses];
+                    for (String algo : ALGOS)
+                    {
+                        efetCls.put(algo, new HashMap<String, List<Double>>());
+                        acurCls.put(algo, new HashMap<String, List<Double>>());
+                        
+                        for (String classe : pso.getTiposSaidas())
+                        {
+                            efetCls.get(algo).put(classe, new ArrayList<Double>());
+                            acurCls.get(algo).put(classe, new ArrayList<Double>());
+                        }
+                    }
                 }
                 
-                // Matriz de Acurácia algoritmo x classe.
-                if (matAcurCls == null) 
+                // Efetividade e acurácia de cada algoritmo para cada classe
+                for (String classe : pso.getTiposSaidas())
                 {
-                    matAcurCls = new double[4][numClasses];
-                }
+                    for (int clItetr = 0; clItetr < numClasses; clItetr++)
+                    {
+                        efetCls.get(ALGOS[1]).get(classe).add(efetWeka[0][clItetr]);
+                        efetCls.get(ALGOS[2]).get(classe).add(efetWeka[1][clItetr]);
+                        efetCls.get(ALGOS[3]).get(classe).add(efetWeka[2][clItetr]);
 
-                for (int i = 0; i < numClasses; i++)
-                {
-                    matEfetCls[1][i] += efetWeka[0][i];  // J48
-                    matEfetCls[2][i] += efetWeka[1][i];  // SMO
-                    matEfetCls[3][i] += efetWeka[2][i];  // RBF
-                    
-                    matAcurCls[1][i] += efetWeka[0][i];  // J48
-                    matAcurCls[2][i] += efetWeka[1][i];  // SMO
-                    matAcurCls[3][i] += efetWeka[2][i];  // RBF
+                        efetCls.get(ALGOS[1]).get(classe).add(efetWeka[0][clItetr]);
+                        efetCls.get(ALGOS[2]).get(classe).add(efetWeka[1][clItetr]);
+                        efetCls.get(ALGOS[3]).get(classe).add(efetWeka[2][clItetr]);
+                    }
                 }
-
+                
                 final Map<String, double[]> resultadoPorClasses = pso
                         .valorMedioPorClasses();
                 
-                int j = 0;
-                for (Entry<String, double[]> classe : resultadoPorClasses.entrySet())
+                for (Entry<String, double[]> item : resultadoPorClasses.entrySet())
                 {
-                    final double[] arr = classe.getValue();
-                    matEfetCls[0][j] += arr[0];
-                    matAcurCls[0][j] += arr[1];
-                    j++;
+                    final double[] arr = item.getValue();
+                    final String classe = item.getKey();
+                    
+                    efetCls.get(ALGOS[0]).get(classe).add(arr[0]);
+                    acurCls.get(ALGOS[0]).get(classe).add(arr[1]);
                 }
             }
 
@@ -173,17 +183,8 @@ public class App
                     acurPSO, acurJ48, acurSMO, acurRBF);
 
             mostrarValorMedioExec(FORMAT, statsEfet, statsAcur);
-
-            // Média de execução por classe
-            for (int i = 0, size = pso.getTiposSaidas().size(); i < size; i++)
-            {
-                matEfetCls[0][i] /= EXECS;  // MOPSO
-                matEfetCls[1][i] /= EXECS;  // J48
-                matEfetCls[2][i] /= EXECS;  // SMO
-                matEfetCls[3][i] /= EXECS;  // RBF
-            }
             
-            mostrarEfetividadePorClasses(pso.getTiposSaidas(), matEfetCls);
+            mostrarEfetividadePorClasses(pso.getTiposSaidas(), efetCls);
 
             // Testes estatísticos
             mostrarTesteDeNormalidade(statsEfet, efetPSO, efetJ48, efetSMO, 
@@ -259,7 +260,7 @@ public class App
         final String eixoY = "Sensibilidade x Especificidade";
 
         Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
-        g.adicionarSerie("MOPSO", tempEfetPSO);
+        g.adicionarSerie("PSO", tempEfetPSO);
         g.adicionarSerie("J48", tempEfetJ48);
         g.adicionarSerie("SMO", tempEfetSMO);
         g.adicionarSerie("RBF", tempEfetRBF);
@@ -276,7 +277,8 @@ public class App
             Map<String, SummaryStatistics> mapEfetStats, 
             Map<String, SummaryStatistics> mapAcurStats)
     {
-        // cabeçalho
+        System.out.printf("Médias Globais por Execuções (%d)\n\n", EXECS);
+        
         System.out.printf("\n\n%-10s %-10s %-10s %-10s %-10s\n\n", 
                 "Algo.", "Ef. Méd.", "Ef. Desv.", "Ac. Méd.", "Ac. Desv.");
         
@@ -292,7 +294,7 @@ public class App
         final SummaryStatistics acurSMO = mapAcurStats.get("SMO");
         final SummaryStatistics acurRBF = mapAcurStats.get("RBF");
 
-        System.out.printf(lineFmt, "MOPSO",
+        System.out.printf(lineFmt, "PSO",
                 f.formatar(efetPSO.getMean()),
                 f.formatar(efetPSO.getStandardDeviation()),
                 f.formatar(acurPSO.getMean()),
@@ -372,7 +374,7 @@ public class App
      * Teste OneWay Anova.
      *
      * @link https://en.wikipedia.org/wiki/One-way_analysis_of_variance
-     * @param efetPSO Efetividade obtida durante as execuções pelo MOPSO.
+     * @param efetPSO Efetividade obtida durante as execuções pelo PSO.
      * @param efetJ48 Efetividade obtida durante as execuções pelo J48.
      * @param efetSMO Efetividade obtida durante as execuções pelo SMO.
      * @param efetRBF Efetividade obtida durante as execuções pelo RBF.
@@ -436,16 +438,16 @@ public class App
                 + " para Efetividade:\n");
 
         double ksPSO = kolmogorovSmirnov(medPSO, desvPSO, efetPSO);
-        System.out.printf("MOPSO : %s\n", FORMAT.formatar(ksPSO));
+        System.out.printf("PSO : %s\n", FORMAT.formatar(ksPSO));
 
         double ksJ48 = kolmogorovSmirnov(medJ48, desvJ48, efetJ48);
-        System.out.printf("J48   : %s\n", FORMAT.formatar(ksJ48));
+        System.out.printf("J48 : %s\n", FORMAT.formatar(ksJ48));
 
         double ksSMO = kolmogorovSmirnov(medSMO, desvSMO, efetSMO);
-        System.out.printf("SMO   : %s\n", FORMAT.formatar(ksSMO));
+        System.out.printf("SMO : %s\n", FORMAT.formatar(ksSMO));
 
         double ksRBF = kolmogorovSmirnov(medRBF, desvRBF, efetRBF);
-        System.out.printf("RBF   : %s\n", FORMAT.formatar(ksRBF));
+        System.out.printf("RBF : %s\n", FORMAT.formatar(ksRBF));
     }
 
     /**
@@ -697,7 +699,7 @@ public class App
                 printer.printRecord(rec);
             }
             
-            System.out.printf("\n\nGravação em CSV realizada com sucesso (%s).\n", 
+            System.out.printf("\nGravação em CSV realizada com sucesso (%s).\n", 
                     arqCSV);
         }
         catch (IOException ex)
@@ -711,31 +713,38 @@ public class App
      * Mostra a tabela de cada algoritmo por classe.
      * 
      * @param saidas Tipos classes (saídas).
-     * @param matEfetCls Matriz de algoritmos por classes (saídas).
+     * @param efet Mapa de algoritmos por classes (saídas) da efetividade.
      */
-    private static void mostrarEfetividadePorClasses(
-            Collection<String> saidas, double[][] matEfetCls)
+    private static void mostrarEfetividadePorClasses(Collection<String> saidas, 
+            Map<String, Map<String, List<Double>>> efet)
     {
-        System.out.println("\n\nAlgoritmos por Classes (Efetividade):\n");
+        StandardDeviation sd = new StandardDeviation();
         
-        System.out.printf("%-10s", " ");
-        
+        System.out.println("\n\nMédia de Algoritmos por Classes (Efetividade):\n");
+       
+        System.out.printf("%-10s", "Algo.");
         for (String saida : saidas)
         {
             String s = (saida.length() > 10) ? saida.substring(0, 10) : saida;
-            System.out.printf(" %-10s", s);
+            System.out.printf(" %-10s %-10s", s, "");
         }
         
         System.out.println("\n");
         
-        for (int i = 0; i < matEfetCls.length; i++)
+        for (String algo : ALGOS)
         {
-            System.out.printf("%-10s", ALGOS[i]);
+            System.out.printf("%-10s", algo);
             
-            for (int j = 0; j < matEfetCls[i].length; j++)
+            for (Entry<String, List<Double>> i : efet.get(algo).entrySet())
             {
-                String valor = FORMAT.formatar(matEfetCls[i][j]);
-                System.out.printf(" %-10s", valor);
+                List<Double> val = i.getValue();
+                double[] arrVal = ArrayUtils.toPrimitive(
+                        val.toArray(new Double[0]));
+                
+                String media = FORMAT.formatar(StatUtils.mean(arrVal));
+                String desvio = FORMAT.formatar(sd.evaluate(arrVal));
+                
+                System.out.printf(" %-10s %-10s", media, desvio);
             }
             
             System.out.println();
