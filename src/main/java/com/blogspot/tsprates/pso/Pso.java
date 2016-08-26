@@ -486,7 +486,7 @@ public class Pso
      * Perturbação.
      *
      * @param p Partícula.
-     * @param distnorm Distribuição Normal.
+     * @param distnorm Mutação Gaussiana.
      */
     private void perturbar(Particula p, boolean distnorm)
     {
@@ -497,8 +497,8 @@ public class Pso
      * Mutação.
      *
      * @param p Partícula.
-     * @param pm Taxa de mutação.
-     * @param distnorm Distribuição Normal.
+     * @param pm Probabilidade de mutação.
+     * @param distnorm Mutação Gaussiana.
      */
     private void perturbar(Particula p, double pm, boolean distnorm)
     {
