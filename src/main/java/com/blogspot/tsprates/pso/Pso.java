@@ -406,7 +406,7 @@ public class Pso
      */
     private void atualizarPosicao(Particula part)
     {
-        List<String> partPos = new ArrayList<>(part.posicao());
+        List<String[]> partPos = new ArrayList<>(part.posicao());
         final int partPosSize = partPos.size();
 
         // velocidade
@@ -440,7 +440,7 @@ public class Pso
      * @param partPosSize
      */
     private void aplicarRecomb(List<Particula> best, Particula part,
-            List<String> partPos, final int partPosSize)
+            List<String[]> partPos, final int partPosSize)
     {
         Particula partProx = Distancia.retornarParticulaMaisProxima(best, part);
         recombinar(partProx, part, partPos, partPosSize);
@@ -455,11 +455,11 @@ public class Pso
      * @param partPosSize Tamanho do vetor posição da partícula.
      */
     private void recombinar(Particula partBest, Particula part,
-            List<String> partPos, final int partPosSize)
+            List<String[]> partPos, final int partPosSize)
     {
-        final List<String> bestPos = new ArrayList<>(partBest.posicao());
+        final List<String[]> bestPos = new ArrayList<>(partBest.posicao());
 
-        List<String> newPos = new ArrayList<>();
+        List<String[]> newPos = new ArrayList<>();
 
         int bestPosSize = bestPos.size();
 
@@ -499,10 +499,11 @@ public class Pso
      */
     private void perturbar(Particula p, boolean mutgauss)
     {
-        final List<String> pos = new ArrayList<>(p.posicao());
+
+        List<String[]> pos = new ArrayList<>(p.posicao());
 
         final int index = RandomUtils.nextInt(0, pos.size());
-        final String[] clausula = pos.get(index).split(" ");
+        String[] clausula = pos.get(index);
 
         if (0.5 > FastMath.random())
         {
@@ -560,7 +561,10 @@ public class Pso
 
             }
 
-            pos.set(index, String.format(Locale.ROOT, "%s %s %s", clausula[0], oper, val));
+            pos.set(index, new String[]
+            {
+                clausula[0], oper, val
+            });
         }
 
         p.setPosicao(pos);
@@ -748,7 +752,6 @@ public class Pso
             {
                 Particula particula = criarParticula(cls);
                 nichoParticulas.add(particula);
-
             }
 
             // seta o gbest para cada nicho
@@ -769,7 +772,7 @@ public class Pso
      */
     private Particula criarParticula(final String cls)
     {
-        Set<String> pos = criarWhere();
+        Set<String[]> pos = criarWhere();
         return new Particula(pos, cls, fitness);
     }
 
@@ -815,10 +818,10 @@ public class Pso
      *
      * @return Conjunto de condições da cláusula WHERE.
      */
-    private Set<String> criarWhere()
+    private Set<String[]> criarWhere()
     {
-        int numCols = colunas.size();
-        Set<String> listaWhere = new HashSet<>();
+        final int numCols = colunas.size();
+        Set<String[]> listaWhere = new HashSet<>();
 
         double R = RandomUtils.nextDouble(1, numCols);
         int maxWhere = (int) FastMath.ceil(FastMath.log(2.0, R)) + 1;
@@ -826,7 +829,7 @@ public class Pso
 
         for (int i = 0; i < maxWhere; i++)
         {
-            String cond = criarCondicao();
+            String[] cond = criarCondicao();
             listaWhere.add(cond);
         }
 
@@ -838,7 +841,7 @@ public class Pso
      *
      * @return String da cláusula WHERE.
      */
-    private String criarCondicao()
+    private String[] criarCondicao()
     {
         final int numOper = LISTA_OPERADORES.length;
         final int numCols = colunas.size();
@@ -876,7 +879,10 @@ public class Pso
         String col = colunas.get(colIndex);
         String oper = LISTA_OPERADORES[operIndex];
 
-        return String.format(Locale.ROOT, "%s %s %s", col, oper, valor);
+        return new String[]
+        {
+            col, oper, valor
+        };
     }
 
     /**
