@@ -213,9 +213,7 @@ public class Particula implements Comparable<Particula>
         {
             if (fitness[0] == pfit[0])
             {
-                // Caso possuam os mesmos valores de fitness
-                // escolher alfabeticamente pela SQL
-                return this.strPos.compareTo(part.strPos);
+                return 0;
             }
             else if (fitness[0] < pfit[0])
             {
