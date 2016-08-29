@@ -44,31 +44,15 @@ public class Pso
                 "Efet.", "Acur.", "Regra");
     }
 
+    private final String tabela;
+
     private final Random rand = new Random();
 
     private List<Particula> particulas = new ArrayList<>();
 
-    private final Set<String> tipoSaidas = new TreeSet<>();
-
-    private final Map<String, List<String>> mapaSaida = new HashMap<>();
-
-    private final Map<String, List<Particula>> repositorio = new HashMap<>();
-
-    private final String tabela;
-
-    private final String colSaida, colId;
-
-    private final int maxIter;
+    private final Map<String, Integer> enxameNicho;
 
     private final int numParts;
-
-    private String[] colunas;
-
-    private Map<String, Integer> tipoColunas = new HashMap<>();
-
-    private final Map<String, Double> max = new HashMap<>();
-
-    private final Map<String, Double> min = new HashMap<>();
 
     private final double w, c1, c2;
 
@@ -76,19 +60,35 @@ public class Pso
 
     private final Fitness fitness;
 
-    private final Formatador fmt;
-
-    private final Map<String, List<Double>> efetividade = new HashMap<>();
-
-    private final Map<String, List<Double>> acuracia = new HashMap<>();
-
-    private final Map<String, Integer> enxameNicho;
-
     private final double turbulencia = 3;
 
     private final int NUM_K;
 
     private List<List<String>> kpastas;
+
+    private final Formatador fmt;
+
+    private final int maxIter;
+
+    private final String colSaida, colId;
+
+    private final List<String> colunas = new ArrayList<>();
+
+    private Map<String, Integer> tipoColunas = new HashMap<>();
+
+    private final Map<String, Double> max = new HashMap<>();
+
+    private final Map<String, Double> min = new HashMap<>();
+
+    private final Map<String, List<Double>> efetividade = new HashMap<>();
+
+    private final Map<String, List<Double>> acuracia = new HashMap<>();
+
+    private final Map<String, List<String>> mapaSaida = new HashMap<>();
+
+    private final Set<String> tipoSaidas = new TreeSet<>();
+
+    private final Map<String, List<Particula>> repositorio = new HashMap<>();
 
     private double[] valorMedioGlobal;
 
@@ -539,7 +539,7 @@ public class Pso
 
                 pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0], clausula[1], newValor));
             }
-            
+
             if (0.9 > Math.random())
             {
                 if (Math.random() < 0.5)
@@ -624,9 +624,6 @@ public class Pso
             metadata = rs.getMetaData();
             numCol = metadata.getColumnCount();
 
-            colunas = new String[numCol - 2];
-//            tipoColunas = new int[numCol - 2];
-
             for (int i = 0, j = 0; i < numCol; i++)
             {
                 String coluna = metadata.getColumnName(i + 1);
@@ -635,8 +632,7 @@ public class Pso
                 if (!colSaida.equalsIgnoreCase(coluna)
                         && !colId.equalsIgnoreCase(coluna))
                 {
-                    colunas[j] = coluna;
-//                    tipoColunas[j] = tipoColuna;
+                    colunas.add(coluna);
                     tipoColunas.put(coluna, tipoColuna);
                     j++;
                 }
@@ -825,7 +821,7 @@ public class Pso
      */
     private Set<String> criarWhere()
     {
-        int numCols = colunas.length;
+        int numCols = colunas.size();
         Set<String> listaWhere = new HashSet<>();
 
         double R = RandomUtils.nextDouble(1, numCols);
@@ -849,7 +845,7 @@ public class Pso
     private String criarCondicao()
     {
         final int numOper = LISTA_OPERADORES.length;
-        final int numCols = colunas.length;
+        final int numCols = colunas.size();
 
         final int colIndex = rand.nextInt(numCols);
         final int operIndex = rand.nextInt(numOper);
@@ -858,10 +854,11 @@ public class Pso
 
         String valor;
 
-        // verifica se a condição ocorrerá com o campo constante ou valor numérico
+        // verifica se a condição ocorrerá com o 
+        // campo constante ou valor numérico
         if (rand.nextDouble() < prob)
         {
-            final String coluna = colunas[colIndex];
+            final String coluna = colunas.get(colIndex);
             final Double minCol = min.get(coluna);
             final Double maxCol = max.get(coluna);
 //            final double newVal = RandomUtils.nextDouble(minCol, maxCol);
@@ -878,10 +875,10 @@ public class Pso
             }
             while (index == colIndex); // diferentes colunas
 
-            valor = colunas[index];
+            valor = colunas.get(index);
         }
 
-        String col = colunas[colIndex];
+        String col = colunas.get(colIndex);
         String oper = LISTA_OPERADORES[operIndex];
 
         return String.format(Locale.ROOT, "%s %s %s", col, oper, valor);
@@ -1072,9 +1069,9 @@ public class Pso
     }
 
     /**
-     * Retorna o valor médio global (média da classes) das k partições. 
+     * Retorna o valor médio global (média da classes) das k partições.
      *
-     * @return Retorna um array com o valor médio global da efetividade e 
+     * @return Retorna um array com o valor médio global da efetividade e
      * acurácia.
      */
     public double[] valorMedioGlobal()
