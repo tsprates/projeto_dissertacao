@@ -624,7 +624,7 @@ public class Pso
             metadata = rs.getMetaData();
             numCol = metadata.getColumnCount();
 
-            for (int i = 0, j = 0; i < numCol; i++)
+            for (int i = 0; i < numCol; i++)
             {
                 String coluna = metadata.getColumnName(i + 1);
                 int tipoColuna = metadata.getColumnType(i + 1);
@@ -634,7 +634,6 @@ public class Pso
                 {
                     colunas.add(coluna);
                     tipoColunas.put(coluna, tipoColuna);
-                    j++;
                 }
             }
         }
