@@ -42,7 +42,7 @@ public class App
         "PSO", "J48", "SMO", "RBF"
     };
     
-    // Kfold
+    // K-fold
     private final static int K = 10; 
     
     // Formata casas decimais
@@ -156,10 +156,6 @@ public class App
                         efetCls.get(ALGOS[1]).get(classe).add(efetWeka[0][clItetr]);
                         efetCls.get(ALGOS[2]).get(classe).add(efetWeka[1][clItetr]);
                         efetCls.get(ALGOS[3]).get(classe).add(efetWeka[2][clItetr]);
-
-                        efetCls.get(ALGOS[1]).get(classe).add(efetWeka[0][clItetr]);
-                        efetCls.get(ALGOS[2]).get(classe).add(efetWeka[1][clItetr]);
-                        efetCls.get(ALGOS[3]).get(classe).add(efetWeka[2][clItetr]);
                     }
                 }
                 
@@ -182,7 +178,7 @@ public class App
             final Map<String, SummaryStatistics> statsAcur = criarStats(
                     acurPSO, acurJ48, acurSMO, acurRBF);
 
-            mostrarValorMedioExec(FORMAT, statsEfet, statsAcur);
+            mostrarValorMedioExec(statsEfet, statsAcur);
             
             mostrarEfetividadePorClasses(pso.getTiposSaidas(), efetCls);
 
@@ -270,10 +266,9 @@ public class App
     /**
      * Imprime a média e desvio padrão das execuções dos algoritmos.
      *
-     * @param f Formatador para casas decimais.
      * @param mapEfetStats Efetividade.
      */
-    private static void mostrarValorMedioExec(final Formatador f,
+    private static void mostrarValorMedioExec(
             Map<String, SummaryStatistics> mapEfetStats, 
             Map<String, SummaryStatistics> mapAcurStats)
     {
@@ -295,31 +290,31 @@ public class App
         final SummaryStatistics acurRBF = mapAcurStats.get("RBF");
 
         System.out.printf(lineFmt, "PSO",
-                f.formatar(efetPSO.getMean()),
-                f.formatar(efetPSO.getStandardDeviation()),
-                f.formatar(acurPSO.getMean()),
-                f.formatar(acurPSO.getStandardDeviation())
+                FORMAT.formatar(efetPSO.getMean()),
+                FORMAT.formatar(efetPSO.getStandardDeviation()),
+                FORMAT.formatar(acurPSO.getMean()),
+                FORMAT.formatar(acurPSO.getStandardDeviation())
         );
 
         System.out.printf(lineFmt, "J48",
-                f.formatar(efetJ48.getMean()),
-                f.formatar(efetJ48.getStandardDeviation()),
-                f.formatar(acurJ48.getMean()),
-                f.formatar(acurJ48.getStandardDeviation())
+                FORMAT.formatar(efetJ48.getMean()),
+                FORMAT.formatar(efetJ48.getStandardDeviation()),
+                FORMAT.formatar(acurJ48.getMean()),
+                FORMAT.formatar(acurJ48.getStandardDeviation())
         );
 
         System.out.printf(lineFmt, "SMO",
-                f.formatar(efetSMO.getMean()),
-                f.formatar(efetSMO.getStandardDeviation()),
-                f.formatar(acurSMO.getMean()),
-                f.formatar(acurSMO.getStandardDeviation())
+                FORMAT.formatar(efetSMO.getMean()),
+                FORMAT.formatar(efetSMO.getStandardDeviation()),
+                FORMAT.formatar(acurSMO.getMean()),
+                FORMAT.formatar(acurSMO.getStandardDeviation())
         );
 
         System.out.printf(lineFmt, "RBF",
-                f.formatar(efetRBF.getMean()),
-                f.formatar(efetRBF.getStandardDeviation()),
-                f.formatar(acurRBF.getMean()),
-                f.formatar(acurRBF.getStandardDeviation())
+                FORMAT.formatar(efetRBF.getMean()),
+                FORMAT.formatar(efetRBF.getStandardDeviation()),
+                FORMAT.formatar(acurRBF.getMean()),
+                FORMAT.formatar(acurRBF.getStandardDeviation())
         );
 
     }
