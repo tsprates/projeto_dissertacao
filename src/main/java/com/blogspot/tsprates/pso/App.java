@@ -156,6 +156,10 @@ public class App
                         efetCls.get(ALGOS[1]).get(classe).add(efetWeka[0][clItetr]);
                         efetCls.get(ALGOS[2]).get(classe).add(efetWeka[1][clItetr]);
                         efetCls.get(ALGOS[3]).get(classe).add(efetWeka[2][clItetr]);
+                        
+                        acurCls.get(ALGOS[1]).get(classe).add(acurWeka[0][clItetr]);
+                        acurCls.get(ALGOS[2]).get(classe).add(acurWeka[1][clItetr]);
+                        acurCls.get(ALGOS[3]).get(classe).add(acurWeka[2][clItetr]);
                     }
                 }
                 
@@ -178,24 +182,25 @@ public class App
             final Map<String, SummaryStatistics> statsAcur = criarStats(
                     acurPSO, acurJ48, acurSMO, acurRBF);
 
+            // Desempenho Médio
             mostrarValorMedioExec(statsEfet, statsAcur);
-            
             mostrarEfetividadePorClasses(pso.getTiposSaidas(), efetCls);
 
             // Testes estatísticos
             mostrarTesteDeNormalidade(statsEfet, efetPSO, efetJ48, efetSMO, 
                     efetRBF);
+            
             mostrarTesteOneWayAnova(efetPSO, efetJ48, efetSMO, efetRBF);
             mostrarPostHocTukey(efetPSO, efetJ48, efetSMO, efetRBF);
 
             mostrarGraficoDeEfetividadeGlobal(config, efetPSO, efetJ48, efetSMO, 
                     efetRBF);
             
-            // Efetividade Global
+            // Salvar Efetividade Global
             salvarExecsEmCSV("efetividade", config, efetPSO, efetJ48, efetSMO, 
                 efetRBF);
             
-            // Acurácia Global
+            // Salvar Acurácia Global
             salvarExecsEmCSV("acuracia", config, acurPSO, acurJ48, acurSMO, 
                 acurRBF);
         }
