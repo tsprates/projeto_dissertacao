@@ -72,7 +72,7 @@ public class Weka
     }
 
     /**
-     * Classifica algoritmos do WEKA por classes da classificação.
+     * Classifica algoritmos do WEKA por classes.
      */
     private void classificar()
     {
