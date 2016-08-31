@@ -1,0 +1,16 @@
+J48.confidence_factor=0.25
+SMO.complexity_parameter_c=2.0
+SMO.kernel_function=weka.classifiers.functions.supportVector.PolyKernel
+SMO.function_exponent=2.0
+RBF.clusters=3
+RBF.min_std_dev_clusters=0.1
+
+saida=class_
+id=id
+npop=100
+tabela=ionosphere
+maxiter=25000
+w=0.9
+c1=0.8
+c2=0.8
+cr=0.9
