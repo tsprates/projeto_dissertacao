@@ -184,7 +184,8 @@ public class App
 
             // Desempenho Médio
             mostrarValorMedioExec(statsEfet, statsAcur);
-            mostrarEfetividadePorClasses(pso.getTiposSaidas(), efetCls);
+            mostrarEfetividadePorClasses("Efetividade", pso.getTiposSaidas(), efetCls);
+            mostrarEfetividadePorClasses("Acurácia", pso.getTiposSaidas(), acurCls);
 
             // Testes estatísticos
             mostrarTesteDeNormalidade(statsEfet, efetPSO, efetJ48, efetSMO, 
@@ -710,17 +711,20 @@ public class App
     }
     
     /**
-     * Mostra a tabela de cada algoritmo por classe.
+     * Mostra a tabela de desempenho de cada algoritmo por classe.
      * 
-     * @param saidas Tipos classes (saídas).
-     * @param efet Mapa de algoritmos por classes (saídas) da efetividade.
+     * @param legendaTabela Legenda tabela (Tipo métrica).
+     * @param saidas Tipos classes.
+     * @param mapCls Mapa de algoritmos por classes.
      */
-    private static void mostrarEfetividadePorClasses(Collection<String> saidas, 
-            Map<String, Map<String, List<Double>>> efet)
+    private static void mostrarEfetividadePorClasses(String legendaTabela,
+            Collection<String> saidas, 
+            Map<String, Map<String, List<Double>>> mapCls)
     {
         StandardDeviation sd = new StandardDeviation();
         
-        System.out.println("\n\nMédia de Algoritmos por Classes (Efetividade):\n");
+        System.out.printf("\n\nMédia de Algoritmos por Classes (%s):\n\n",
+                legendaTabela);
        
         System.out.printf("%-10s", "Algo.");
         for (String saida : saidas)
@@ -735,7 +739,7 @@ public class App
         {
             System.out.printf("%-10s", algo);
             
-            for (Entry<String, List<Double>> i : efet.get(algo).entrySet())
+            for (Entry<String, List<Double>> i : mapCls.get(algo).entrySet())
             {
                 List<Double> val = i.getValue();
                 double[] arrVal = ArrayUtils.toPrimitive(
