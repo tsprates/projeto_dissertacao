@@ -519,7 +519,7 @@ public class Pso
                 {
                     // Proposta de Higashi et al. (2003)
                     // Mutação não uniforme
-                    final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0]));
+                    final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0])) + Double.MIN_VALUE;
                     final double R = new NormalDistribution(0, alfa).sample();
                     newValor = valor + R;
                 }
