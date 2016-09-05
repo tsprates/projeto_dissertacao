@@ -504,7 +504,7 @@ public class Pso
     {
         if (pm > Math.random())
         {
-            List<String> pos = new ArrayList<>(p.posicao());
+            final List<String> pos = new ArrayList<>(p.posicao());
 
             final int index = rand.nextInt(pos.size());
             String[] clausula = pos.get(index).split(" ");
@@ -539,30 +539,28 @@ public class Pso
 
                 pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0], clausula[1], newValor));
             }
-
-            if (0.9 > Math.random())
+            else
             {
-                if (Math.random() < 0.5)
-                {
-                    pos.add(criarCondicao());
-                }
-                else
-                {
-                    double r = Math.random();
-                    int indexOper = 0;
+                double r = Math.random();
+                int indexOper = 0;
 
-                    for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
+                for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
+                {
+                    if (PROB_OPERADORES[k - 1] >= r && PROB_OPERADORES[k] < r)
                     {
-                        if (PROB_OPERADORES[k - 1] >= r && PROB_OPERADORES[k] < r)
-                        {
-                            indexOper = k - 1;
-                        }
+                        indexOper = k - 1;
                     }
-
-                    clausula[1] = LISTA_OPERADORES[indexOper];
-
-                    pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
                 }
+
+                clausula[1] = LISTA_OPERADORES[indexOper];
+
+                pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
+            }
+
+            // Manter diversidade no enxame
+            if (0.5 > Math.random())
+            {
+                pos.add(criarCondicao());
             }
 
             p.setPosicao(pos);
