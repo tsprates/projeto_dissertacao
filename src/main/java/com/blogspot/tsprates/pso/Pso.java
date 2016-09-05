@@ -309,7 +309,7 @@ public class Pso
      */
     private void mostrarValidacao(Map<String, List<double[]>> validacao)
     {
-        System.out.println("\nFase de validação:");
+        System.out.println("\n\nFase de validação:");
         System.out.println();
 
         // tabela de resEfet validação
@@ -338,7 +338,7 @@ public class Pso
     {
         Map<String, List<Particula>> solucoes = new TreeMap<>(repositorio);
 
-        System.out.println("\nFase de treinamento:\n");
+        System.out.println("\n\nFase de treinamento:\n");
 
         System.out.println(TAB_CABECALHO);
 
