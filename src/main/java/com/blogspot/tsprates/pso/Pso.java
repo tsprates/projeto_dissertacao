@@ -44,6 +44,10 @@ public class Pso
                 "Efet.", "Acur.", "Regra");
     }
 
+    private final static double TURBULENCIA = 3;
+
+    private final int NUM_K;
+
     private final String tabela;
 
     private final Random rand = new Random();
@@ -59,10 +63,6 @@ public class Pso
     private final double crossover;
 
     private final Fitness fitness;
-
-    private final double turbulencia = 3;
-
-    private final int NUM_K;
 
     private List<List<String>> kpastas;
 
@@ -393,11 +393,11 @@ public class Pso
      */
     private void aplicarTurbulencia(int indexPart)
     {
-        if ((indexPart % turbulencia) == 0)
+        if ((indexPart % TURBULENCIA) == 0)
         {
             perturbar(this.particulas.get(indexPart), true);
         }
-        else if ((indexPart % turbulencia) == 1)
+        else if ((indexPart % TURBULENCIA) == 1)
         {
             perturbar(this.particulas.get(indexPart), false);
         }
