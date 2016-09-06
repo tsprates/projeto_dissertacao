@@ -504,7 +504,7 @@ public class Pso
     {
         if (pm > Math.random())
         {
-            final List<String> pos = new ArrayList<>(p.posicao());
+            List<String> pos = new ArrayList<>(p.posicao());
 
             final int index = rand.nextInt(pos.size());
             String[] clausula = pos.get(index).split(" ");
@@ -539,28 +539,30 @@ public class Pso
 
                 pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0], clausula[1], newValor));
             }
-            else
-            {
-                double r = Math.random();
-                int indexOper = 0;
 
-                for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
+            if (0.9 > Math.random())
+            {
+                if (Math.random() < 0.5)
                 {
-                    if (PROB_OPERADORES[k - 1] >= r && PROB_OPERADORES[k] < r)
-                    {
-                        indexOper = k - 1;
-                    }
+                    pos.add(criarCondicao());
                 }
+                else
+                {
+                    double r = Math.random();
+                    int indexOper = 0;
 
-                clausula[1] = LISTA_OPERADORES[indexOper];
+                    for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
+                    {
+                        if (PROB_OPERADORES[k - 1] >= r && PROB_OPERADORES[k] < r)
+                        {
+                            indexOper = k - 1;
+                        }
+                    }
 
-                pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
-            }
+                    clausula[1] = LISTA_OPERADORES[indexOper];
 
-            // Manter diversidade no enxame
-            if (0.5 > Math.random())
-            {
-                pos.add(criarCondicao());
+                    pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
+                }
             }
 
             p.setPosicao(pos);
