@@ -504,51 +504,53 @@ public class Pso
     {
         if (pm > Math.random())
         {
-            List<String> pos = new ArrayList<>(p.posicao());
+            final List<String> pos = new ArrayList<>(p.posicao());
 
             final int index = rand.nextInt(pos.size());
-            String[] clausula = pos.get(index).split(" ");
+            final String[] clausula = pos.get(index).split(" ");
 
-            if (NumberUtils.isNumber(clausula[2]))
+            if (0.5 > Math.random())
             {
-                // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
-                final double valor = Double.parseDouble(clausula[2]);
-                double newValor;
+                pos.add(criarCondicao());
+            }
+            else
+            {
+                String oper = clausula[1];
+                String val = clausula[2];
 
-                if (distnorm)
+                if (NumberUtils.isNumber(clausula[2]) && 0.5 > Math.random())
                 {
-                    // Proposta de Higashi et al. (2003)
-                    // Mutação não uniforme
-                    final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0])) + Double.MIN_VALUE;
-                    final double R = new NormalDistribution(0, alfa).sample();
-                    newValor = valor + R;
-                }
-                else
-                {
-                    // Proposta de Michalewitz (1996)
-                    // Mutação uniforme
-                    if (Math.random() < 0.5)
+                    // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
+                    final double valor = Double.parseDouble(clausula[2]);
+                    double newVal;
+
+                    if (distnorm)
                     {
-                        newValor = valor + (max.get(clausula[0]) - valor) * Math.random();
+                        // Proposta de Higashi et al. (2003)
+                        // Mutação não uniforme
+                        final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0])) + Double.MIN_VALUE;
+                        final double r = new NormalDistribution(0, alfa).sample();
+                        newVal = valor + r;
                     }
                     else
                     {
-                        newValor = valor - (valor - min.get(clausula[0])) * Math.random();
+                        // Proposta de Michalewitz (1996)
+                        // Mutação uniforme
+                        if (Math.random() < 0.5)
+                        {
+                            newVal = valor + (max.get(clausula[0]) - valor) * Math.random();
+                        }
+                        else
+                        {
+                            newVal = valor - (valor - min.get(clausula[0])) * Math.random();
+                        }
                     }
-                }
 
-                pos.add(String.format(Locale.ROOT, "%s %s %.3f", clausula[0], clausula[1], newValor));
-            }
-
-            if (0.9 > Math.random())
-            {
-                if (Math.random() < 0.5)
-                {
-                    pos.add(criarCondicao());
+                    val = String.format(Locale.ROOT, "%.3f", newVal);
                 }
                 else
                 {
-                    double r = Math.random();
+                    final double r = Math.random();
                     int indexOper = 0;
 
                     for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
@@ -559,10 +561,11 @@ public class Pso
                         }
                     }
 
-                    clausula[1] = LISTA_OPERADORES[indexOper];
+                    oper = LISTA_OPERADORES[indexOper];
 
-                    pos.add(String.format(Locale.ROOT, "%s %s %s", clausula[0], clausula[1], clausula[2]));
                 }
+
+                pos.set(index, String.format(Locale.ROOT, "%s %s %s", clausula[0], oper, val));
             }
 
             p.setPosicao(pos);
