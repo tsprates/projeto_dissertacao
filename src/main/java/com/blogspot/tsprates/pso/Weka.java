@@ -21,6 +21,7 @@ import java.util.Properties;
  */
 public class Weka
 {
+
     private final String tabela;
 
     private final String colId;
@@ -61,16 +62,16 @@ public class Weka
 
     /**
      * Classifica algoritmos do WEKA por classes.
-     * 
+     *
      * @param K
-     * @param kpastas 
+     * @param kpastas
      */
     public void classificar(final int K, final List<List<String>> kpastas)
     {
         // reset
-        this.efet = null;
-        this.acur = null;
-        
+        efet = null;
+        acur = null;
+
         try
         {
             InstanceQuery query = new InstanceQuery();
@@ -140,7 +141,7 @@ public class Weka
                 evalRBF.evaluateModel(rbf, testData);
 
                 // total de classes 
-                this.numClasses = trainData.numClasses();
+                numClasses = trainData.numClasses();
 
                 if (efet == null)
                 {
