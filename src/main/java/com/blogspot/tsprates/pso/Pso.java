@@ -100,7 +100,7 @@ public class Pso
      * @param conexao Conexão com banco de dados.
      * @param config Configurações.
      * @param formatador Formatador de casas decimais.
-     * @param numKpastas Validação k-pastas.
+     * @param numKpastas Validação K-Pastas.
      */
     public Pso(Connection conexao, final Properties config,
             final Formatador formatador, final int numKpastas)
@@ -143,7 +143,8 @@ public class Pso
         long tempoInicial = System.nanoTime();
 
         // validação cruzada
-        criarKpastas();
+        kpastas = criarKpastas();
+        
         fitness.setKPastas(kpastas);
 
         Map<String, double[]> kpastasClasses = criarValorMedioKpastas();
@@ -982,32 +983,22 @@ public class Pso
     }
 
     /**
-     * Validação cruzada k-pastas.
+     * Validação Cruzada K-Pastas.
      *
      */
-    private void criarKpastas()
+    private List<List<String>> criarKpastas()
     {
-        kpastas = new ArrayList<>();
+        List<List<String>> kpastasTemp = new ArrayList<>();
 
         for (int i = 0; i < NUM_K; i++)
         {
-            kpastas.add(new ArrayList<String>());
+            kpastasTemp.add(new ArrayList<String>());
         }
 
-        dividirKPastas(NUM_K);
-    }
-
-    /**
-     * Validação Cruzada.
-     *
-     * @param numPastas Número de pastas.
-     */
-    private void dividirKPastas(int numPastas)
-    {
-        Map<String, List<String>> temp = new HashMap<>();
         int total = 0;
+        Map<String, List<String>> temp = new HashMap<>();
 
-        // deep cloning
+        // Deep cloning
         for (String saida : tipoSaidas)
         {
             temp.put(saida, new ArrayList<String>());
@@ -1033,12 +1024,12 @@ public class Pso
                 String index = listaTipoSaidas.get(j);
                 List<String> ids = temp.get(index);
 
-                while (k < numPastas)
+                while (k < NUM_K)
                 {
                     if (!ids.isEmpty())
                     {
                         String id = ids.remove(0);
-                        kpastas.get(k).add(id);
+                        kpastasTemp.get(k).add(id);
                         i++;
                         k++;
                     }
@@ -1058,12 +1049,14 @@ public class Pso
                 }
             }
         }
+
+        return kpastasTemp;
     }
 
     /**
-     * Retorna k-pastas.
+     * Retorna K-Pastas.
      *
-     * @return Lista de k-pastas estratificada.
+     * @return Lista de K-Pastas estratificada.
      */
     public List<List<String>> getKPasta()
     {
