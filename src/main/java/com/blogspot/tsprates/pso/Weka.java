@@ -21,11 +21,6 @@ import java.util.Properties;
  */
 public class Weka
 {
-
-    private final List<List<String>> kpastas;
-
-    private final int K;
-
     private final String tabela;
 
     private final String colId;
@@ -44,14 +39,9 @@ public class Weka
      * Construtor.
      *
      * @param config
-     * @param K
-     * @param kpastas
      */
-    public Weka(Properties config, final int K, List<List<String>> kpastas)
+    public Weka(Properties config)
     {
-        this.kpastas = kpastas;
-        this.K = K;
-
         this.tabela = config.getProperty("tabela");
         this.colSaida = config.getProperty("saida");
         this.colId = config.getProperty("id");
@@ -67,16 +57,20 @@ public class Weka
         this.optsRBF = String.format("-B %s -W %s",
                 config.getProperty("RBF.clusters"),
                 config.getProperty("RBF.min_std_dev_clusters"));
-
-        classificar();
     }
 
     /**
      * Classifica algoritmos do WEKA por classes.
+     * 
+     * @param K
+     * @param kpastas 
      */
-    private void classificar()
+    public void classificar(final int K, final List<List<String>> kpastas)
     {
-
+        // reset
+        this.efet = null;
+        this.acur = null;
+        
         try
         {
             InstanceQuery query = new InstanceQuery();

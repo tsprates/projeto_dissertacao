@@ -67,6 +67,8 @@ public class App
             Properties config = carregarArquivoDeConfig(args[0]);
 
             Pso pso = new Pso(db, config, FORMAT, K);
+            
+            Weka weka = new Weka(config);
 
             List<Double> efetPSO = new ArrayList<>();
             List<Double> efetJ48 = new ArrayList<>();
@@ -97,7 +99,8 @@ public class App
                 efetPSO.add(resultado[0]); 
                 acurPSO.add(resultado[1]); 
 
-                Weka weka = new Weka(config, K, pso.getKPasta());
+                // Weka
+                weka.classificar(K, pso.getKPasta());
                 double[][] efetWeka = weka.efetividade();
                 double[][] acurWeka = weka.acuracia();
                 int numClasses = weka.numClasses();
