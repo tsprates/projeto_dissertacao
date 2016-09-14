@@ -1003,11 +1003,11 @@ public class Pso
         {
             temp.put(saida, new ArrayList<String>());
 
-            List<String> mapaSaidaLista = mapaSaida.get(saida);
+            List<String> mapaSaidaTemp = mapaSaida.get(saida);
 
-            for (int i = 0, size = mapaSaidaLista.size(); i < size; i++)
+            for (int i = 0, size = mapaSaidaTemp.size(); i < size; i++)
             {
-                temp.get(saida).add(mapaSaidaLista.get(i));
+                temp.get(saida).add(mapaSaidaTemp.get(i));
                 total++;
             }
 
