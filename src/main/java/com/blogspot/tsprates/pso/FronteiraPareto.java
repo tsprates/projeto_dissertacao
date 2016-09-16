@@ -79,19 +79,44 @@ public class FronteiraPareto
                 }
             }
 
-            if ((adiciona == true && dominada == false)
+            if ((adiciona == true && dominada == false) 
                     && !particulas.contains(particula))
             {
                 particulas.add(new Particula(particula));
             }
         }
     }
+    
+    /**
+     * Verifica a dominância entre as partícula A e B.
+     * 
+     * @param pa Partícula A.
+     * @param pb Partícula B.
+     * @return 
+     */
+    public static int verificarDominanciaParticulas(Particula pa, Particula pb)
+    {
+        double[] afit = pa.fitness();
+        double[] bfit = pb.fitness();
+
+        if (testarDominancia(afit, bfit))
+        {
+            return 1;
+        }
+        
+        if (testarNaoDominancia(afit, bfit))
+        {
+            return 0;
+        }
+        
+        return -1;
+    }
 
     /**
      * Testa se a partícula A não-domina a partícula B.
      *
-     * @param pafit Partícula A.
-     * @param pbfit Partícula B.
+     * @param pafit Fitness da partícula A.
+     * @param pbfit Fitness da partícula B.
      * @return
      */
     private static boolean testarNaoDominancia(double[] pafit, double[] pbfit)
