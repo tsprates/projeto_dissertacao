@@ -88,7 +88,7 @@ public class FronteiraPareto
     }
 
     /**
-     * Testar por soluções eficientes.
+     * Testa se a partícula A não-domina a partícula B.
      *
      * @param pafit Partícula A.
      * @param pbfit Partícula B.
@@ -112,12 +112,12 @@ public class FronteiraPareto
                 && (pafit[0] > pbfit[0] || pafit[1] > pbfit[1]));
     }
 
-    /**
-     * Soluções não dominadas.
-     *
-     * @param particulas
-     * @return
-     */
+//    /**
+//     * Soluções não dominadas.
+//     *
+//     * @param particulas
+//     * @return
+//     */
 //    public static Collection<Particula> getParticulasNaoDominadas(
 //            Collection<Particula> particulas)
 //    {
