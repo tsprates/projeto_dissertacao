@@ -15,9 +15,9 @@ public class FronteiraPareto
     private final static int LIMITE_REPO = 30;
 
     /**
-     * Verifica e remove partículas da coleção repositório, 
-     * caso este seja maior que o limite definido.
-     * 
+     * Verifica e remove partículas da coleção repositório, caso este seja maior
+     * que o limite definido.
+     *
      * @param repositorio Lista de partículas.
      */
     public static void verificarTamanhoDoRepositorio(Collection<Particula> repositorio)
@@ -61,38 +61,41 @@ public class FronteiraPareto
             {
                 double[] pfitAtual = iter.next().fitness();
 
-                // testa se a partícula domina partícula atual
+                // se a partícula testada domina a partícula atual
                 if (testarDominancia(pfit, pfitAtual))
                 {
-                    iter.remove();
+                    iter.remove(); // remove a partícula atual
                 }
 
-                // testa se não é dominada
+                // se partícula testada não é dominada pela partícula atual
                 if (testarNaoDominancia(pfit, pfitAtual))
                 {
                     adiciona = true;
                 }
 
+                // se a partícula testada é dominada pela partícula atual
                 if (dominada == false && testarDominancia(pfitAtual, pfit))
                 {
                     dominada = true;
                 }
             }
 
-            if ((adiciona == true && dominada == false) 
+            // se a partícula testada não é dominada 
+            // e não existe dentro da lista de partículas
+            if ((adiciona == true && dominada == false)
                     && !particulas.contains(particula))
             {
                 particulas.add(new Particula(particula));
             }
         }
     }
-    
+
     /**
      * Verifica a dominância entre as partícula A e B.
-     * 
+     *
      * @param pa Partícula A.
      * @param pb Partícula B.
-     * @return 
+     * @return
      */
     public static int verificarDominanciaParticulas(Particula pa, Particula pb)
     {
@@ -103,13 +106,14 @@ public class FronteiraPareto
         {
             return 1;
         }
-        
-        if (testarNaoDominancia(afit, bfit))
+        else if (testarNaoDominancia(afit, bfit))
         {
             return 0;
         }
-        
-        return -1;
+        else
+        {
+            return -1;
+        }
     }
 
     /**
