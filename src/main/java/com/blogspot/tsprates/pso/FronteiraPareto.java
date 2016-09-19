@@ -48,7 +48,7 @@ public class FronteiraPareto
 
         if (particulas.isEmpty())
         {
-            particulas.add(new Particula(particula));
+            particulas.add(particula.clonar());
         }
         else
         {
@@ -85,7 +85,7 @@ public class FronteiraPareto
             if ((adiciona == true && dominada == false)
                     && !particulas.contains(particula))
             {
-                particulas.add(new Particula(particula));
+                particulas.add(particula.clonar());
             }
         }
     }

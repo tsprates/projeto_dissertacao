@@ -234,4 +234,14 @@ public class Particula implements Comparable<Particula>
             return 1;
         }
     }
+    
+    /**
+     * Gera uma cópia da partícula.
+     * 
+     * @return Partícula clonada.
+     */
+    public Particula clonar()
+    {
+        return new Particula(posicao, classe, calculadoraFitness);
+    }
 }
