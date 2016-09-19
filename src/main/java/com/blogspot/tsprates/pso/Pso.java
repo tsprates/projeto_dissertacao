@@ -144,7 +144,7 @@ public class Pso
 
         // validação cruzada
         kpastas = criarKpastas();
-        
+
         fitness.setKPastas(kpastas);
 
         Map<String, double[]> kpastasClasses = criarValorMedioKpastas();
@@ -362,19 +362,19 @@ public class Pso
     }
 
     /**
-     * Monta uma linha de tabela formatada de saída.
+     * Monta uma linha da tabela de resultado do algoritmo.
      *
-     * @param classe Saída.
-     * @param fo Vetor de funções objetivo.
-     * @param whereSql SQL encontrado.
+     * @param classe Nicho do enxame.
+     * @param fso Funções objetivo.
+     * @param whereSql Cláusula WHERE.
      */
-    private void mostrarFmtSaida(String classe, double[] fo, String whereSql)
+    private void mostrarFmtSaida(String classe, double[] fso, String whereSql)
     {
-        String compl = fmt.formatar(fo[0]);
-        String efet = fmt.formatar(fo[1]);
-        String acur = fmt.formatar(fo[2]);
+        String compl = fmt.formatar(fso[0]);
+        String efet = fmt.formatar(fso[1]);
+        String acur = fmt.formatar(fso[2]);
 
-        String cl;
+        String cl; // classe
         if (classe.length() > 10)
         {
             cl = classe.substring(0, 10);
@@ -783,7 +783,7 @@ public class Pso
     /**
      * Carrega soluções iniciais para cada objetivo.
      *
-     * @param classe
+     * @param classe Nicho do enxame.
      * @param particulas
      */
     private void inicializaRepositorio(String classe, List<Particula> particulas)
@@ -818,9 +818,9 @@ public class Pso
     }
 
     /**
-     * Retorna uma lista com clásulas WHERE.
+     * Retorna o conjunto que compõe a clásula WHERE.
      *
-     * @return Lista de clásulas WHERE.
+     * @return Conjunto de condições que a cláusula WHERE.
      */
     private Set<String> criarWhere()
     {
@@ -841,9 +841,9 @@ public class Pso
     }
 
     /**
-     * Cria condição para cláusula WHERE.
+     * Cria condição da cláusula WHERE.
      *
-     * @return
+     * @return String da cláusula WHERE.
      */
     private String criarCondicao()
     {
@@ -864,7 +864,6 @@ public class Pso
             final String coluna = colunas.get(colIndex);
             final Double minCol = min.get(coluna);
             final Double maxCol = max.get(coluna);
-//            final double newVal = RandomUtils.nextDouble(minCol, maxCol);
             final double newVal = (maxCol - minCol) * Math.random() + minCol;
 
             valor = String.format(Locale.ROOT, "%.3f", newVal);
@@ -890,7 +889,7 @@ public class Pso
     /**
      * Retorna a população de partículas.
      *
-     * @return
+     * @return Lista de partículas.
      */
     public List<Particula> getEnxame()
     {
@@ -898,9 +897,9 @@ public class Pso
     }
 
     /**
-     * Retorna tipos de saída.
+     * Retorna tipos de saída (classes).
      *
-     * @return Tipos de saída.
+     * @return Tipos de saída (classes ou nichos do enxame).
      */
     public Set<String> getTiposSaidas()
     {

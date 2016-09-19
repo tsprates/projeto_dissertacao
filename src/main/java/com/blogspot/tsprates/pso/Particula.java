@@ -27,7 +27,8 @@ public class Particula implements Comparable<Particula>
     /**
      * Construtor.
      *
-     * @param posicao Conjunto de cláusulas WHERE que representa a posição da partícula.
+     * @param posicao Conjunto de cláusulas WHERE que representa a posição da
+     * partícula.
      * @param classe Rótulo da partícula.
      * @param fitness Calculadora de fitness.
      */
@@ -54,7 +55,7 @@ public class Particula implements Comparable<Particula>
     }
 
     /**
-     * Get posição da partícula.
+     * Posição da partícula.
      *
      * @return Lista de String WHERE de nova posição.
      */
@@ -64,7 +65,7 @@ public class Particula implements Comparable<Particula>
     }
 
     /**
-     * Seta nova posição da partícula.
+     * Seta uma nova posição da partícula.
      *
      * @param posicao Lista de String WHERE de nova posição.
      */
@@ -92,7 +93,7 @@ public class Particula implements Comparable<Particula>
     }
 
     /**
-     * Retorna a classe da partícula.
+     * Retorna a classe (nicho) da partícula.
      *
      * @return String representando a partícula.
      */
@@ -112,9 +113,9 @@ public class Particula implements Comparable<Particula>
     }
 
     /**
-     * Retorna a dimensão (tamanho) da cláusula WHERE.
+     * Retorna o tamanho da cláusula WHERE.
      *
-     * @return Tamanho da cláusula WHERE.
+     * @return Tamanho da cláusula WHERE (número de condições).
      */
     public int numWhere()
     {
@@ -232,7 +233,5 @@ public class Particula implements Comparable<Particula>
         {
             return 1;
         }
-
     }
-
 }
