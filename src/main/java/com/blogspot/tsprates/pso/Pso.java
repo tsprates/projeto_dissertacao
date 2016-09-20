@@ -50,8 +50,6 @@ public class Pso
 
     private final String tabela;
 
-    private final Random rand = new Random();
-
     private List<Particula> particulas = new ArrayList<>();
 
     private final Map<String, Integer> enxameNicho;
@@ -417,14 +415,14 @@ public class Pso
         perturbar(part, w, true);
 
         // pbest
-        if (c1 > Math.random())
+        if (c1 > FastMath.random())
         {
             List<Particula> pbest = new ArrayList<>(part.getPbest());
             aplicarRecomb(pbest, part, partPos, partPosSize);
         }
 
         // gbest
-        if (c2 > Math.random())
+        if (c2 > FastMath.random())
         {
             List<Particula> gbest = repositorio.get(part.classe());
             aplicarRecomb(gbest, part, partPos, partPosSize);
@@ -467,15 +465,15 @@ public class Pso
         int i = 0;
         while (i < bestPosSize)
         {
-            if (crossover > Math.random())
+            if (crossover > FastMath.random())
             {
-                newPos.add(bestPos.get(rand.nextInt(bestPosSize)));
+                newPos.add(bestPos.get(RandomUtils.nextInt(0, bestPosSize)));
                 i++;
             }
 
             if (i < partPosSize)
             {
-                newPos.add(partPos.get(rand.nextInt(partPosSize)));
+                newPos.add(partPos.get(RandomUtils.nextInt(0, partPosSize)));
                 i++;
             }
         }
@@ -503,14 +501,14 @@ public class Pso
      */
     private void perturbar(Particula p, double pm, boolean distnorm)
     {
-        if (pm > Math.random())
+        if (pm > FastMath.random())
         {
             final List<String> pos = new ArrayList<>(p.posicao());
 
-            final int index = rand.nextInt(pos.size());
+            final int index = RandomUtils.nextInt(0, pos.size());
             final String[] clausula = pos.get(index).split(" ");
 
-            if (0.5 > Math.random())
+            if (0.5 > FastMath.random())
             {
                 pos.add(criarCondicao());
             }
@@ -519,7 +517,7 @@ public class Pso
                 String oper = clausula[1];
                 String val = clausula[2];
 
-                if (NumberUtils.isNumber(clausula[2]) && 0.5 > Math.random())
+                if (NumberUtils.isNumber(clausula[2]) && 0.5 > FastMath.random())
                 {
                     // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
                     final double valor = Double.parseDouble(clausula[2]);
@@ -537,13 +535,13 @@ public class Pso
                     {
                         // Proposta de Michalewitz (1996)
                         // Mutação uniforme
-                        if (Math.random() < 0.5)
+                        if (FastMath.random() < 0.5)
                         {
-                            newVal = valor + (max.get(clausula[0]) - valor) * Math.random();
+                            newVal = valor + (max.get(clausula[0]) - valor) * FastMath.random();
                         }
                         else
                         {
-                            newVal = valor - (valor - min.get(clausula[0])) * Math.random();
+                            newVal = valor - (valor - min.get(clausula[0])) * FastMath.random();
                         }
                     }
 
@@ -551,7 +549,7 @@ public class Pso
                 }
                 else
                 {
-                    final double r = Math.random();
+                    final double r = FastMath.random();
                     int indexOper = 0;
 
                     for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
@@ -828,7 +826,7 @@ public class Pso
         Set<String> listaWhere = new HashSet<>();
 
         double R = RandomUtils.nextDouble(1, numCols);
-        int maxWhere = (int) Math.ceil(FastMath.log(2.0, R)) + 1;
+        int maxWhere = (int) FastMath.ceil(FastMath.log(2.0, R)) + 1;
 //        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
 
         for (int i = 0; i < maxWhere; i++)
@@ -850,8 +848,8 @@ public class Pso
         final int numOper = LISTA_OPERADORES.length;
         final int numCols = colunas.size();
 
-        final int colIndex = rand.nextInt(numCols);
-        final int operIndex = rand.nextInt(numOper);
+        final int colIndex = RandomUtils.nextInt(0, numCols);
+        final int operIndex = RandomUtils.nextInt(0, numOper);
 
         final double prob = 0.9;
 
@@ -859,12 +857,12 @@ public class Pso
 
         // verifica se a condição ocorrerá com o 
         // campo constante ou valor numérico
-        if (rand.nextDouble() < prob)
+        if (prob > FastMath.random())
         {
             final String coluna = colunas.get(colIndex);
             final Double minCol = min.get(coluna);
             final Double maxCol = max.get(coluna);
-            final double newVal = (maxCol - minCol) * Math.random() + minCol;
+            final double newVal = (maxCol - minCol) * FastMath.random() + minCol;
 
             valor = String.format(Locale.ROOT, "%.3f", newVal);
         }
@@ -873,7 +871,7 @@ public class Pso
             int index;
             do
             {
-                index = rand.nextInt(numCols);
+                index = RandomUtils.nextInt(0, numCols);
             }
             while (index == colIndex); // diferentes colunas
 
