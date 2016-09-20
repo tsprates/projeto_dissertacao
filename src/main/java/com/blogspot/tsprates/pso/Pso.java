@@ -187,16 +187,16 @@ public class Pso
             Map<String, List<double[]>> validacao = fitness.validar(repositorio);
             mostrarValidacao(validacao);
 
-            // Seleciona melhores efetividade
+            // seleciona as melhores efetividade
             selecionarEfetividadeValidacao(validacao, kpastasClasses);
         }
 
         calcularValorMedio(kpastasClasses);
 
-        // Efetividade dividida pelas saídas (classes)
+        // efetividade por classes (nichos)
         this.valorMedioPorClasses = new TreeMap<>(kpastasClasses);
 
-        // Média das melhores efetividades
+        // média das melhores efetividades
         this.valorMedioGlobal = valorMedioGlobalKpastas(kpastasClasses);
 
         long tempoFinal = System.nanoTime();
@@ -311,7 +311,7 @@ public class Pso
         System.out.println("\n\nFase de validação:");
         System.out.println();
 
-        // tabela de resEfet validação
+        // tabela de validação
         System.out.print(TAB_CABECALHO);
         System.out.println();
 
@@ -350,7 +350,7 @@ public class Pso
 
             Collections.sort(listaParts);
 
-            // tabela de resEfet
+            // tabela de treinamento
             for (Particula part : listaParts)
             {
                 double[] f = part.fitness();
@@ -818,7 +818,7 @@ public class Pso
     /**
      * Retorna o conjunto que compõe a clásula WHERE.
      *
-     * @return Conjunto de condições que a cláusula WHERE.
+     * @return Conjunto de condições da cláusula WHERE.
      */
     private Set<String> criarWhere()
     {
