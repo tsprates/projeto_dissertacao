@@ -1,5 +1,6 @@
 package com.blogspot.tsprates.pso;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.FastMath;
@@ -7,7 +8,6 @@ import org.apache.commons.math3.util.FastMath;
 import java.sql.*;
 import java.util.*;
 import java.util.Map.Entry;
-import org.apache.commons.lang3.math.NumberUtils;
 
 // ALTER TABLE wine ADD COLUMN id SERIAL;
 // UPDATE wine SET id = nextval(pg_get_serial_sequence('wine','id'));
