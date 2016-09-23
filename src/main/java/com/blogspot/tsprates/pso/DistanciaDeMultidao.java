@@ -1,5 +1,6 @@
 package com.blogspot.tsprates.pso;
 
+import org.apache.commons.math3.util.Precision;
 import java.util.*;
 
 /**
@@ -13,7 +14,7 @@ public class DistanciaDeMultidao implements Comparator<Particula>
     private Map<Particula, Double> ranking = new HashMap<>();
 
     /**
-     * Atualiza os resultado de multidão para cada partícula.
+     * Realiza o ranqueamento pela distância de multidão para cada partícula.
      *
      * @param particulas
      * @return DistanciaDeMultidao
@@ -25,7 +26,7 @@ public class DistanciaDeMultidao implements Comparator<Particula>
 
         Collections.sort(tempPart);
 
-        ranking = new HashMap<>();
+        ranking.clear();
 
         for (int i = 0; i < numParts; i++)
         {
@@ -74,19 +75,6 @@ public class DistanciaDeMultidao implements Comparator<Particula>
         Double temp1 = ranking.get(p1);
         Double temp2 = ranking.get(p2);
 
-        double soma = temp1 - temp2;
-
-        if (soma == 0)
-        {
-            return 0;
-        }
-        else if (soma > 0)
-        {
-            return 1;
-        }
-        else
-        {
-            return -1;
-        }
+        return Precision.compareTo(temp1, temp2, 0.00001);
     }
 }
