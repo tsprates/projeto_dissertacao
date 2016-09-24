@@ -143,7 +143,7 @@ public class App
                         efetCls.put(algo, new HashMap<String, List<Double>>());
                         acurCls.put(algo, new HashMap<String, List<Double>>());
                         
-                        for (String classe : pso.getTiposSaidas())
+                        for (String classe : pso.classes())
                         {
                             efetCls.get(algo).put(classe, new ArrayList<Double>());
                             acurCls.get(algo).put(classe, new ArrayList<Double>());
@@ -152,7 +152,7 @@ public class App
                 }
                 
                 // Efetividade e acurácia de cada algoritmo para cada classe
-                for (String classe : pso.getTiposSaidas())
+                for (String classe : pso.classes())
                 {
                     for (int clItetr = 0; clItetr < numClasses; clItetr++)
                     {
@@ -187,8 +187,8 @@ public class App
 
             // Desempenho Médio
             mostrarValorMedioExec(statsEfet, statsAcur);
-            mostrarEfetividadePorClasses("Efetividade", pso.getTiposSaidas(), efetCls);
-            mostrarEfetividadePorClasses("Acurácia", pso.getTiposSaidas(), acurCls);
+            mostrarEfetividadePorClasses("Efetividade", pso.classes(), efetCls);
+            mostrarEfetividadePorClasses("Acurácia", pso.classes(), acurCls);
 
             // Testes estatísticos
             mostrarTesteDeNormalidade(statsEfet, efetPSO, efetJ48, efetSMO, 

@@ -68,7 +68,7 @@ public class Pso
 
     private final int maxIter;
 
-    private final String colSaida, colId;
+    private final String colClasse, colId;
 
     private final List<String> colunas = new ArrayList<>();
 
@@ -82,7 +82,7 @@ public class Pso
 
     private final Map<String, List<Double>> acuracia = new HashMap<>();
 
-    private final Map<String, List<String>> mapaSaida = new HashMap<>();
+    private final Map<String, List<String>> mapaClasses = new HashMap<>();
 
     private final Set<String> classes = new TreeSet<>();
 
@@ -105,7 +105,7 @@ public class Pso
     {
         this.conexao = conexao;
         this.tabela = config.getProperty("tabela");
-        this.colSaida = config.getProperty("saida");
+        this.colClasse = config.getProperty("saida");
         this.colId = config.getProperty("id");
 
         this.w = Double.valueOf(config.getProperty("w"));
@@ -122,14 +122,14 @@ public class Pso
 
         carregarColunasDaTabela();
         carregarClasses();
-        carregarSaidaPorId();
+        carregarClassePorId();
         carregarMaxMinColunasDaTabela();
 
         this.enxameNicho = dividirNichoEnxame();
 
         criarRepositorio();
 
-        this.fitness = new Fitness(conexao, colId, tabela, mapaSaida);
+        this.fitness = new Fitness(conexao, colId, tabela, mapaClasses);
     }
 
     /**
@@ -573,14 +573,14 @@ public class Pso
      * do banco de dados.
      *
      */
-    private void carregarSaidaPorId()
+    private void carregarClassePorId()
     {
         for (String cl : classes)
         {
-            mapaSaida.put(cl, new ArrayList<String>());
+            mapaClasses.put(cl, new ArrayList<String>());
         }
 
-        String sql = "SELECT " + colSaida + ", " + colId + " AS col_id "
+        String sql = "SELECT " + colClasse + ", " + colId + " AS col_id "
                 + "FROM " + tabela;
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
@@ -588,11 +588,11 @@ public class Pso
         {
             while (rs.next())
             {
-                String coluna = rs.getString(colSaida);
-                mapaSaida.get(coluna).add(rs.getString("col_id"));
+                String coluna = rs.getString(colClasse);
+                mapaClasses.get(coluna).add(rs.getString("col_id"));
             }
 
-            if (mapaSaida.size() > numParts)
+            if (mapaClasses.size() > numParts)
             {
                 throw new RuntimeException("Tamanho do enxame é insuficiente.");
             }
@@ -628,7 +628,7 @@ public class Pso
                 String coluna = metadata.getColumnName(i + 1);
                 int tipoColuna = metadata.getColumnType(i + 1);
 
-                if (!colSaida.equalsIgnoreCase(coluna)
+                if (!colClasse.equalsIgnoreCase(coluna)
                         && !colId.equalsIgnoreCase(coluna))
                 {
                     colunas.add(coluna);
@@ -647,16 +647,16 @@ public class Pso
      */
     private void carregarClasses()
     {
-        String sql = "SELECT DISTINCT " + colSaida + " "
+        String sql = "SELECT DISTINCT " + colClasse + " "
                 + "FROM " + tabela + " "
-                + "ORDER BY " + colSaida + " ASC";
+                + "ORDER BY " + colClasse + " ASC";
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery())
         {
             while (rs.next())
             {
-                classes.add(rs.getString(colSaida));
+                classes.add(rs.getString(colClasse));
             }
         }
         catch (SQLException e)
@@ -712,9 +712,9 @@ public class Pso
      */
     private Map<String, Integer> dividirNichoEnxame()
     {
-        final int numSaidas = classes.size();
-        final int numPopNicho = numParts / numSaidas;
-        int resto = numParts % numSaidas;
+        final int numClasses = classes.size();
+        final int numPopNicho = numParts / numClasses;
+        int resto = numParts % numClasses;
         Map<String, Integer> nicho = new HashMap<>();
 
         for (String i : classes)
@@ -796,9 +796,9 @@ public class Pso
     public void mostrarEnxame()
     {
         System.out.println("Classe:");
-        for (String classe : mapaSaida.keySet())
+        for (String classe : mapaClasses.keySet())
         {
-            List<String> c = mapaSaida.get(classe);
+            List<String> c = mapaClasses.get(classe);
             System.out.println(classe + ") " + c.size());
         }
         System.out.println();
@@ -896,20 +896,20 @@ public class Pso
      *
      * @return Classes ou nichos do enxame.
      */
-    public Set<String> getTiposSaidas()
+    public Set<String> classes()
     {
         return classes;
     }
 
     /**
-     * Mapa de classes (saídas) e os respectivos IDs de cada registro da tabela
+     * Mapa das classes do enxame e os respectivos IDs de cada registro da tabela
      * no banco de dados.
      *
      * @return Mapa de saídas (classes) por IDs.
      */
-    public Map<String, List<String>> getSaidasPorId()
+    public Map<String, List<String>> getClassesPorId()
     {
-        return mapaSaida;
+        return mapaClasses;
     }
 
     /**
@@ -997,11 +997,11 @@ public class Pso
         {
             temp.put(cl, new ArrayList<String>());
 
-            List<String> mapaSaidaTemp = mapaSaida.get(cl);
+            List<String> mapaClasseTemp = mapaClasses.get(cl);
 
-            for (int i = 0, size = mapaSaidaTemp.size(); i < size; i++)
+            for (int i = 0, size = mapaClasseTemp.size(); i < size; i++)
             {
-                temp.get(cl).add(mapaSaidaTemp.get(i));
+                temp.get(cl).add(mapaClasseTemp.get(i));
                 total++;
             }
 
@@ -1009,13 +1009,13 @@ public class Pso
         }
 
         int k = 0;
-        List<String> listaTipoSaidas = new ArrayList<>(classes);
+        List<String> listaClasses = new ArrayList<>(classes);
 
         for (int i = 0; i < total;)
         {
-            for (int j = 0, size = listaTipoSaidas.size(); j < size;)
+            for (int j = 0, size = listaClasses.size(); j < size;)
             {
-                String index = listaTipoSaidas.get(j);
+                String index = listaClasses.get(j);
                 List<String> ids = temp.get(index);
 
                 while (k < NUM_K)
