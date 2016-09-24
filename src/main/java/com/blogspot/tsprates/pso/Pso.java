@@ -569,8 +569,8 @@ public class Pso
     }
 
     /**
-     * Carrega um mapa de cada ID de registro do banco de dados para cada
-     * classe.
+     * Carrega um mapa do ID de registro do banco de dados para cada classe do
+     * problema.
      *
      */
     private void carregarClassePorId()
@@ -902,8 +902,8 @@ public class Pso
     }
 
     /**
-     * Mapa das classes do enxame e os respectivos IDs de cada registro da
-     * tabela no banco de dados.
+     * Mapa das classes (nichos) do enxame com os respectivos IDs de cada
+     * registro do banco de dados.
      *
      * @return Mapa de saídas (classes) por IDs.
      */
