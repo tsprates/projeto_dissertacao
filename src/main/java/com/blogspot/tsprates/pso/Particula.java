@@ -166,7 +166,7 @@ public class Particula implements Comparable<Particula>
      * Atualiza pbest (memória da partícula).
      *
      */
-    public void atualizaPbest()
+    public void atualizarPbest()
     {
         FronteiraPareto.atualizarParticulas(pbest, this);
         this.pbest = new TreeSet<>(pbest);

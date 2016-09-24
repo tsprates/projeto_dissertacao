@@ -84,7 +84,7 @@ public class Pso
 
     private final Map<String, List<String>> mapaSaida = new HashMap<>();
 
-    private final Set<String> tipoSaidas = new TreeSet<>();
+    private final Set<String> classes = new TreeSet<>();
 
     private final Map<String, List<Particula>> repositorio = new HashMap<>();
 
@@ -121,7 +121,7 @@ public class Pso
         this.NUM_K = numKpastas;
 
         carregarColunasDaTabela();
-        carregarTiposDeSaida();
+        carregarClasses();
         carregarSaidaPorId();
         carregarMaxMinColunasDaTabela();
 
@@ -174,10 +174,10 @@ public class Pso
                     aplicarTurbulencia(part);
 
                     // pbest
-                    particula.atualizaPbest();
+                    particula.atualizarPbest();
 
                     // atualiza posição da partícula
-                    atualizaPosicao(particula);
+                    atualizarPosicao(particula);
                 }
             } // fim: iterações
 
@@ -239,7 +239,7 @@ public class Pso
             total[1] += d[1];
         }
 
-        final int size = tipoSaidas.size();
+        final int size = classes.size();
 
         total[0] /= size;
         total[1] /= size;
@@ -248,27 +248,24 @@ public class Pso
     }
 
     /**
-     * Inicializa mapa de resultados para cada classe de saída.
+     * Inicializa mapa de resultados para cada classe do enxame.
      *
      * @return
      */
     private Map<String, double[]> criarValorMedioKpastas()
     {
         Map<String, double[]> kpastasClasses = new HashMap<>();
-        for (String saida : tipoSaidas)
+        for (String cl : classes)
         {
-            kpastasClasses.put(saida, new double[]
-            {
-                0.0, 0.0
-            });
+            kpastasClasses.put(cl, new double[2]);
         }
         return kpastasClasses;
     }
 
     /**
-     * Seleciona a melhor efetividade para cada classe de saída.
+     * Seleciona a melhor efetividade para cada classe do enxame.
      *
-     * @param validacao Mapa de fitness encontrados por saída.
+     * @param validacao Mapa de fitness encontrados por classe.
      * @param kpastasClasses
      */
     private void selecionarEfetividadeValidacao(
@@ -277,7 +274,7 @@ public class Pso
     {
         for (Entry<String, List<double[]>> entrada : validacao.entrySet())
         {
-            String saida = entrada.getKey();
+            String cl = entrada.getKey();
             List<double[]> fits = entrada.getValue();
 
             double[] f = fits.get(0);
@@ -294,17 +291,17 @@ public class Pso
                 }
             }
 
-            double[] arr = kpastasClasses.get(saida);
+            double[] arr = kpastasClasses.get(cl);
             arr[0] += maiorEfet;
             arr[1] += acur;
-            kpastasClasses.put(saida, arr);
+            kpastasClasses.put(cl, arr);
         }
     }
 
     /**
      * Mostra validação.
      *
-     * @param validacao Lista de fitness encontrados por saída.
+     * @param validacao Lista de fitness encontrados por classe.
      */
     private void mostrarValidacao(Map<String, List<double[]>> validacao)
     {
@@ -315,15 +312,15 @@ public class Pso
         System.out.print(TAB_CABECALHO);
         System.out.println();
 
-        for (String saida : tipoSaidas)
+        for (String cl : classes)
         {
-            List<double[]> r = validacao.get(saida);
-            List<Particula> rep = repositorio.get(saida);
+            List<double[]> r = validacao.get(cl);
+            List<Particula> rep = repositorio.get(cl);
 
             for (int i = 0, l = r.size(); i < l; i++)
             {
                 final double[] fit = r.get(i);
-                mostrarFmtSaida(saida, fit, rep.get(i).whereSql());
+                mostrarFmtSaida(cl, fit, rep.get(i).whereSql());
             }
         }
 
@@ -331,7 +328,7 @@ public class Pso
     }
 
     /**
-     * Mostra tabela de saída dos resultados.
+     * Mostra tabela de classes.
      */
     public void mostrarTreinamento()
     {
@@ -407,7 +404,7 @@ public class Pso
      *
      * @param part Partícula.
      */
-    private void atualizaPosicao(Particula part)
+    private void atualizarPosicao(Particula part)
     {
         List<String> partPos = new ArrayList<>(part.posicao());
         final int partPosSize = partPos.size();
@@ -535,7 +532,7 @@ public class Pso
                     {
                         // Proposta de Michalewitz (1996)
                         // Mutação uniforme
-                        if (FastMath.random() < 0.5)
+                        if (0.5 > FastMath.random())
                         {
                             newVal = valor + (max.get(clausula[0]) - valor) * FastMath.random();
                         }
@@ -572,15 +569,15 @@ public class Pso
     }
 
     /**
-     * Carrega um mapa de todas as saídas (classes) para cada ID de cada
-     * registro da tabela do banco de dados.
+     * Carrega um mapa de todas as classes para cada ID de cada registro 
+     * do banco de dados.
      *
      */
     private void carregarSaidaPorId()
     {
-        for (String saida : tipoSaidas)
+        for (String cl : classes)
         {
-            mapaSaida.put(saida, new ArrayList<String>());
+            mapaSaida.put(cl, new ArrayList<String>());
         }
 
         String sql = "SELECT " + colSaida + ", " + colId + " AS col_id "
@@ -646,9 +643,9 @@ public class Pso
     }
 
     /**
-     * Recupera os valores da coluna de saída (classes).
+     * Recupera os valores da coluna das classes.
      */
-    private void carregarTiposDeSaida()
+    private void carregarClasses()
     {
         String sql = "SELECT DISTINCT " + colSaida + " "
                 + "FROM " + tabela + " "
@@ -659,13 +656,13 @@ public class Pso
         {
             while (rs.next())
             {
-                tipoSaidas.add(rs.getString(colSaida));
+                classes.add(rs.getString(colSaida));
             }
         }
         catch (SQLException e)
         {
             throw new RuntimeException(
-                    "Erro ao classe saída no banco de dados.", e);
+                    "Erro ao carregar as classes de saídas no banco de dados.", e);
         }
     }
 
@@ -715,12 +712,12 @@ public class Pso
      */
     private Map<String, Integer> dividirNichoEnxame()
     {
-        final int numSaidas = tipoSaidas.size();
+        final int numSaidas = classes.size();
         final int numPopNicho = numParts / numSaidas;
         int resto = numParts % numSaidas;
         Map<String, Integer> nicho = new HashMap<>();
 
-        for (String i : tipoSaidas)
+        for (String i : classes)
         {
             if (resto > 0)
             {
@@ -895,13 +892,13 @@ public class Pso
     }
 
     /**
-     * Retorna tipos de saída (classes).
+     * Retorna as classes do enxame.
      *
-     * @return Tipos de saída (classes ou nichos do enxame).
+     * @return Classes ou nichos do enxame.
      */
     public Set<String> getTiposSaidas()
     {
-        return tipoSaidas;
+        return classes;
     }
 
     /**
@@ -916,21 +913,21 @@ public class Pso
     }
 
     /**
-     * Retorna mapa das classes (saídas) com a efetividade de cada partícula.
+     * Retorna mapa das classes (nicho) com a efetividade de cada partícula.
      *
-     * @return Mapa das classes com a efetividade de cada partícula.
+     * @return Mapa das classes (nicho) com a efetividade de cada partícula.
      */
-    public Map<String, List<Double>> getEfetividade()
+    public Map<String, List<Double>> efetividade()
     {
         return efetividade;
     }
 
     /**
-     * Retorna mapa das classes (saídas) com a acuracia de cada partícula.
+     * Retorna mapa das classes (nicho) com a acurácia de cada partícula.
      *
-     * @return Mapa das classes (saídas) com a efetividade de cada partícula.
+     * @return Mapa das classes (nicho) com a acurácia de cada partícula.
      */
-    public Map<String, List<Double>> getAcuracia()
+    public Map<String, List<Double>> acuracia()
     {
         return acuracia;
     }
@@ -941,9 +938,9 @@ public class Pso
     private void criarRepositorio()
     {
         // Lista não dominados (gbest)
-        for (String saida : tipoSaidas)
+        for (String cl : classes)
         {
-            repositorio.put(saida, new ArrayList<Particula>());
+            repositorio.put(cl, new ArrayList<Particula>());
         }
     }
 
@@ -953,9 +950,9 @@ public class Pso
     private void resetRepositorio()
     {
         // Lista não dominados (gbest)
-        for (String saida : tipoSaidas)
+        for (String cl : classes)
         {
-            repositorio.get(saida).clear();
+            repositorio.get(cl).clear();
         }
     }
 
@@ -996,23 +993,23 @@ public class Pso
         Map<String, List<String>> temp = new HashMap<>();
 
         // Deep cloning
-        for (String saida : tipoSaidas)
+        for (String cl : classes)
         {
-            temp.put(saida, new ArrayList<String>());
+            temp.put(cl, new ArrayList<String>());
 
-            List<String> mapaSaidaTemp = mapaSaida.get(saida);
+            List<String> mapaSaidaTemp = mapaSaida.get(cl);
 
             for (int i = 0, size = mapaSaidaTemp.size(); i < size; i++)
             {
-                temp.get(saida).add(mapaSaidaTemp.get(i));
+                temp.get(cl).add(mapaSaidaTemp.get(i));
                 total++;
             }
 
-            Collections.shuffle(temp.get(saida));
+            Collections.shuffle(temp.get(cl));
         }
 
         int k = 0;
-        List<String> listaTipoSaidas = new ArrayList<>(tipoSaidas);
+        List<String> listaTipoSaidas = new ArrayList<>(classes);
 
         for (int i = 0; i < total;)
         {
