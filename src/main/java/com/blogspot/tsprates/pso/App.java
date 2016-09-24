@@ -717,11 +717,11 @@ public class App
      * Mostra a tabela de desempenho de cada algoritmo por classe.
      * 
      * @param legendaTabela Legenda tabela (Tipo métrica).
-     * @param saidas Tipos classes.
+     * @param classes Classes.
      * @param mapCls Mapa de algoritmos por classes.
      */
     private static void mostrarEfetividadePorClasses(String legendaTabela,
-            Collection<String> saidas, 
+            Collection<String> classes, 
             Map<String, Map<String, List<Double>>> mapCls)
     {
         StandardDeviation sd = new StandardDeviation();
@@ -730,9 +730,9 @@ public class App
                 legendaTabela);
        
         System.out.printf("%-10s", "Algo.");
-        for (String saida : saidas)
+        for (String cl : classes)
         {
-            String s = (saida.length() > 10) ? saida.substring(0, 10) : saida;
+            String s = (cl.length() > 10) ? cl.substring(0, 10) : cl;
             System.out.printf(" %-10s %-10s", s, "");
         }
         
