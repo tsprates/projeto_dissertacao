@@ -82,7 +82,7 @@ public class Pso
 
     private final Map<String, List<Double>> acuracia = new HashMap<>();
 
-    private final Map<String, List<String>> mapaClasses = new HashMap<>();
+    private final Map<String, List<String>> mapaClasseId = new HashMap<>();
 
     private final Set<String> classes = new TreeSet<>();
 
@@ -129,7 +129,7 @@ public class Pso
 
         criarRepositorio();
 
-        this.fitness = new Fitness(conexao, colId, tabela, mapaClasses);
+        this.fitness = new Fitness(conexao, colId, tabela, mapaClasseId);
     }
 
     /**
@@ -569,15 +569,15 @@ public class Pso
     }
 
     /**
-     * Carrega um mapa de todas as classes para cada ID de cada registro 
-     * do banco de dados.
+     * Carrega um mapa de cada ID de registro do banco de dados para cada
+     * classe.
      *
      */
     private void carregarClassePorId()
     {
         for (String cl : classes)
         {
-            mapaClasses.put(cl, new ArrayList<String>());
+            mapaClasseId.put(cl, new ArrayList<String>());
         }
 
         String sql = "SELECT " + colClasse + ", " + colId + " AS col_id "
@@ -589,10 +589,10 @@ public class Pso
             while (rs.next())
             {
                 String coluna = rs.getString(colClasse);
-                mapaClasses.get(coluna).add(rs.getString("col_id"));
+                mapaClasseId.get(coluna).add(rs.getString("col_id"));
             }
 
-            if (mapaClasses.size() > numParts)
+            if (mapaClasseId.size() > numParts)
             {
                 throw new RuntimeException("Tamanho do enxame é insuficiente.");
             }
@@ -754,7 +754,7 @@ public class Pso
             }
 
             // seta o gbest para cada nicho
-            inicializaRepositorio(cls, nichoParticulas);
+            inicializarRepositorio(cls, nichoParticulas);
 
             // adiciona novas particulas com o novo nicho
             newParts.addAll(nichoParticulas);
@@ -781,7 +781,7 @@ public class Pso
      * @param classe Nicho do enxame.
      * @param particulas
      */
-    private void inicializaRepositorio(String classe, List<Particula> particulas)
+    private void inicializarRepositorio(String classe, List<Particula> particulas)
     {
         for (Particula p : particulas)
         {
@@ -796,9 +796,9 @@ public class Pso
     public void mostrarEnxame()
     {
         System.out.println("Classe:");
-        for (String classe : mapaClasses.keySet())
+        for (String classe : mapaClasseId.keySet())
         {
-            List<String> c = mapaClasses.get(classe);
+            List<String> c = mapaClasseId.get(classe);
             System.out.println(classe + ") " + c.size());
         }
         System.out.println();
@@ -902,20 +902,20 @@ public class Pso
     }
 
     /**
-     * Mapa das classes do enxame e os respectivos IDs de cada registro da tabela
-     * no banco de dados.
+     * Mapa das classes do enxame e os respectivos IDs de cada registro da
+     * tabela no banco de dados.
      *
      * @return Mapa de saídas (classes) por IDs.
      */
     public Map<String, List<String>> getClassesPorId()
     {
-        return mapaClasses;
+        return mapaClasseId;
     }
 
     /**
-     * Retorna mapa das classes (nicho) com a efetividade de cada partícula.
+     * Retorna mapa de classes (nicho) com a efetividade de cada partícula.
      *
-     * @return Mapa das classes (nicho) com a efetividade de cada partícula.
+     * @return Mapa de classes (nicho) com a efetividade de cada partícula.
      */
     public Map<String, List<Double>> efetividade()
     {
@@ -923,9 +923,9 @@ public class Pso
     }
 
     /**
-     * Retorna mapa das classes (nicho) com a acurácia de cada partícula.
+     * Retorna mapa de classes (nicho) com a acurácia de cada partícula.
      *
-     * @return Mapa das classes (nicho) com a acurácia de cada partícula.
+     * @return Mapa de classes (nicho) com a acurácia de cada partícula.
      */
     public Map<String, List<Double>> acuracia()
     {
@@ -997,7 +997,7 @@ public class Pso
         {
             temp.put(cl, new ArrayList<String>());
 
-            List<String> mapaClasseTemp = mapaClasses.get(cl);
+            List<String> mapaClasseTemp = mapaClasseId.get(cl);
 
             for (int i = 0, size = mapaClasseTemp.size(); i < size; i++)
             {
