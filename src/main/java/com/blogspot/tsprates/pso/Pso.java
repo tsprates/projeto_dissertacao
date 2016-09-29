@@ -409,7 +409,11 @@ public class Pso
         List<String> partPos = new ArrayList<>(part.posicao());
         final int partPosSize = partPos.size();
 
-        perturbar(part, w, true);
+        // velocidade
+        if (w > FastMath.random())
+        {
+            perturbar(part, true);
+        }
 
         // pbest
         if (c1 > FastMath.random())
@@ -479,93 +483,78 @@ public class Pso
     }
 
     /**
-     * Perturbação.
-     *
-     * @param p Partícula.
-     * @param distnorm Mutação Gaussiana.
-     */
-    private void perturbar(Particula p, boolean distnorm)
-    {
-        perturbar(p, 1.0, distnorm);
-    }
-
-    /**
      * Mutação.
      *
      * @param p Partícula.
-     * @param pm Probabilidade de mutação.
-     * @param distnorm Mutação Gaussiana.
+     * @param mutgauss Mutação Gaussiana.
      */
-    private void perturbar(Particula p, double pm, boolean distnorm)
+    private void perturbar(Particula p, boolean mutgauss)
     {
-        if (pm > FastMath.random())
+        final List<String> pos = new ArrayList<>(p.posicao());
+
+        final int index = RandomUtils.nextInt(0, pos.size());
+        final String[] clausula = pos.get(index).split(" ");
+
+        if (0.5 > FastMath.random())
         {
-            final List<String> pos = new ArrayList<>(p.posicao());
+            pos.add(criarCondicao());
+        }
+        else
+        {
+            String oper = clausula[1];
+            String val = clausula[2];
 
-            final int index = RandomUtils.nextInt(0, pos.size());
-            final String[] clausula = pos.get(index).split(" ");
-
-            if (0.5 > FastMath.random())
+            if (NumberUtils.isNumber(clausula[2]) && 0.5 > FastMath.random())
             {
-                pos.add(criarCondicao());
-            }
-            else
-            {
-                String oper = clausula[1];
-                String val = clausula[2];
+                // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
+                final double valor = Double.parseDouble(clausula[2]);
+                double newVal;
 
-                if (NumberUtils.isNumber(clausula[2]) && 0.5 > FastMath.random())
+                if (mutgauss)
                 {
-                    // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
-                    final double valor = Double.parseDouble(clausula[2]);
-                    double newVal;
-
-                    if (distnorm)
-                    {
-                        // Proposta de Higashi et al. (2003)
-                        // Mutação não uniforme
-                        final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0])) + Double.MIN_VALUE;
-                        final double r = new NormalDistribution(0, alfa).sample();
-                        newVal = valor + r;
-                    }
-                    else
-                    {
-                        // Proposta de Michalewitz (1996)
-                        // Mutação uniforme
-                        if (0.5 > FastMath.random())
-                        {
-                            newVal = valor + (max.get(clausula[0]) - valor) * FastMath.random();
-                        }
-                        else
-                        {
-                            newVal = valor - (valor - min.get(clausula[0])) * FastMath.random();
-                        }
-                    }
-
-                    val = String.format(Locale.ROOT, "%.3f", newVal);
+                    // Proposta de Higashi et al. (2003)
+                    // Mutação não uniforme
+                    final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0])) + Double.MIN_VALUE;
+                    final double r = new NormalDistribution(0, alfa).sample();
+                    newVal = valor + r;
                 }
                 else
                 {
-                    final double r = FastMath.random();
-                    int indexOper = 0;
-
-                    for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
+                    // Proposta de Michalewitz (1996)
+                    // Mutação uniforme
+                    if (0.5 > FastMath.random())
                     {
-                        if (PROB_OPERADORES[k - 1] >= r && PROB_OPERADORES[k] < r)
-                        {
-                            indexOper = k - 1;
-                        }
+                        newVal = valor + (max.get(clausula[0]) - valor) * FastMath.random();
                     }
-
-                    oper = LISTA_OPERADORES[indexOper];
-
+                    else
+                    {
+                        newVal = valor - (valor - min.get(clausula[0])) * FastMath.random();
+                    }
                 }
 
-                pos.set(index, String.format(Locale.ROOT, "%s %s %s", clausula[0], oper, val));
+                val = String.format(Locale.ROOT, "%.3f", newVal);
+            }
+            else
+            {
+                final double r = FastMath.random();
+                int indexOper = 0;
+
+                for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
+                {
+                    if (PROB_OPERADORES[k - 1] >= r && PROB_OPERADORES[k] < r)
+                    {
+                        indexOper = k - 1;
+                    }
+                }
+
+                oper = LISTA_OPERADORES[indexOper];
+
             }
 
-            p.setPosicao(pos);
+            pos.set(index, String.format(Locale.ROOT, "%s %s %s", clausula[0], oper, val));
         }
+
+        p.setPosicao(pos);
     }
 
     /**
