@@ -412,7 +412,7 @@ public class Pso
         // velocidade
         if (w > FastMath.random())
         {
-            perturbar(part, true);
+            perturbar(part, false);
         }
 
         // pbest
