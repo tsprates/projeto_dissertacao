@@ -7,7 +7,7 @@ RBF.min_std_dev_clusters=0.1
 
 saida=class_
 id=id
-npop=100
+npop=90
 tabela=ionosphere
 maxiter=25000
 w=0.9
