@@ -464,15 +464,24 @@ public class Pso
         int bestPosSize = bestPos.size();
 
         int i = 0;
+
         while (i < bestPosSize)
         {
             if (crossover > FastMath.random())
             {
                 newPos.add(bestPos.get(RandomUtils.nextInt(0, bestPosSize)));
-                i++;
+            }
+            else
+            {
+                newPos.add(partPos.get(RandomUtils.nextInt(0, partPosSize)));
             }
 
-            if (i < partPosSize)
+            i++;
+        }
+
+        if (partPosSize > bestPosSize)
+        {
+            while (i < partPosSize)
             {
                 newPos.add(partPos.get(RandomUtils.nextInt(0, partPosSize)));
                 i++;
