@@ -151,7 +151,7 @@ public class Pso
         {
             fitness.setK(i);
 
-            this.particulas = getEnxameInicial();
+            this.particulas = criarEnxameInicial();
 
             resetRepositorio();
 
@@ -736,7 +736,7 @@ public class Pso
      *
      * @return Lista contendo a população de partículas.
      */
-    private List<Particula> getEnxameInicial()
+    private List<Particula> criarEnxameInicial()
     {
         List<Particula> newParts = new ArrayList<>();
 
