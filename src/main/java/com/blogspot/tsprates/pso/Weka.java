@@ -155,9 +155,9 @@ public class Weka
 
                 for (int j = 0; j < numClasses; j++)
                 {
-                    efet[0][j] += evalJ48.precision(j) * evalJ48.recall(j);
-                    efet[1][j] += evalSMO.precision(j) * evalSMO.recall(j);
-                    efet[2][j] += evalRBF.precision(j) * evalRBF.recall(j);
+                    efet[0][j] += (evalJ48.numTruePositives(j) / (evalJ48.numTruePositives(j) +  evalJ48.numFalseNegatives(j))) * (evalJ48.numTrueNegatives(j) / (evalJ48.numTrueNegatives(j) +  evalJ48.numFalsePositives(j)));
+                    efet[1][j] += (evalSMO.numTruePositives(j) / (evalSMO.numTruePositives(j) +  evalSMO.numFalseNegatives(j))) * (evalSMO.numTrueNegatives(j) / (evalSMO.numTrueNegatives(j) +  evalSMO.numFalsePositives(j)));
+                    efet[2][j] += (evalRBF.numTruePositives(j) / (evalRBF.numTruePositives(j) +  evalRBF.numFalseNegatives(j))) * (evalRBF.numTrueNegatives(j) / (evalRBF.numTrueNegatives(j) +  evalRBF.numFalsePositives(j)));
 
                     acur[0][j] += (evalJ48.numTruePositives(j) + evalJ48.numTrueNegatives(j)) / (evalJ48.numTruePositives(j) + evalJ48.numTrueNegatives(j) + evalJ48.numFalsePositives(j) + evalJ48.numFalseNegatives(j));
                     acur[1][j] += (evalSMO.numTruePositives(j) + evalSMO.numTrueNegatives(j)) / (evalSMO.numTruePositives(j) + evalSMO.numTrueNegatives(j) + evalSMO.numFalsePositives(j) + evalSMO.numFalseNegatives(j));
