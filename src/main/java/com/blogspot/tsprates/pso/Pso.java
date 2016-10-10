@@ -72,7 +72,7 @@ public class Pso
 
     private final List<String> colunas = new ArrayList<>();
 
-    private Map<String, Integer> tipoColunas = new HashMap<>();
+    private final Map<String, Integer> tipoColunas = new HashMap<>();
 
     private final Map<String, Double> max = new HashMap<>();
 
