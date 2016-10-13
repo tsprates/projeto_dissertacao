@@ -140,13 +140,23 @@ public class Particula implements Comparable<Particula>
      */
     private String join(Set<String[]> where)
     {
+        List<String[]> tempWhere = new ArrayList<>(where);
         List<String> conds = new ArrayList<>();
-        
+
+        Collections.sort(tempWhere, new Comparator<String[]>()
+        {
+            @Override
+            public int compare(String[] a, String[] b)
+            {
+                return a[0].compareTo(b[0]);
+            }
+        });
+
         for (String[] iter : where)
         {
             conds.add(StringUtils.join(iter, " "));
         }
-        
+
         return "(" + StringUtils.join(conds, ") AND (") + ")";
     }
 
