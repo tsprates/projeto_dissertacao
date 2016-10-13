@@ -152,7 +152,7 @@ public class Particula implements Comparable<Particula>
             }
         });
 
-        for (String[] iter : where)
+        for (String[] iter : tempWhere)
         {
             conds.add(StringUtils.join(iter, " "));
         }
