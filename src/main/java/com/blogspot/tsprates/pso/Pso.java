@@ -92,6 +92,8 @@ public class Pso
 
     private Map<String, double[]> valorMedioPorClasses;
 
+    private final List<Particula> regrasVisitadas = new ArrayList<>();
+
     /**
      * Construtor.
      *
@@ -154,6 +156,8 @@ public class Pso
             particulas = criarEnxameInicial();
 
             resetRepositorio();
+
+            regrasVisitadas.clear();
 
             System.out.printf("\nPartição: %d \n", i + 1);
             System.out.printf("\nValidação: %s \n", kpastas.get(i));
@@ -414,7 +418,8 @@ public class Pso
         // velocidade
         if (w > FastMath.random())
         {
-            perturbar(part, false);
+//            perturbar(part, false);
+            buscaLocal(partIndex);
         }
 
         // pbest
@@ -430,6 +435,57 @@ public class Pso
             List<Particula> gbest = repositorio.get(part.classe());
             aplicarRecomb(gbest, part, partPos, partPosSize);
         }
+    }
+
+    /**
+     * Pareto Local Search.
+     *
+     * @param indexPart
+     */
+    private void buscaLocal(int indexPart)
+    {
+        final Particula p = particulas.get(indexPart);
+        Particula pl = p.clonar();
+
+        final double len = FastMath.log(colunas.size());
+
+        for (int i = 0; i < len; i++)
+        {
+            perturbar(pl, false);
+
+            if (contem(pl))
+            {
+                continue;
+            }
+            else
+            {
+                regrasVisitadas.add(pl);
+            }
+
+            if (FronteiraPareto.verificarDominanciaParticulas(pl, p) == 1)
+            {
+                particulas.set(indexPart, pl);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Verifica se regra existe em regras visitadas.
+     *
+     * @param part
+     * @return Retorna verdadeira se existir.
+     */
+    private boolean contem(Particula part)
+    {
+        for (Particula p : regrasVisitadas)
+        {
+            if (p.whereSql().equals(part.whereSql()))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
