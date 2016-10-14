@@ -194,10 +194,10 @@ public class Pso
         calcularValorMedio(kpastasClasses);
 
         // efetividade por classes (nichos)
-        this.valorMedioPorClasses = new TreeMap<>(kpastasClasses);
+        valorMedioPorClasses = new TreeMap<>(kpastasClasses);
 
         // média das melhores efetividades
-        this.valorMedioGlobal = valorMedioGlobalKpastas(kpastasClasses);
+        valorMedioGlobal = valorMedioGlobalKpastas(kpastasClasses);
 
         long tempoFinal = System.nanoTime();
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
@@ -391,11 +391,11 @@ public class Pso
     {
         if ((indexPart % TURBULENCIA) == 0)
         {
-            perturbar(this.particulas.get(indexPart), true);
+            perturbar(particulas.get(indexPart), true);
         }
         else if ((indexPart % TURBULENCIA) == 1)
         {
-            perturbar(this.particulas.get(indexPart), false);
+            perturbar(particulas.get(indexPart), false);
         }
     }
 
@@ -407,6 +407,7 @@ public class Pso
     private void atualizarPosicao(int partIndex)
     {
         Particula part = particulas.get(partIndex);
+
         List<String[]> partPos = new ArrayList<>(part.posicao());
         final int partPosSize = partPos.size();
 
