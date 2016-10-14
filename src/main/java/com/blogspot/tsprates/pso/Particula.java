@@ -24,6 +24,15 @@ public class Particula implements Comparable<Particula>
 
     private Set<Particula> pbest;
 
+    private final Comparator<String[]> comp = new Comparator<String[]>()
+    {
+        @Override
+        public int compare(String[] a, String[] b)
+        {
+            return a[0].compareTo(b[0]);
+        }
+    };
+
     /**
      * Construtor.
      *
@@ -143,14 +152,7 @@ public class Particula implements Comparable<Particula>
         List<String[]> tempWhere = new ArrayList<>(where);
         List<String> conds = new ArrayList<>();
 
-        Collections.sort(tempWhere, new Comparator<String[]>()
-        {
-            @Override
-            public int compare(String[] a, String[] b)
-            {
-                return a[0].compareTo(b[0]);
-            }
-        });
+        Collections.sort(tempWhere, comp);
 
         for (String[] iter : tempWhere)
         {
