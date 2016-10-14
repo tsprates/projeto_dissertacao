@@ -503,7 +503,7 @@ public class Pso
         List<String[]> pos = new ArrayList<>(p.posicao());
 
         final int index = RandomUtils.nextInt(0, pos.size());
-        String[] clausula = pos.get(index);
+        final String[] clausula = pos.get(index);
 
         if (0.5 > FastMath.random())
         {

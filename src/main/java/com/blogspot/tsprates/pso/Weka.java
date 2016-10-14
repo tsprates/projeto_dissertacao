@@ -26,7 +26,7 @@ public class Weka
 
     private final String colId;
 
-    private final String colSaida;
+    private final String colClasse;
 
     private final String optsJ48, optsSMO, optsRBF;
 
@@ -44,7 +44,7 @@ public class Weka
     public Weka(Properties config)
     {
         this.tabela = config.getProperty("tabela");
-        this.colSaida = config.getProperty("saida");
+        this.colClasse = config.getProperty("saida");
         this.colId = config.getProperty("id");
 
         this.optsJ48 = String.format("-C %s",
@@ -86,11 +86,11 @@ public class Weka
                 final String sqlTrain = "SELECT * "
                         + "FROM " + tabela + " "
                         + "WHERE " + colId + " NOT IN (" + ids + ")"
-                        + "ORDER BY " + colSaida + " ASC";
+                        + "ORDER BY " + colClasse + " ASC";
                 query.setQuery(sqlTrain);
 
                 Instances train = query.retrieveInstances();
-                train.setClassIndex(train.attribute(colSaida).index());
+                train.setClassIndex(train.attribute(colClasse).index());
 
                 Instances trainData = removerColId(train);
 
@@ -113,11 +113,11 @@ public class Weka
                 final String sqlTest = "SELECT * "
                         + "FROM " + tabela + " "
                         + "WHERE " + colId + " IN (" + ids + ")"
-                        + "ORDER BY " + colSaida + " ASC";
+                        + "ORDER BY " + colClasse + " ASC";
                 query.setQuery(sqlTest);
 
                 Instances test = query.retrieveInstances();
-                test.setClassIndex(test.attribute(colSaida).index());
+                test.setClassIndex(test.attribute(colClasse).index());
 
 //                System.out.println("Índices saídas:\n");
 //                Attribute attr = test.attribute(train.attribute(colSaida).index());
@@ -126,7 +126,6 @@ public class Weka
 //                    System.out.println(j + " : " + attr.value(j));
 //                }
 //                System.out.println();
-                
                 // Remove atributo id
                 Instances testData = removerColId(test);
 
@@ -155,9 +154,9 @@ public class Weka
 
                 for (int j = 0; j < numClasses; j++)
                 {
-                    efet[0][j] += (evalJ48.numTruePositives(j) / (evalJ48.numTruePositives(j) +  evalJ48.numFalseNegatives(j))) * (evalJ48.numTrueNegatives(j) / (evalJ48.numTrueNegatives(j) +  evalJ48.numFalsePositives(j)));
-                    efet[1][j] += (evalSMO.numTruePositives(j) / (evalSMO.numTruePositives(j) +  evalSMO.numFalseNegatives(j))) * (evalSMO.numTrueNegatives(j) / (evalSMO.numTrueNegatives(j) +  evalSMO.numFalsePositives(j)));
-                    efet[2][j] += (evalRBF.numTruePositives(j) / (evalRBF.numTruePositives(j) +  evalRBF.numFalseNegatives(j))) * (evalRBF.numTrueNegatives(j) / (evalRBF.numTrueNegatives(j) +  evalRBF.numFalsePositives(j)));
+                    efet[0][j] += (evalJ48.numTruePositives(j) / (evalJ48.numTruePositives(j) + evalJ48.numFalseNegatives(j))) * (evalJ48.numTrueNegatives(j) / (evalJ48.numTrueNegatives(j) + evalJ48.numFalsePositives(j)));
+                    efet[1][j] += (evalSMO.numTruePositives(j) / (evalSMO.numTruePositives(j) + evalSMO.numFalseNegatives(j))) * (evalSMO.numTrueNegatives(j) / (evalSMO.numTrueNegatives(j) + evalSMO.numFalsePositives(j)));
+                    efet[2][j] += (evalRBF.numTruePositives(j) / (evalRBF.numTruePositives(j) + evalRBF.numFalseNegatives(j))) * (evalRBF.numTrueNegatives(j) / (evalRBF.numTrueNegatives(j) + evalRBF.numFalsePositives(j)));
 
                     acur[0][j] += (evalJ48.numTruePositives(j) + evalJ48.numTrueNegatives(j)) / (evalJ48.numTruePositives(j) + evalJ48.numTrueNegatives(j) + evalJ48.numFalsePositives(j) + evalJ48.numFalseNegatives(j));
                     acur[1][j] += (evalSMO.numTruePositives(j) + evalSMO.numTrueNegatives(j)) / (evalSMO.numTruePositives(j) + evalSMO.numTrueNegatives(j) + evalSMO.numFalsePositives(j) + evalSMO.numFalseNegatives(j));
