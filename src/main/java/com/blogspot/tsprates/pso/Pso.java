@@ -151,33 +151,33 @@ public class Pso
         {
             fitness.setK(i);
 
-            this.particulas = criarEnxameInicial();
+            particulas = criarEnxameInicial();
 
             resetRepositorio();
-
-            // reseta contaddor de número de avaliações
-            fitness.setNumAvaliacao(0);
 
             System.out.printf("\nPartição: %d \n", i + 1);
             System.out.printf("\nValidação: %s \n", kpastas.get(i));
 
+            // reset número de avaliações
+            fitness.setNumAvaliacao(0);
+
             while (fitness.getNumAvaliacao() < maxIter)
             {
-                for (int part = 0; part < numParts; part++)
+                for (int partIndex = 0; partIndex < numParts; partIndex++)
                 {
-                    Particula particula = particulas.get(part);
+                    Particula particula = particulas.get(partIndex);
 
                     // gbest
                     atualizarRepositorio(particula);
 
                     // operador de turbulência
-                    aplicarTurbulencia(part);
+                    aplicarTurbulencia(partIndex);
 
                     // pbest
                     particula.atualizarPbest();
 
                     // atualiza posição da partícula
-                    atualizarPosicao(particula);
+                    atualizarPosicao(partIndex);
                 }
             } // fim: iterações
 
@@ -402,10 +402,11 @@ public class Pso
     /**
      * Atualiza posição.
      *
-     * @param part Partícula.
+     * @param partIndex Índice da partícula.
      */
-    private void atualizarPosicao(Particula part)
+    private void atualizarPosicao(int partIndex)
     {
+        Particula part = particulas.get(partIndex);
         List<String[]> partPos = new ArrayList<>(part.posicao());
         final int partPosSize = partPos.size();
 
