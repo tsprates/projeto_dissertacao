@@ -430,7 +430,6 @@ public class Pso
             List<Particula> gbest = repositorio.get(part.classe());
             aplicarRecomb(gbest, part, partPos, partPosSize);
         }
-
     }
 
     /**
