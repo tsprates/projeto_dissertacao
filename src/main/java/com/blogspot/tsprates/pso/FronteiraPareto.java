@@ -52,37 +52,37 @@ public class FronteiraPareto
         }
         else
         {
-            boolean adiciona = false;
-            boolean dominada = false;
+            boolean domina = false;
+            boolean ehDominada = false;
 
             Iterator<Particula> iter = particulas.iterator();
 
             while (iter.hasNext())
             {
-                double[] pfitAtual = iter.next().fitness();
+                double[] pIterfit = iter.next().fitness();
 
                 // se a partícula testada domina a partícula atual
-                if (testarDominancia(pfit, pfitAtual))
+                if (testarDominancia(pfit, pIterfit))
                 {
                     iter.remove(); // remove a partícula atual
                 }
 
                 // se partícula testada não é dominada pela partícula atual
-                if (testarNaoDominancia(pfit, pfitAtual))
+                if (testarNaoDominancia(pfit, pIterfit))
                 {
-                    adiciona = true;
+                    domina = true;
                 }
 
                 // se a partícula testada é dominada pela partícula atual
-                if (dominada == false && testarDominancia(pfitAtual, pfit))
+                if (ehDominada == false && testarDominancia(pIterfit, pfit))
                 {
-                    dominada = true;
+                    ehDominada = true;
                 }
             }
 
             // se a partícula testada não é dominada 
             // e não existe dentro da lista de partículas
-            if ((adiciona == true && dominada == false)
+            if ((domina == true && ehDominada == false)
                     && !particulas.contains(particula))
             {
                 particulas.add(particula.clonar());
@@ -99,14 +99,14 @@ public class FronteiraPareto
      */
     public static int verificarDominanciaParticulas(Particula pa, Particula pb)
     {
-        double[] afit = pa.fitness();
-        double[] bfit = pb.fitness();
+        double[] pafit = pa.fitness();
+        double[] pbfit = pb.fitness();
 
-        if (testarDominancia(afit, bfit))
+        if (testarDominancia(pafit, pbfit))
         {
             return 1;
         }
-        else if (testarNaoDominancia(afit, bfit))
+        else if (testarNaoDominancia(pafit, pbfit))
         {
             return 0;
         }
@@ -140,38 +140,4 @@ public class FronteiraPareto
         return (pafit[0] >= pbfit[0] && pafit[1] >= pbfit[1]
                 && (pafit[0] > pbfit[0] || pafit[1] > pbfit[1]));
     }
-
-//    /**
-//     * Soluções não dominadas.
-//     *
-//     * @param particulas
-//     * @return
-//     */
-//    public static Collection<Particula> getParticulasNaoDominadas(
-//            Collection<Particula> particulas)
-//    {
-//        List<Particula> particulasNaoDominadas = new ArrayList<>(particulas);
-//
-//        for (Particula part : particulas)
-//        {
-//            double[] partfit = part.fitness();
-//            String partwhere = part.whereSql();
-//
-//            Iterator<Particula> it = particulasNaoDominadas.iterator();
-//            while (it.hasNext())
-//            {
-//                Particula pi = it.next();
-//                double[] pifit = pi.fitness();
-//                String piwhere = pi.whereSql();
-//
-//                if (testarDominancia(partfit, pifit)
-//                        && !partwhere.equals(piwhere))
-//                {
-//                    it.remove();
-//                }
-//            }
-//        }
-//
-//        return particulasNaoDominadas;
-//    }
 }
