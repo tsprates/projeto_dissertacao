@@ -126,14 +126,14 @@ public class App
                 }
 
                 // Efetividade
-                efetJ48.add(medEfetJ48 / (double) numClasses);
-                efetSMO.add(medEfetSMO / (double) numClasses);
-                efetRBF.add(medEfetRBF / (double) numClasses);
+                efetJ48.add(medEfetJ48 / numClasses);
+                efetSMO.add(medEfetSMO / numClasses);
+                efetRBF.add(medEfetRBF / numClasses);
                 
                 // Acurácia
-                acurJ48.add(medAcurJ48 / (double) numClasses);
-                acurSMO.add(medAcurSMO / (double) numClasses);
-                acurRBF.add(medAcurRBF / (double) numClasses);
+                acurJ48.add(medAcurJ48 / numClasses);
+                acurSMO.add(medAcurSMO / numClasses);
+                acurRBF.add(medAcurRBF / numClasses);
                 
                 // Cria mapa de algoritmos para cada média de classe
                 if (iter == 0)
