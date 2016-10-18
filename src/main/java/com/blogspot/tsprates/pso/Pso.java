@@ -170,26 +170,26 @@ public class Pso
             
             while (fitness.numAvaliacao() < maxIter)
             {
-                for (int indexPart = 0; indexPart < numParts; indexPart++)
+                for (int partIndex = 0; partIndex < numParts; partIndex++)
                 {
-                    Particula particula = particulas.get(indexPart);
+                    Particula particula = particulas.get(partIndex);
 
                     // gbest
                     atualizarRepositorio(particula);
 
                     // operador de turbulência
-                    aplicarTurbulencia(indexPart);
+                    aplicarTurbulencia(partIndex);
 
                     // pbest
                     particula.atualizarPbest();
 
                     // atualiza posição da partícula
-                    atualizarPosicao(indexPart);
+                    atualizarPosicao(partIndex);
                     
                     // adiciona busca local Pareto a cada 10 iterações
-                    if ((iter % 10) == 0 && (indexPart % 10) == 0)
+                    if ((iter % 10) == 0 && (partIndex % 10) == 0)
                     {
-                        buscaLocal(indexPart);
+                        buscaLocal(partIndex);
                     }
                 }
                 
@@ -451,11 +451,11 @@ public class Pso
     /**
      * Pareto Local Search.
      *
-     * @param indexPart
+     * @param partIndex
      */
-    private void buscaLocal(int indexPart)
+    private void buscaLocal(int partIndex)
     {
-        Particula p = particulas.get(indexPart);
+        Particula p = particulas.get(partIndex);
         Particula pl = p.clonar();
         String cl = p.classe();
 
