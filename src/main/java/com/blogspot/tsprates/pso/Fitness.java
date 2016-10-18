@@ -225,23 +225,32 @@ public class Fitness
     }
 
     /**
-     * Retorna o número de avaliação do fitness.
+     * Retorna o número de avaliação da função fitness.
      *
-     * @return Número de avaliação do fitness.
+     * @return Número de avaliação da função fitness.
      */
-    public long getNumAvaliacao()
+    public long numAvaliacao()
     {
         return numAvaliacao;
     }
 
     /**
-     * Reset o número de avaliação do fitness.
+     * Seta o número de avaliação do fitness.
      *
-     * @param n Número de avaliações.
+     * @param num Número de avaliações.
      */
-    public void setNumAvaliacao(int n)
+    public void setNumAvaliacao(int num)
     {
-        this.numAvaliacao = n;
+        this.numAvaliacao = num;
+    }
+
+    /**
+     * Reseta o número de avaliação do fitness.
+     *
+     */
+    public void resetNumAvaliacao()
+    {
+        this.numAvaliacao = 0;
     }
 
     /**

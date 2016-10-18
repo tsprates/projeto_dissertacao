@@ -158,10 +158,10 @@ public class Pso
             System.out.printf("\nPartição: %d \n", i + 1);
             System.out.printf("\nValidação: %s \n", kpastas.get(i));
 
-            // reset número de avaliações
-            fitness.setNumAvaliacao(0);
+            // reseta número de avaliações da função objetivo
+            fitness.resetNumAvaliacao();
 
-            while (fitness.getNumAvaliacao() < maxIter)
+            while (fitness.numAvaliacao() < maxIter)
             {
                 for (int partIndex = 0; partIndex < numParts; partIndex++)
                 {
