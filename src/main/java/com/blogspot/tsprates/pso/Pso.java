@@ -92,7 +92,7 @@ public class Pso
 
     private Map<String, double[]> valorMedioPorClasses;
 
-    private final List<Particula> regrasVisitadas = new ArrayList<>();
+    private final List<String> regrasVisitadas = new ArrayList<>();
 
     /**
      * Construtor.
@@ -162,28 +162,39 @@ public class Pso
             System.out.printf("\nPartição: %d \n", i + 1);
             System.out.printf("\nValidação: %s \n", kpastas.get(i));
 
-            // reseta número de avaliações da função objetivo
+            // reseta número de avaliações da função-objetivo
             fitness.resetNumAvaliacao();
 
+            // número de iterações
+            int iter = 0; 
+            
             while (fitness.numAvaliacao() < maxIter)
             {
-                for (int partIndex = 0; partIndex < numParts; partIndex++)
+                for (int indexPart = 0; indexPart < numParts; indexPart++)
                 {
-                    Particula particula = particulas.get(partIndex);
+                    Particula particula = particulas.get(indexPart);
 
                     // gbest
                     atualizarRepositorio(particula);
 
                     // operador de turbulência
-                    aplicarTurbulencia(partIndex);
+                    aplicarTurbulencia(indexPart);
 
                     // pbest
                     particula.atualizarPbest();
 
                     // atualiza posição da partícula
-                    atualizarPosicao(partIndex);
+                    atualizarPosicao(indexPart);
+                    
+                    // adiciona busca local Pareto a cada 10 iterações
+                    if ((iter % 10) == 0 && (indexPart % 10) == 0)
+                    {
+                        buscaLocal(indexPart);
+                    }
                 }
-            } // fim: iterações
+                
+                iter++;
+            }
 
             mostrarTreinamento();
 
@@ -418,8 +429,8 @@ public class Pso
         // velocidade
         if (w > FastMath.random())
         {
-//            perturbar(part, false);
-            buscaLocal(partIndex);
+            perturbar(part, false);
+//            buscaLocal(partIndex);
         }
 
         // pbest
@@ -444,8 +455,9 @@ public class Pso
      */
     private void buscaLocal(int indexPart)
     {
-        final Particula p = particulas.get(indexPart);
+        Particula p = particulas.get(indexPart);
         Particula pl = p.clonar();
+        String cl = p.classe();
 
         final double len = FastMath.log(colunas.size());
 
@@ -453,18 +465,20 @@ public class Pso
         {
             perturbar(pl, false);
 
-            if (contem(pl))
+            final String where = pl.whereSql();
+
+            if (contem(where))
             {
                 continue;
             }
             else
             {
-                regrasVisitadas.add(pl);
+                regrasVisitadas.add(where);
             }
 
-            if (FronteiraPareto.verificarDominanciaParticulas(pl, p) == 1)
+            if (FronteiraPareto.verificarDominanciaParticulas(pl, p) >= 0)
             {
-                particulas.set(indexPart, pl);
+                FronteiraPareto.atualizarParticulas(repositorio.get(cl), pl);
                 break;
             }
         }
@@ -473,18 +487,19 @@ public class Pso
     /**
      * Verifica se regra existe em regras visitadas.
      *
-     * @param part
+     * @param where WHERE SQL.
      * @return Retorna verdadeira se existir.
      */
-    private boolean contem(Particula part)
+    private boolean contem(String where)
     {
-        for (Particula p : regrasVisitadas)
+        for (String regra : regrasVisitadas)
         {
-            if (p.whereSql().equals(part.whereSql()))
+            if (where.equals(regra))
             {
                 return true;
             }
         }
+
         return false;
     }
 
