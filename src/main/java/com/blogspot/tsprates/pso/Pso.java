@@ -166,8 +166,8 @@ public class Pso
             fitness.resetNumAvaliacao();
 
             // número de iterações
-            int iter = 0; 
-            
+            int iter = 0;
+
             while (fitness.numAvaliacao() < maxIter)
             {
                 for (int partIndex = 0; partIndex < numParts; partIndex++)
@@ -177,22 +177,22 @@ public class Pso
                     // gbest
                     atualizarRepositorio(particula);
 
-                    // operador de turbulência
-                    aplicarTurbulencia(partIndex);
-
                     // pbest
                     particula.atualizarPbest();
 
+                    // operador de turbulência
+                    aplicarTurbulencia(partIndex);
+
                     // atualiza posição da partícula
                     atualizarPosicao(partIndex);
-                    
+
                     // adiciona busca local Pareto a cada 10 iterações
                     if ((iter % 10) == 0 && (partIndex % 10) == 0)
                     {
                         buscaLocal(partIndex);
                     }
                 }
-                
+
                 iter++;
             }
 
