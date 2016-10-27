@@ -467,7 +467,7 @@ public class Pso
 
             final String where = pl.whereSql();
 
-            if (contem(where))
+            if (regrasVisitadas.contains(where))
             {
                 continue;
             }
@@ -482,25 +482,6 @@ public class Pso
                 break;
             }
         }
-    }
-
-    /**
-     * Verifica se regra existe em regras visitadas.
-     *
-     * @param where WHERE SQL.
-     * @return Retorna verdadeira se existir.
-     */
-    private boolean contem(String where)
-    {
-        for (String regra : regrasVisitadas)
-        {
-            if (where.equals(regra))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
