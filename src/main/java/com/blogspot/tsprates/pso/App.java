@@ -470,7 +470,7 @@ public class App
             throws InsufficientDataException, NullArgumentException, 
                 NotStrictlyPositiveException
     {
-        final NormalDistribution normdist = new NormalDistribution(mediaAlg, desvAlg);
+        final NormalDistribution normdist = new NormalDistribution(mediaAlg, desvAlg + Double.MIN_VALUE);
         
         Double[] arrObjEfet = efetAlg.toArray(new Double[0]);
         
