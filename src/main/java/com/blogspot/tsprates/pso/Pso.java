@@ -189,7 +189,7 @@ public class Pso
                     // adiciona busca local Pareto a cada 10 iterações
                     if ((iter % 10) == 0 && (partIndex % 10) == 0)
                     {
-                        buscaLocal(partIndex);
+                        buscaLocalPareto(partIndex);
                     }
                 }
 
@@ -449,15 +449,16 @@ public class Pso
     }
 
     /**
-     * Pareto Local Search.
+     * Busca Local Pareto.
      *
      * @param partIndex
      */
-    private void buscaLocal(int partIndex)
+    private void buscaLocalPareto(int partIndex)
     {
         Particula p = particulas.get(partIndex);
         Particula pl = p.clonar();
-        String cl = p.classe();
+
+        final String cl = p.classe();
 
         final double len = FastMath.log(colunas.size());
 
