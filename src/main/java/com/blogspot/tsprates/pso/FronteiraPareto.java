@@ -12,25 +12,28 @@ import java.util.*;
 public class FronteiraPareto
 {
 
-    private final static int LIMITE_REPO = 30;
+    private final static int LIMITE_PARTICULAS = 30;
 
     /**
-     * Verifica e remove partículas da coleção repositório, caso este seja maior
+     * Verifica, e remove se necessário, partículas fornecidas caso seja maior
      * que o limite definido.
      *
-     * @param repositorio Lista de partículas.
+     * @see FronteiraPareto#LIMITE_PARTICULAS
+     * @param particulas Lista de partículas.
      */
-    public static void verificarTamanhoDoRepositorio(Collection<Particula> repositorio)
+    public static void verificarTamanho(Collection<Particula> particulas)
     {
-        List<Particula> rep = new ArrayList<>(repositorio);
-        Collections.sort(rep);
-        final int repSize = rep.size();
-        if (repSize > LIMITE_REPO)
+        List<Particula> parts = new ArrayList<>(particulas);
+        Collections.sort(parts);
+
+        final int repSize = parts.size();
+
+        if (repSize > LIMITE_PARTICULAS)
         {
-            while (rep.size() > LIMITE_REPO)
+            while (parts.size() > LIMITE_PARTICULAS)
             {
-                int index = rep.size() - 1;
-                rep.remove(RandomUtils.nextInt(1, index));
+                int index = parts.size() - 1;
+                parts.remove(RandomUtils.nextInt(1, index));
             }
         }
     }
@@ -62,19 +65,19 @@ public class FronteiraPareto
                 double[] pIterfit = iter.next().fitness();
 
                 // se a partícula testada domina a partícula atual
-                if (testarDominancia(pfit, pIterfit))
+                if (testarDominanciaEntre(pfit, pIterfit))
                 {
                     iter.remove(); // remove a partícula atual
                 }
 
                 // se partícula testada não é dominada pela partícula atual
-                if (testarNaoDominancia(pfit, pIterfit))
+                if (testarNaoDominanciaEntre(pfit, pIterfit))
                 {
                     domina = true;
                 }
 
                 // se a partícula testada é dominada pela partícula atual
-                if (ehDominada == false && testarDominancia(pIterfit, pfit))
+                if (ehDominada == false && testarDominanciaEntre(pIterfit, pfit))
                 {
                     ehDominada = true;
                 }
@@ -93,20 +96,20 @@ public class FronteiraPareto
     /**
      * Verifica a dominância entre as partícula A e B.
      *
-     * @param pa Partícula A.
-     * @param pb Partícula B.
+     * @param a Partícula A.
+     * @param b Partícula B.
      * @return
      */
-    public static int verificarDominanciaParticulas(Particula pa, Particula pb)
+    public static int verificarDominanciaEntre(Particula a, Particula b)
     {
-        double[] pafit = pa.fitness();
-        double[] pbfit = pb.fitness();
+        double[] pafit = a.fitness();
+        double[] pbfit = b.fitness();
 
-        if (testarDominancia(pafit, pbfit))
+        if (testarDominanciaEntre(pafit, pbfit))
         {
             return 1;
         }
-        else if (testarNaoDominancia(pafit, pbfit))
+        else if (testarNaoDominanciaEntre(pafit, pbfit))
         {
             return 0;
         }
@@ -123,7 +126,7 @@ public class FronteiraPareto
      * @param pbfit Fitness da partícula B.
      * @return
      */
-    private static boolean testarNaoDominancia(double[] pafit, double[] pbfit)
+    private static boolean testarNaoDominanciaEntre(double[] pafit, double[] pbfit)
     {
         return (pafit[0] > pbfit[0] || pafit[1] > pbfit[1]);
     }
@@ -135,7 +138,7 @@ public class FronteiraPareto
      * @param pbfit Fitness da partícula B.
      * @return
      */
-    private static boolean testarDominancia(double[] pafit, double[] pbfit)
+    private static boolean testarDominanciaEntre(double[] pafit, double[] pbfit)
     {
         return (pafit[0] >= pbfit[0] && pafit[1] >= pbfit[1]
                 && (pafit[0] > pbfit[0] || pafit[1] > pbfit[1]));

@@ -477,7 +477,7 @@ public class Pso
                 regrasVisitadas.add(where);
             }
 
-            if (FronteiraPareto.verificarDominanciaParticulas(pl, p) >= 0)
+            if (FronteiraPareto.verificarDominanciaEntre(pl, p) >= 0)
             {
                 FronteiraPareto.atualizarParticulas(repositorio.get(cl), pl);
                 break;
@@ -1031,7 +1031,7 @@ public class Pso
         repositorio.put(classe, rep);
 
         // Verifica tamanho do repositório
-        FronteiraPareto.verificarTamanhoDoRepositorio(rep);
+        FronteiraPareto.verificarTamanho(rep);
     }
 
     /**

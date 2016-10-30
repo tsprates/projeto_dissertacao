@@ -59,7 +59,7 @@ public class AppTest
         Particula pb = Mockito.mock(Particula.class);
         when(pb.fitness()).thenReturn(bfit);
 
-        assertEquals(1, FronteiraPareto.verificarDominanciaParticulas(pa, pb));
+        assertEquals(1, FronteiraPareto.verificarDominanciaEntre(pa, pb));
     }
 
     public void test_particula_A_nao_domina_particula_B()
@@ -80,7 +80,7 @@ public class AppTest
         Particula pb = Mockito.mock(Particula.class);
         when(pb.fitness()).thenReturn(bfit);
 
-        assertEquals(0, FronteiraPareto.verificarDominanciaParticulas(pa, pb));
+        assertEquals(0, FronteiraPareto.verificarDominanciaEntre(pa, pb));
     }
 
     public void test_particula_B_domina_particula_A()
@@ -101,7 +101,7 @@ public class AppTest
         Particula pb = Mockito.mock(Particula.class);
         when(pb.fitness()).thenReturn(bfit);
 
-        assertEquals(-1, FronteiraPareto.verificarDominanciaParticulas(pa, pb));
+        assertEquals(-1, FronteiraPareto.verificarDominanciaEntre(pa, pb));
     }
 
     public void test_particula_nao_domina_e_nem_dominada_por_outra_particula()
