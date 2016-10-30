@@ -61,29 +61,29 @@ public class FronteiraPareto
 
             while (iter.hasNext())
             {
-                double[] pIterfit = iter.next().fitness();
+                double[] pfitIter = iter.next().fitness();
 
                 // se a partícula testada domina a partícula atual
-                if (testarDominanciaEntre(pfit, pIterfit))
+                if (testarDominanciaEntre(pfit, pfitIter))
                 {
                     iter.remove(); // remove a partícula atual
                 }
 
                 // se partícula testada não é dominada pela partícula atual
-                if (testarNaoDominanciaEntre(pfit, pIterfit))
+                if (testarNaoDominanciaEntre(pfit, pfitIter))
                 {
                     domina = true;
                 }
 
                 // se a partícula testada é dominada pela partícula atual
-                if (ehDominada == false && testarDominanciaEntre(pIterfit, pfit))
+                if (ehDominada == false && testarDominanciaEntre(pfitIter, pfit))
                 {
                     ehDominada = true;
                 }
             }
 
-            // se a partícula testada não é dominada 
-            // e não existe dentro da lista de partículas
+            // se a partícula testada não é dominada  e não existe na lista de 
+            // partículas
             if ((domina == true && ehDominada == false)
                     && !particulas.contains(particula))
             {
