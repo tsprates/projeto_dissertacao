@@ -142,7 +142,7 @@ public class AppTest
         assertEquals(3, parts.size());
         assertEquals("[0.2, 0.3, 1.0][0.3, 0.4, 1.0][0.5, 0.1, 1.0]", antes.toString());
 
-        FronteiraPareto.atualizarParticulas(parts, part);
+        FronteiraPareto.atualizarParticulasNaoDominadas(parts, part);
 
         StringBuilder depois = new StringBuilder();
         for (Particula pi : parts)
@@ -192,7 +192,7 @@ public class AppTest
         assertEquals(3, parts.size());
         assertEquals("[0.2, 0.3, 1.0][0.3, 0.4, 1.0][0.5, 0.1, 1.0]", antes.toString());
 
-        FronteiraPareto.atualizarParticulas(parts, part);
+        FronteiraPareto.atualizarParticulasNaoDominadas(parts, part);
 
         StringBuilder depois = new StringBuilder();
         for (Particula pi : parts)
@@ -242,7 +242,7 @@ public class AppTest
         assertEquals(3, parts.size());
         assertEquals("[0.2, 0.3, 1.0][0.3, 0.4, 1.0][0.5, 0.1, 1.0]", antes.toString());
 
-        FronteiraPareto.atualizarParticulas(parts, part);
+        FronteiraPareto.atualizarParticulasNaoDominadas(parts, part);
 
         StringBuilder depois = new StringBuilder();
         for (Particula pi : parts)

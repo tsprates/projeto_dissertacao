@@ -479,7 +479,7 @@ public class Pso
 
             if (FronteiraPareto.verificarDominanciaEntre(pl, p) >= 0)
             {
-                FronteiraPareto.atualizarParticulas(repositorio.get(cl), pl);
+                FronteiraPareto.atualizarParticulasNaoDominadas(repositorio.get(cl), pl);
                 break;
             }
         }
@@ -840,7 +840,7 @@ public class Pso
     {
         for (Particula p : particulas)
         {
-            FronteiraPareto.atualizarParticulas(repositorio.get(classe), p);
+            FronteiraPareto.atualizarParticulasNaoDominadas(repositorio.get(classe), p);
         }
 
     }
@@ -1024,7 +1024,7 @@ public class Pso
         String classe = particula.classe();
         List<Particula> gbestLista = repositorio.get(classe);
 
-        FronteiraPareto.atualizarParticulas(gbestLista, particula);
+        FronteiraPareto.atualizarParticulasNaoDominadas(gbestLista, particula);
 
         List<Particula> rep = new ArrayList<>(gbestLista);
 

@@ -44,8 +44,8 @@ public class FronteiraPareto
      * @param particulas Lista de partícula.
      * @param particula Partícula.
      */
-    public static void atualizarParticulas(Collection<Particula> particulas,
-            Particula particula)
+    public static void atualizarParticulasNaoDominadas(
+            Collection<Particula> particulas, Particula particula)
     {
         double[] pfit = particula.fitness();
 
