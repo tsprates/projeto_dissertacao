@@ -24,13 +24,12 @@ public class FronteiraPareto
     public static void verificarNumParticulas(Collection<Particula> particulas)
     {
         List<Particula> parts = new ArrayList<>(particulas);
+
         Collections.sort(parts);
 
-        final int size = parts.size();
-
-        if (LIMITE_PARTICULAS < size)
+        if (LIMITE_PARTICULAS < parts.size())
         {
-            while (parts.size() > LIMITE_PARTICULAS)
+            while (LIMITE_PARTICULAS < parts.size())
             {
                 int index = parts.size() - 1;
                 parts.remove(RandomUtils.nextInt(1, index));
