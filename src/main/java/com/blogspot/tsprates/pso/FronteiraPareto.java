@@ -21,14 +21,14 @@ public class FronteiraPareto
      * @see FronteiraPareto#LIMITE_PARTICULAS
      * @param particulas Lista de partículas.
      */
-    public static void verificarTamanho(Collection<Particula> particulas)
+    public static void verificarNumParticulas(Collection<Particula> particulas)
     {
         List<Particula> parts = new ArrayList<>(particulas);
         Collections.sort(parts);
 
-        final int repSize = parts.size();
+        final int size = parts.size();
 
-        if (repSize > LIMITE_PARTICULAS)
+        if (LIMITE_PARTICULAS < size)
         {
             while (parts.size() > LIMITE_PARTICULAS)
             {
@@ -98,7 +98,9 @@ public class FronteiraPareto
      *
      * @param a Partícula A.
      * @param b Partícula B.
-     * @return
+     * @return Se resultado igual a 1, a partícula A domina a partícula B. Se
+     * resultado igual 0, a partícula A não domina a partícula B. Se resultado
+     * igual a -1 a partícula A é dominada pela partícula B.
      */
     public static int verificarDominanciaEntre(Particula a, Particula b)
     {
@@ -120,7 +122,7 @@ public class FronteiraPareto
     }
 
     /**
-     * Testa se a partícula A não-domina a partícula B.
+     * Testa se a partícula A não domina a partícula B.
      *
      * @param pafit Fitness da partícula A.
      * @param pbfit Fitness da partícula B.

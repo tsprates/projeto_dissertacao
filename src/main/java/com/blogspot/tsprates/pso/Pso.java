@@ -1031,7 +1031,7 @@ public class Pso
         repositorio.put(classe, rep);
 
         // Verifica tamanho do repositório
-        FronteiraPareto.verificarTamanho(rep);
+        FronteiraPareto.verificarNumParticulas(rep);
     }
 
     /**
