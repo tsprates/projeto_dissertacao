@@ -488,30 +488,30 @@ public class Pso
     /**
      * Aplicar operação de recombinação (crossover).
      *
-     * @param best
-     * @param part
-     * @param partPos
-     * @param partPosSize
+     * @param bestPart Gbest ou Pbest.
+     * @param part Partícula.
+     * @param partPos Posição da partícula.
+     * @param partPosSize Tamanho do vetor posição da partícula.
      */
-    private void aplicarRecomb(List<Particula> best, Particula part,
+    private void aplicarRecomb(List<Particula> bestPart, Particula part,
             List<String[]> partPos, final int partPosSize)
     {
-        Particula partProx = Distancia.retornarParticulaMaisProxima(best, part);
+        Particula partProx = Distancia.retornarParticulaMaisProxima(bestPart, part);
         recombinar(partProx, part, partPos, partPosSize);
     }
 
     /**
      * Operador de crossover.
      *
-     * @param partBest Melhor partícula.
+     * @param bestPart Gbest ou Pbest.
      * @param part Partícula.
      * @param partPos Posição da partícula.
      * @param partPosSize Tamanho do vetor posição da partícula.
      */
-    private void recombinar(Particula partBest, Particula part,
+    private void recombinar(Particula bestPart, Particula part,
             List<String[]> partPos, final int partPosSize)
     {
-        final List<String[]> bestPos = new ArrayList<>(partBest.posicao());
+        final List<String[]> bestPos = new ArrayList<>(bestPart.posicao());
 
         List<String[]> newPos = new ArrayList<>();
 
