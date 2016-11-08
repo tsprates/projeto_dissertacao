@@ -125,7 +125,7 @@ public class FronteiraPareto
      *
      * @param pafit Fitness da partícula A.
      * @param pbfit Fitness da partícula B.
-     * @return
+     * @return Retorna se a partícula A não domina partícula B.
      */
     private static boolean testarNaoDominanciaEntre(double[] pafit, double[] pbfit)
     {
@@ -137,7 +137,7 @@ public class FronteiraPareto
      *
      * @param pafit Fitness da partícula A.
      * @param pbfit Fitness da partícula B.
-     * @return
+     * @return Retorna se a partícula A domina partícula B.
      */
     private static boolean testarDominanciaEntre(double[] pafit, double[] pbfit)
     {
