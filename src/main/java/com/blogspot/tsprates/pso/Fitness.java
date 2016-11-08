@@ -256,11 +256,11 @@ public class Fitness
     /**
      * Fase de validação.
      *
-     * @param repositorio
-     * @return
+     * @param repositorio Partículas não dominadas, divididas por classes.
+     * @return Mapa de fitness das partículas.
      */
-    public Map<String, List<double[]>> validar(Map<String, 
-            List<Particula>> repositorio)
+    public Map<String, List<double[]>> validar(
+            Map<String, List<Particula>> repositorio)
     {
         Map<String, List<double[]>> mapFit = new TreeMap<>();
 

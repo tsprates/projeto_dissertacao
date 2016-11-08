@@ -122,10 +122,10 @@ public class Pso
 
         this.NUM_K = numKpastas;
 
-        carregarColunasDaTabela();
+        carregarColunasTabela();
         carregarClasses();
         carregarClassePorId();
-        carregarMaxMinColunasDaTabela();
+        carregarMaxMinColunasTabela();
 
         this.enxameNicho = dividirNichoEnxame();
 
@@ -170,9 +170,9 @@ public class Pso
 
             while (fitness.numAvaliacao() < maxIter)
             {
-                for (int partIndex = 0; partIndex < numParts; partIndex++)
+                for (int indexPart = 0; indexPart < numParts; indexPart++)
                 {
-                    Particula particula = particulas.get(partIndex);
+                    Particula particula = particulas.get(indexPart);
 
                     // gbest
                     atualizarRepositorio(particula);
@@ -181,15 +181,15 @@ public class Pso
                     particula.atualizarPbest();
 
                     // operador de turbulência
-                    aplicarTurbulencia(partIndex);
+                    aplicarTurbulencia(indexPart);
 
                     // atualiza posição da partícula
-                    atualizarPosicao(partIndex);
+                    atualizarPosicao(indexPart);
 
                     // adiciona busca local Pareto a cada 10 iterações
-                    if ((iter % 10) == 0 && (partIndex % 10) == 0)
+                    if ((iter % 10) == 0 && (indexPart % 10) == 0)
                     {
-                        buscaLocalPareto(partIndex);
+                        buscaLocalPareto(indexPart);
                     }
                 }
 
@@ -417,11 +417,11 @@ public class Pso
     /**
      * Atualiza posição.
      *
-     * @param partIndex Índice da partícula.
+     * @param indexPart Índice da partícula.
      */
-    private void atualizarPosicao(int partIndex)
+    private void atualizarPosicao(int indexPart)
     {
-        Particula part = particulas.get(partIndex);
+        Particula part = particulas.get(indexPart);
 
         List<String[]> partPos = new ArrayList<>(part.posicao());
         final int partPosSize = partPos.size();
@@ -430,7 +430,6 @@ public class Pso
         if (w > FastMath.random())
         {
             perturbar(part, false);
-//            buscaLocal(partIndex);
         }
 
         // pbest
@@ -451,11 +450,11 @@ public class Pso
     /**
      * Busca Local Pareto.
      *
-     * @param partIndex
+     * @param indexPart Índice da partícula.
      */
-    private void buscaLocalPareto(int partIndex)
+    private void buscaLocalPareto(int indexPart)
     {
-        Particula p = particulas.get(partIndex);
+        Particula p = particulas.get(indexPart);
         Particula pl = p.clonar();
 
         final String cl = p.classe();
@@ -663,7 +662,7 @@ public class Pso
     /**
      * Recupera colunas da tabela.
      */
-    private void carregarColunasDaTabela()
+    private void carregarColunasTabela()
     {
         ResultSetMetaData metadata;
 
@@ -725,7 +724,7 @@ public class Pso
     /**
      * Recupera os máximos e mínimos das colunas.
      */
-    private void carregarMaxMinColunasDaTabela()
+    private void carregarMaxMinColunasTabela()
     {
         // faixa de valores de cada coluna
         StringBuilder sb = new StringBuilder();
@@ -1017,14 +1016,14 @@ public class Pso
     /**
      * Atualiza repositório de partículas não dominadas.
      *
-     * @param particula
+     * @param p Partícula.
      */
-    private void atualizarRepositorio(Particula particula)
+    private void atualizarRepositorio(Particula p)
     {
-        String classe = particula.classe();
+        final String classe = p.classe();
         List<Particula> gbestLista = repositorio.get(classe);
 
-        FronteiraPareto.atualizarParticulasNaoDominadas(gbestLista, particula);
+        FronteiraPareto.atualizarParticulasNaoDominadas(gbestLista, p);
 
         List<Particula> rep = new ArrayList<>(gbestLista);
 

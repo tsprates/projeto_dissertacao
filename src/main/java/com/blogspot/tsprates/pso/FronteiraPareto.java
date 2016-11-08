@@ -12,6 +12,9 @@ import java.util.*;
 public class FronteiraPareto
 {
 
+    /**
+     * Limite total de partículas não dominadas.
+     */
     private final static int LIMITE_PARTICULAS = 30;
 
     /**
@@ -125,7 +128,7 @@ public class FronteiraPareto
      *
      * @param pafit Fitness da partícula A.
      * @param pbfit Fitness da partícula B.
-     * @return Retorna se a partícula A não domina partícula B.
+     * @return Retorna verdadeiro se a partícula A não domina a partícula B.
      */
     private static boolean testarNaoDominanciaEntre(double[] pafit, double[] pbfit)
     {
@@ -137,7 +140,7 @@ public class FronteiraPareto
      *
      * @param pafit Fitness da partícula A.
      * @param pbfit Fitness da partícula B.
-     * @return Retorna se a partícula A domina partícula B.
+     * @return Retorna verdadeiro se a partícula A domina a partícula B.
      */
     private static boolean testarDominanciaEntre(double[] pafit, double[] pbfit)
     {
