@@ -192,7 +192,6 @@ public class Particula implements Comparable<Particula>
 
         // verifica tamanho permitido do repositório
         FronteiraPareto.verificarNumParticulas(this.pbest);
-
     }
 
     @Override
