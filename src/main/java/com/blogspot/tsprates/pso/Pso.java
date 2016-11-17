@@ -100,7 +100,7 @@ public class Pso
      * @param conexao Conexão com banco de dados.
      * @param config Configurações.
      * @param formatador Formatador de casas decimais.
-     * @param numKpastas Validação K-Pastas.
+     * @param numKpastas Número de K-Pastas.
      */
     public Pso(Connection conexao, final Properties config,
             final Formatador formatador, final int numKpastas)
@@ -162,7 +162,7 @@ public class Pso
             System.out.printf("\nPartição: %d \n", i + 1);
             System.out.printf("\nValidação: %s \n", kpastas.get(i));
 
-            // reseta número de avaliações da função-objetivo
+            // reseta o número de avaliações da função-objetivo
             fitness.resetNumAvaliacao();
 
             // número de iterações
@@ -221,13 +221,13 @@ public class Pso
     }
 
     /**
-     * Calcula o valor médio para as k partições.
+     * Calcula o Valor Médio para as K-Pastas para cada classe.
      *
      * @param kpastasClasses
      */
     private void calcularValorMedio(Map<String, double[]> kpastasClasses)
     {
-        // Atualiza média das K partições
+        // atualiza média das K-Pastas
         for (Entry<String, double[]> it : kpastasClasses.entrySet())
         {
             double[] arr = it.getValue();
@@ -238,7 +238,7 @@ public class Pso
     }
 
     /**
-     * Calcula o valor médio global.
+     * Calcula o Valor Médio Global.
      *
      * @param kpastasClasses
      * @return
@@ -263,9 +263,10 @@ public class Pso
     }
 
     /**
-     * Inicializa mapa de resultados para cada classe do enxame.
+     * Inicializa um mapa de resultados de valores médios para cada classe do
+     * enxame.
      *
-     * @return
+     * @return Cria um mapa com os resultados encontrados.
      */
     private Map<String, double[]> criarValorMedioKpastas()
     {
@@ -278,7 +279,7 @@ public class Pso
     }
 
     /**
-     * Seleciona a melhor efetividade para cada classe do enxame.
+     * Seleciona a melhor efetividade para cada classe dos resultados.
      *
      * @param validacao Mapa de fitness encontrados por classe.
      * @param kpastasClasses
@@ -624,9 +625,7 @@ public class Pso
     }
 
     /**
-     * Carrega um mapa do ID de registro do banco de dados para cada classe do
-     * problema.
-     *
+     * Cria um mapa com o ID de cada registro da tabela com cada classe.
      */
     private void carregarClassePorId()
     {
@@ -660,7 +659,7 @@ public class Pso
     }
 
     /**
-     * Recupera colunas da tabela.
+     * Recupera as colunas da tabela.
      */
     private void carregarColunasTabela()
     {
@@ -698,7 +697,7 @@ public class Pso
     }
 
     /**
-     * Recupera os valores da coluna das classes.
+     * Recupera as classes da tabela.
      */
     private void carregarClasses()
     {
@@ -789,7 +788,7 @@ public class Pso
     }
 
     /**
-     * Gera população inicial.
+     * Gera a população inicial.
      *
      * @return Lista contendo a população de partículas.
      */
@@ -818,19 +817,20 @@ public class Pso
     }
 
     /**
-     * Cria uma partícula da classe definida.
+     * Cria uma partícula para a classe definida.
      *
-     * @param cls Classe.
-     * @return
+     * @param classe Classe.
+     * @return Uma nova partícula.
      */
-    private Particula criarParticula(final String cls)
+    private Particula criarParticula(final String classe)
     {
         Set<String[]> pos = criarWhere();
-        return new Particula(pos, cls, fitness);
+        return new Particula(pos, classe, fitness);
     }
 
     /**
-     * Carrega soluções iniciais para cada objetivo.
+     * Carrega as partículas iniciais não dominadas para cada objetivo do
+     * problema.
      *
      * @param classe Nicho do enxame.
      * @param particulas
@@ -841,7 +841,6 @@ public class Pso
         {
             FronteiraPareto.atualizarParticulasNaoDominadas(repositorio.get(classe), p);
         }
-
     }
 
     /**
@@ -867,7 +866,7 @@ public class Pso
     }
 
     /**
-     * Retorna o conjunto que compõe a clásula WHERE.
+     * Retorna um conjunto que compõe a clásula WHERE.
      *
      * @return Conjunto de condições da cláusula WHERE.
      */
@@ -939,7 +938,7 @@ public class Pso
     }
 
     /**
-     * Retorna a população de partículas.
+     * Retorna a população (enxame) de partículas.
      *
      * @return Lista de partículas.
      */
@@ -1115,7 +1114,7 @@ public class Pso
     }
 
     /**
-     * Retorna o valor médio global (média da classes) das k partições.
+     * Retorna o valor médio global (média da classes) para as K-Pastas.
      *
      * @return Retorna um array com o valor médio global da efetividade e
      * acurácia.
@@ -1126,7 +1125,7 @@ public class Pso
     }
 
     /**
-     * Retorna o valor médio por classes das k partições.
+     * Retorna o valor médio por classes para as K-Pastas.
      *
      * @return Retorna um mapa da efetividade e acurácia.
      */
