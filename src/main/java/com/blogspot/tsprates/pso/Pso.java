@@ -898,11 +898,13 @@ public class Pso
         final int colIndex = RandomUtils.nextInt(0, numCols);
         final int operIndex = RandomUtils.nextInt(0, numOper);
 
+        final double prob = 0.9;
+
         String valor;
 
         // verifica se a condição será 
         // outro atributo ou valor numérico
-        if (0.9 > FastMath.random())
+        if (prob > FastMath.random())
         {
             final String coluna = colunas.get(colIndex);
             final Double minCol = min.get(coluna);
