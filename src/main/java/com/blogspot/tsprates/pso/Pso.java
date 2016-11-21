@@ -9,9 +9,6 @@ import java.sql.*;
 import java.util.*;
 import java.util.Map.Entry;
 
-// ALTER TABLE wine ADD COLUMN id SERIAL;
-// UPDATE wine SET id = nextval(pg_get_serial_sequence('wine','id'));
-// ALTER TABLE wine ADD PRIMARY KEY (id);
 /**
  * PSO (Particles Swarm Optimization).
  *
@@ -451,7 +448,7 @@ public class Pso
     /**
      * Busca Local Pareto.
      *
-     * @param indexPart Índice da partícula.
+     * @param indexPart Índice da partícula no enxame.
      */
     private void buscaLocalPareto(int indexPart)
     {
@@ -903,8 +900,8 @@ public class Pso
 
         String valor;
 
-        // verifica se a condição ocorrerá com o 
-        // campo constante ou valor numérico
+        // verifica se a condição será 
+        // outro atributo ou valor numérico
         if (0.9 > FastMath.random())
         {
             final String coluna = colunas.get(colIndex);
