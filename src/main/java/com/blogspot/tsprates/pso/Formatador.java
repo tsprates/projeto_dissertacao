@@ -4,6 +4,11 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
+/**
+ * Classe para formatação de valores numéricos.
+ *
+ * @author thiago
+ */
 public class Formatador
 {
 
@@ -23,8 +28,8 @@ public class Formatador
     /**
      * Formata valor numérico.
      *
-     * @param d
-     * @return
+     * @param d Valor numérico.
+     * @return String formatada do valor numérico.
      */
     public String formatar(double d)
     {

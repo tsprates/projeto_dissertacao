@@ -1,7 +1,7 @@
 package com.blogspot.tsprates.pso;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.FastMath;
 
@@ -74,10 +74,6 @@ public class Pso
     private final Map<String, Double> max = new HashMap<>();
 
     private final Map<String, Double> min = new HashMap<>();
-
-    private final Map<String, List<Double>> efetividade = new HashMap<>();
-
-    private final Map<String, List<Double>> acuracia = new HashMap<>();
 
     private final Map<String, List<String>> mapaClasseId = new HashMap<>();
 
@@ -830,7 +826,7 @@ public class Pso
      * problema.
      *
      * @param classe Nicho do enxame.
-     * @param particulas
+     * @param particulas Lista de partículas.
      */
     private void inicializarRepositorio(String classe, List<Particula> particulas)
     {
@@ -838,28 +834,6 @@ public class Pso
         {
             FronteiraPareto.atualizarParticulasNaoDominadas(repositorio.get(classe), p);
         }
-    }
-
-    /**
-     * Lista toda a população.
-     */
-    public void mostrarEnxame()
-    {
-        System.out.println("Classe:");
-        for (String classe : mapaClasseId.keySet())
-        {
-            List<String> c = mapaClasseId.get(classe);
-            System.out.println(classe + ") " + c.size());
-        }
-        System.out.println();
-
-        System.out.println("População:");
-        for (Particula p : particulas)
-        {
-            System.out.println(Arrays.toString(p.fitness()) + " : "
-                    + p.whereSql());
-        }
-        System.out.println();
     }
 
     /**
@@ -952,37 +926,6 @@ public class Pso
     public Set<String> classes()
     {
         return classes;
-    }
-
-    /**
-     * Mapa das classes (nichos) do enxame com os respectivos IDs de cada
-     * registro do banco de dados.
-     *
-     * @return Mapa de saídas (classes) por IDs.
-     */
-    public Map<String, List<String>> getClassesPorId()
-    {
-        return mapaClasseId;
-    }
-
-    /**
-     * Retorna mapa de classes (nicho) com a efetividade de cada partícula.
-     *
-     * @return Mapa de classes (nicho) com a efetividade de cada partícula.
-     */
-    public Map<String, List<Double>> efetividade()
-    {
-        return efetividade;
-    }
-
-    /**
-     * Retorna mapa de classes (nicho) com a acurácia de cada partícula.
-     *
-     * @return Mapa de classes (nicho) com a acurácia de cada partícula.
-     */
-    public Map<String, List<Double>> acuracia()
-    {
-        return acuracia;
     }
 
     /**

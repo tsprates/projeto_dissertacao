@@ -1,5 +1,8 @@
 package com.blogspot.tsprates.pso;
 
+import weka.core.Instances;
+import weka.core.converters.DatabaseSaver;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.sql.Connection;
@@ -7,9 +10,11 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import weka.core.Instances;
-import weka.core.converters.DatabaseSaver;
-
+/**
+ * Classe para importação no banco de dados.
+ *
+ * @author thiago
+ */
 public class DBUtils
 {
 
