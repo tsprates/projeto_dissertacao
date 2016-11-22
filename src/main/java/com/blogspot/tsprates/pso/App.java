@@ -474,9 +474,9 @@ public class App
             throws InsufficientDataException, NullArgumentException,
             NotStrictlyPositiveException
     {
-        final NormalDistribution normdist = new NormalDistribution(mediaAlg, desvAlg + Double.MIN_VALUE);
-
-        Double[] arrObjEfet = efetAlg.toArray(new Double[0]);
+        final double desvio = desvAlg + Double.MIN_VALUE;
+        final NormalDistribution normdist = new NormalDistribution(mediaAlg, desvio);
+        final Double[] arrObjEfet = efetAlg.toArray(new Double[0]);
 
         return TestUtils.kolmogorovSmirnovTest(normdist,
                 ArrayUtils.toPrimitive(arrObjEfet), false);
