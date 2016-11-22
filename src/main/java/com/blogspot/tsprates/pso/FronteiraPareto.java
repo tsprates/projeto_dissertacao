@@ -85,8 +85,8 @@ public class FronteiraPareto
                 }
             }
 
-            // se a partícula testada não é dominada  e não existe na lista de 
-            // partículas
+            // se a partícula testada não é dominada e não existe na lista de 
+            // partículas não dominadas
             if ((domina == true && ehDominada == false)
                     && !particulas.contains(particula))
             {
@@ -100,7 +100,7 @@ public class FronteiraPareto
      *
      * @param a Partícula A.
      * @param b Partícula B.
-     * @return Se resultado igual a 1, a partícula A domina a partícula B. Se
+     * @return Se o resultado igual a 1, a partícula A domina a partícula B. Se
      * resultado igual 0, a partícula A não domina a partícula B. Se resultado
      * igual a -1 a partícula A é dominada pela partícula B.
      */
