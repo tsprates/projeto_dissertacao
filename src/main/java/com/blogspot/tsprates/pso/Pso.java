@@ -83,7 +83,7 @@ public class Pso
 
     private double[] valorMedioGlobal;
 
-    private Map<String, double[]> valorMedioPorClasses;
+    private Map<String, double[]> valorMedioPorClasse;
 
     private final List<String> regrasVisitadas = new ArrayList<>();
 
@@ -140,7 +140,7 @@ public class Pso
 
         fitness.setKPastas(kpastas);
 
-        Map<String, double[]> kpastasClasses = criarValorMedioKpastas();
+        Map<String, double[]> kpastasClasse = criarValorMedioKpastas();
 
         for (int i = 0; i < NUM_K; i++)
         {
@@ -157,9 +157,6 @@ public class Pso
 
             // reseta o número de avaliações da função-objetivo
             fitness.resetNumAvaliacao();
-
-            // número de iterações
-            int iter = 0;
 
             while (fitness.numAvaliacao() < maxIter)
             {
@@ -178,15 +175,12 @@ public class Pso
 
                     // atualiza posição da partícula
                     atualizarPosicao(indexPart);
-
-                    // adiciona busca local Pareto a cada 10 iterações
-                    if ((iter % 10) == 0 && (indexPart % 10) == 0)
-                    {
-                        buscaLocalPareto(indexPart);
-                    }
                 }
 
-                iter++;
+                for (String cls : classes)
+                {
+                    buscaLocalPareto(cls);
+                }
             }
 
             mostrarTreinamento();
@@ -196,16 +190,16 @@ public class Pso
             mostrarValidacao(validacao);
 
             // seleciona as melhores efetividade
-            selecionarEfetividadeValidacao(validacao, kpastasClasses);
+            selecionarEfetividadeValidacao(validacao, kpastasClasse);
         }
 
-        calcularValorMedio(kpastasClasses);
+        calcularValorMedio(kpastasClasse);
 
-        // efetividade por classes (nichos)
-        valorMedioPorClasses = new TreeMap<>(kpastasClasses);
+        // efetividade por classe
+        valorMedioPorClasse = new TreeMap<>(kpastasClasse);
 
         // média das melhores efetividades
-        valorMedioGlobal = valorMedioGlobalKpastas(kpastasClasses);
+        valorMedioGlobal = valorMedioGlobalKpastas(kpastasClasse);
 
         long tempoFinal = System.nanoTime();
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
@@ -216,32 +210,32 @@ public class Pso
     /**
      * Calcula o Valor Médio para as K-Pastas para cada classe.
      *
-     * @param kpastasClasses
+     * @param kpastasClasse
      */
-    private void calcularValorMedio(Map<String, double[]> kpastasClasses)
+    private void calcularValorMedio(Map<String, double[]> kpastasClasse)
     {
         // atualiza média das K-Pastas
-        for (Entry<String, double[]> it : kpastasClasses.entrySet())
+        for (Entry<String, double[]> it : kpastasClasse.entrySet())
         {
             double[] arr = it.getValue();
             arr[0] /= NUM_K;
             arr[1] /= NUM_K;
-            kpastasClasses.put(it.getKey(), arr);
+            kpastasClasse.put(it.getKey(), arr);
         }
     }
 
     /**
      * Calcula o Valor Médio Global.
      *
-     * @param kpastasClasses
+     * @param kpastasClasse
      * @return
      */
     private double[] valorMedioGlobalKpastas(
-            Map<String, double[]> kpastasClasses)
+            Map<String, double[]> kpastasClasse)
     {
         double[] total = new double[2];
 
-        for (double d[] : kpastasClasses.values())
+        for (double d[] : kpastasClasse.values())
         {
             total[0] += d[0];
             total[1] += d[1];
@@ -263,23 +257,25 @@ public class Pso
      */
     private Map<String, double[]> criarValorMedioKpastas()
     {
-        Map<String, double[]> kpastasClasses = new HashMap<>();
-        for (String cl : classes)
+        Map<String, double[]> kpastasClasse = new HashMap<>();
+
+        for (String cls : classes)
         {
-            kpastasClasses.put(cl, new double[2]);
+            kpastasClasse.put(cls, new double[2]);
         }
-        return kpastasClasses;
+
+        return kpastasClasse;
     }
 
     /**
      * Seleciona a melhor efetividade para cada classe dos resultados.
      *
-     * @param validacao Mapa de fitness encontrados por classe.
-     * @param kpastasClasses
+     * @param validacao Fitness por classe.
+     * @param kpastasClasse
      */
     private void selecionarEfetividadeValidacao(
             Map<String, List<double[]>> validacao,
-            Map<String, double[]> kpastasClasses)
+            Map<String, double[]> kpastasClasse)
     {
         for (Entry<String, List<double[]>> entrada : validacao.entrySet())
         {
@@ -300,10 +296,10 @@ public class Pso
                 }
             }
 
-            double[] arr = kpastasClasses.get(cl);
+            double[] arr = kpastasClasse.get(cl);
             arr[0] += maiorEfet;
             arr[1] += acur;
-            kpastasClasses.put(cl, arr);
+            kpastasClasse.put(cl, arr);
         }
     }
 
@@ -444,14 +440,14 @@ public class Pso
     /**
      * Busca Local Pareto.
      *
-     * @param indexPart Índice da partícula no enxame.
+     * @param classe.
      */
-    private void buscaLocalPareto(int indexPart)
+    private void buscaLocalPareto(String classe)
     {
-        Particula p = particulas.get(indexPart);
-        Particula pl = p.clonar();
+        final List<Particula> rep = repositorio.get(classe);
 
-        final String cl = p.classe();
+        Particula p = rep.get(rep.size() - 1);
+        Particula pl = p.clonar();
 
         final double len = FastMath.log(colunas.size());
 
@@ -472,7 +468,7 @@ public class Pso
 
             if (FronteiraPareto.verificarDominanciaEntre(pl, p) >= 0)
             {
-                FronteiraPareto.atualizarParticulasNaoDominadas(repositorio.get(cl), pl);
+                FronteiraPareto.atualizarParticulasNaoDominadas(rep, pl);
                 break;
             }
         }
@@ -761,7 +757,9 @@ public class Pso
     {
         final int numClasses = classes.size();
         final int numPopNicho = numParts / numClasses;
+
         int resto = numParts % numClasses;
+
         Map<String, Integer> nicho = new HashMap<>();
 
         for (String i : classes)
@@ -1071,6 +1069,6 @@ public class Pso
      */
     public Map<String, double[]> valorMedioPorClasses()
     {
-        return valorMedioPorClasses;
+        return valorMedioPorClasse;
     }
 }
