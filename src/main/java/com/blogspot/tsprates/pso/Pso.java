@@ -87,6 +87,8 @@ public class Pso
 
     private final List<String> regrasVisitadas = new ArrayList<>();
 
+    private final DistanciaDeMultidao distanciaDeMultidao = new DistanciaDeMultidao();
+
     /**
      * Construtor.
      *
@@ -477,16 +479,16 @@ public class Pso
     /**
      * Aplicar operação de recombinação (crossover).
      *
-     * @param bestPart Gbest ou Pbest.
+     * @param bestParts Gbest ou Pbest.
      * @param part Partícula.
      * @param partPos Posição da partícula.
      * @param partPosSize Tamanho do vetor posição da partícula.
      */
-    private void aplicarRecomb(List<Particula> bestPart, Particula part,
+    private void aplicarRecomb(List<Particula> bestParts, Particula part,
             List<String[]> partPos, final int partPosSize)
     {
-        Particula partProx = Distancia.retornarParticulaMaisProxima(bestPart, part);
-        recombinar(partProx, part, partPos, partPosSize);
+        Particula partSel = Distancia.retornarParticulaMaisProxima(bestParts, part);
+        recombinar(partSel, part, partPos, partPosSize);
     }
 
     /**
