@@ -19,42 +19,42 @@ public class DistanciaDeMultidao implements Comparator<Particula>
      * @param particulas
      * @return DistanciaDeMultidao
      */
-    public DistanciaDeMultidao realizarRanking(Collection<Particula> particulas)
+    public DistanciaDeMultidao ranquearParticulas(Collection<Particula> particulas)
     {
-        List<Particula> tempPart = new ArrayList<>(particulas);
-        final int numParts = tempPart.size();
+        List<Particula> tempParts = new ArrayList<>(particulas);
+        final int numParts = tempParts.size();
 
-        Collections.sort(tempPart);
+        Collections.sort(tempParts);
 
         ranking.clear();
 
         for (int i = 0; i < numParts; i++)
         {
-            ranking.put(tempPart.get(i), 0.0);
+            ranking.put(tempParts.get(i), 0.0);
         }
 
         if (numParts == 1)
         {
-            ranking.put(tempPart.get(0), Double.MAX_VALUE);
+            ranking.put(tempParts.get(0), Double.MAX_VALUE);
         }
 
         if (numParts == 2)
         {
-            ranking.put(tempPart.get(numParts - 1), Double.MAX_VALUE);
+            ranking.put(tempParts.get(numParts - 1), Double.MAX_VALUE);
         }
 
         if (numParts > 2)
         {
 
-            double[] objMax = tempPart.get(0).fitness();
-            double[] objMin = tempPart.get(numParts - 1).fitness();
+            double[] objMax = tempParts.get(0).fitness();
+            double[] objMin = tempParts.get(numParts - 1).fitness();
 
             for (int k = 1, len = numParts - 1; k < len; k++)
             {
-                double[] a = tempPart.get(k + 1).fitness();
-                double[] b = tempPart.get(k - 1).fitness();
+                double[] a = tempParts.get(k + 1).fitness();
+                double[] b = tempParts.get(k - 1).fitness();
 
-                Particula particula = tempPart.get(k);
+                Particula particula = tempParts.get(k);
 
                 double d = 0.0;
                 for (int i = 0; i < 2; i++)
