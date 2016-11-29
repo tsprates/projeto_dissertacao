@@ -87,8 +87,6 @@ public class Pso
 
     private final List<String> regrasVisitadas = new ArrayList<>();
 
-    private final DistanciaDeMultidao distanciaDeMultidao = new DistanciaDeMultidao();
-
     /**
      * Construtor.
      *
