@@ -11,7 +11,7 @@ import java.util.*;
 public class DistanciaDeMultidao implements Comparator<Particula>
 {
 
-    private Map<Particula, Double> ranking = new HashMap<>();
+    private final Map<Particula, Double> ranking = new HashMap<>();
 
     /**
      * Realiza o ranqueamento pela distância de multidão para cada partícula.
