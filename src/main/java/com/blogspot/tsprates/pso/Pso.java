@@ -469,7 +469,7 @@ public class Pso
             if (FronteiraPareto.verificarDominanciaEntre(pl, p) >= 0)
             {
                 FronteiraPareto.atualizarParticulasNaoDominadas(rep, pl);
-                break;
+//                break;
             }
         }
     }
