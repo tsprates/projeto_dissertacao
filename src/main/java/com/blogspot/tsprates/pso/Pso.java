@@ -448,7 +448,28 @@ public class Pso
     {
         final List<Particula> rep = repositorio.get(classe);
 
-        Particula p = rep.get(rep.size() - 1);
+        Particula p1, p2;
+
+        int index;
+
+        do
+        {
+            index = RandomUtils.nextInt(0, numParts);
+            p1 = particulas.get(index);
+        }
+        while (p1.classe().equals(classe));
+
+        do
+        {
+            index = RandomUtils.nextInt(0, numParts);
+            p2 = particulas.get(index);
+        }
+        while (p2.classe().equals(classe));
+
+        double[] p1fit = p1.fitness();
+        double[] p2fit = p2.fitness();
+
+        Particula p = (p1fit[2] > p2fit[2]) ? p1 : p2;
         Particula pl = p.clonar();
 
         final double len = FastMath.log(colunas.size());
@@ -471,7 +492,6 @@ public class Pso
             if (FronteiraPareto.verificarDominanciaEntre(pl, p) >= 0)
             {
                 FronteiraPareto.atualizarParticulasNaoDominadas(rep, pl);
-//                break;
             }
         }
     }
