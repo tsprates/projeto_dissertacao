@@ -87,6 +87,8 @@ public class Pso
 
     private final List<String> regrasVisitadas = new ArrayList<>();
 
+//    private final DistanciaDeMultidao distanciaDeMultidao = new DistanciaDeMultidao();
+    
     /**
      * Construtor.
      *
@@ -486,6 +488,23 @@ public class Pso
             List<String[]> partPos, final int partPosSize)
     {
         Particula partSel = Distancia.retornarParticulaMaisProxima(bestParts, part);
+//        final int bestSize = bestParts.size();
+//
+//        Particula p1 = bestParts.get(RandomUtils.nextInt(0, bestSize));
+//        Particula p2 = bestParts.get(RandomUtils.nextInt(0, bestSize));
+//
+//        distanciaDeMultidao.ranquearParticulas(bestParts);
+//
+//        Particula partSel;
+//
+//        if (p1.compareTo(p2) >= 0)
+//        {
+//            partSel = p1;
+//        }
+//        else
+//        {
+//            partSel = p2;
+//        }
         recombinar(partSel, part, partPos, partPosSize);
     }
 
