@@ -212,7 +212,7 @@ public class Pso
     /**
      * Calcula o Valor Médio para as K-Pastas para cada classe.
      *
-     * @param kpastasClasse
+     * @param kpastasClasse Mapa K-Pastas para cada classe.
      */
     private void calcularValorMedio(Map<String, double[]> kpastasClasse)
     {
@@ -229,8 +229,8 @@ public class Pso
     /**
      * Calcula o Valor Médio Global.
      *
-     * @param kpastasClasse
-     * @return
+     * @param kpastasClasse Mapa K-Pastas para cada classe.
+     * @return Valor médio obtido do mapa K-Pastas para cada classe.
      */
     private double[] valorMedioGlobalKpastas(
             Map<String, double[]> kpastasClasse)
@@ -273,7 +273,7 @@ public class Pso
      * Seleciona a melhor efetividade para cada classe dos resultados.
      *
      * @param validacao Fitness por classe.
-     * @param kpastasClasse
+     * @param kpastasClasse Mapa K-Pastas para cada classe.
      */
     private void selecionarEfetividadeValidacao(
             Map<String, List<double[]>> validacao,
