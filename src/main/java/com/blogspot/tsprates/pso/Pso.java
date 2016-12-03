@@ -457,14 +457,14 @@ public class Pso
             index = RandomUtils.nextInt(0, numParts);
             p1 = particulas.get(index);
         }
-        while (p1.classe().equals(classe));
+        while (!p1.classe().equals(classe));
 
         do
         {
             index = RandomUtils.nextInt(0, numParts);
             p2 = particulas.get(index);
         }
-        while (p2.classe().equals(classe));
+        while (!p2.classe().equals(classe));
 
         double[] p1fit = p1.fitness();
         double[] p2fit = p2.fitness();
