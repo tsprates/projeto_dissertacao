@@ -88,7 +88,7 @@ public class Pso
     private final List<String> regrasVisitadas = new ArrayList<>();
 
 //    private final DistanciaDeMultidao distanciaDeMultidao = new DistanciaDeMultidao();
-    
+
     /**
      * Construtor.
      *
@@ -179,9 +179,19 @@ public class Pso
                     atualizarPosicao(indexPart);
                 }
 
-                for (String cls : classes)
+                for (String cl : classes)
                 {
-                    buscaLocalPareto(cls);
+                    Particula p;
+                    int index;
+
+                    do
+                    {
+                        index = RandomUtils.nextInt(0, numParts);
+                        p = particulas.get(index);
+                    }
+                    while (!p.classe().equals(cl));
+
+                    buscaLocalPareto(p);
                 }
             }
 
@@ -261,9 +271,9 @@ public class Pso
     {
         Map<String, double[]> kpastasClasse = new HashMap<>();
 
-        for (String cls : classes)
+        for (String cl : classes)
         {
-            kpastasClasse.put(cls, new double[2]);
+            kpastasClasse.put(cl, new double[2]);
         }
 
         return kpastasClasse;
@@ -337,7 +347,7 @@ public class Pso
     /**
      * Mostra tabela de classes.
      */
-    public void mostrarTreinamento()
+    private void mostrarTreinamento()
     {
         Map<String, List<Particula>> solucoes = new TreeMap<>(repositorio);
 
@@ -442,34 +452,12 @@ public class Pso
     /**
      * Busca Local Pareto.
      *
-     * @param classe.
+     * @param p Partícula.
      */
-    private void buscaLocalPareto(String classe)
+    private void buscaLocalPareto(Particula p)
     {
+        final String classe = p.classe();
         final List<Particula> rep = repositorio.get(classe);
-
-        Particula p1, p2;
-
-        int index;
-
-        do
-        {
-            index = RandomUtils.nextInt(0, numParts);
-            p1 = particulas.get(index);
-        }
-        while (!p1.classe().equals(classe));
-
-        do
-        {
-            index = RandomUtils.nextInt(0, numParts);
-            p2 = particulas.get(index);
-        }
-        while (!p2.classe().equals(classe));
-
-        double[] p1fit = p1.fitness();
-        double[] p2fit = p2.fitness();
-
-        Particula p = (p1fit[2] > p2fit[2]) ? p1 : p2;
         Particula pl = p.clonar();
 
         final double len = FastMath.log(colunas.size());
@@ -826,18 +814,18 @@ public class Pso
     {
         List<Particula> newParts = new ArrayList<>();
 
-        for (String cls : enxameNicho.keySet())
+        for (String cl : enxameNicho.keySet())
         {
             List<Particula> nichoParticulas = new ArrayList<>();
 
-            for (int i = 0, len = enxameNicho.get(cls); i < len; i++)
+            for (int i = 0, len = enxameNicho.get(cl); i < len; i++)
             {
-                Particula particula = criarParticula(cls);
+                Particula particula = criarParticula(cl);
                 nichoParticulas.add(particula);
             }
 
             // seta o gbest para cada nicho
-            inicializarRepositorio(cls, nichoParticulas);
+            inicializarRepositorio(cl, nichoParticulas);
 
             // adiciona novas particulas com o novo nicho
             newParts.addAll(nichoParticulas);
