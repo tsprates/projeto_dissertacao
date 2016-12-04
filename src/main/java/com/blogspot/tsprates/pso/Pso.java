@@ -186,18 +186,10 @@ public class Pso
                     final double numIt = 0.1 * numParts;
                     for (int it = 0; it < numIt; it++)
                     {
-                        Particula p;
-                        int index;
+                        final int[] limites = limitesEnxame.get(cl);
+                        final int index = RandomUtils.nextInt(limites[0], limites[1]);
 
-                        int[] limites = limitesEnxame.get(cl);
-
-                        do
-                        {
-                            index = RandomUtils.nextInt(limites[0], limites[1]);
-                            p = particulas.get(index);
-                        }
-                        while (!p.classe().equals(cl));
-
+                        Particula p = particulas.get(index);
                         buscaLocalPareto(p);
                     }
                 }
@@ -822,7 +814,7 @@ public class Pso
 
             iniNicho += ent.getValue();
         }
-
+        
         return nicho;
     }
 
