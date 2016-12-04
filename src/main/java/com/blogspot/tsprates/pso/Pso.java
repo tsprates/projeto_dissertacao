@@ -87,8 +87,10 @@ public class Pso
 
     private final List<String> regrasVisitadas = new ArrayList<>();
 
-//    private final DistanciaDeMultidao distanciaDeMultidao = new DistanciaDeMultidao();
+    private final Map<String, int[]> limitesEnxame = new HashMap<>();
 
+//    private final DistanciaDeMultidao distanciaDeMultidao = new DistanciaDeMultidao();
+    
     /**
      * Construtor.
      *
@@ -157,7 +159,6 @@ public class Pso
             System.out.printf("\nPartição: %d \n", i + 1);
             System.out.printf("\nValidação: %s \n", kpastas.get(i));
 
-            // reseta o número de avaliações da função-objetivo
             fitness.resetNumAvaliacao();
 
             while (fitness.numAvaliacao() < maxIter)
@@ -179,19 +180,26 @@ public class Pso
                     atualizarPosicao(indexPart);
                 }
 
+                // Busca Local Pareto
                 for (String cl : classes)
                 {
-                    Particula p;
-                    int index;
-
-                    do
+                    final double numIt = 0.1 * numParts;
+                    for (int it = 0; it < numIt; it++)
                     {
-                        index = RandomUtils.nextInt(0, numParts);
-                        p = particulas.get(index);
-                    }
-                    while (!p.classe().equals(cl));
+                        Particula p;
+                        int index;
 
-                    buscaLocalPareto(p);
+                        int[] limites = limitesEnxame.get(cl);
+
+                        do
+                        {
+                            index = RandomUtils.nextInt(limites[0], limites[1]);
+                            p = particulas.get(index);
+                        }
+                        while (!p.classe().equals(cl));
+
+                        buscaLocalPareto(p);
+                    }
                 }
             }
 
@@ -456,8 +464,9 @@ public class Pso
      */
     private void buscaLocalPareto(Particula p)
     {
-        final String classe = p.classe();
-        final List<Particula> rep = repositorio.get(classe);
+        final String cl = p.classe();
+        final List<Particula> rep = repositorio.get(cl);
+
         Particula pl = p.clonar();
 
         final double len = FastMath.log(colunas.size());
@@ -785,21 +794,33 @@ public class Pso
         final int numClasses = classes.size();
         final int numPopNicho = numParts / numClasses;
 
+        final Map<String, Integer> nicho = new HashMap<>();
+
         int resto = numParts % numClasses;
 
-        Map<String, Integer> nicho = new HashMap<>();
-
-        for (String i : classes)
+        for (String cls : classes)
         {
             if (resto > 0)
             {
-                nicho.put(i, numPopNicho + 1);
+                nicho.put(cls, numPopNicho + 1);
                 resto -= 1;
             }
             else
             {
-                nicho.put(i, numPopNicho);
+                nicho.put(cls, numPopNicho);
             }
+        }
+
+        int iniNicho = 0;
+
+        for (Entry<String, Integer> ent : nicho.entrySet())
+        {
+            limitesEnxame.put(ent.getKey(), new int[]
+            {
+                iniNicho, iniNicho + ent.getValue()
+            });
+
+            iniNicho += ent.getValue();
         }
 
         return nicho;
