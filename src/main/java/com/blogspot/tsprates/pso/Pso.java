@@ -90,7 +90,7 @@ public class Pso
     private final Map<String, int[]> limitesEnxame = new HashMap<>();
 
 //    private final DistanciaDeMultidao distanciaDeMultidao = new DistanciaDeMultidao();
-    
+
     /**
      * Construtor.
      *
@@ -136,15 +136,16 @@ public class Pso
      */
     public void carregar()
     {
-        // tempo inicial
+        // tempo inicial de execução
         long tempoInicial = System.nanoTime();
+
+        final int numClasses = classes.size();
 
         // validação cruzada
         kpastas = criarKpastas();
-
         fitness.setKPastas(kpastas);
 
-        Map<String, double[]> kpastasClasse = criarValorMedioKpastas();
+        final Map<String, double[]> kpastasClasse = criarValorMedioKpastas();
 
         for (int i = 0; i < NUM_K; i++)
         {
@@ -183,7 +184,7 @@ public class Pso
                 // Busca Local Pareto
                 for (String cl : classes)
                 {
-                    final double numIt = 0.1 * numParts;
+                    final double numIt = 0.4 * numParts / numClasses;
                     for (int it = 0; it < numIt; it++)
                     {
                         final int[] limites = limitesEnxame.get(cl);
@@ -207,12 +208,12 @@ public class Pso
 
         calcularValorMedio(kpastasClasse);
 
-        // efetividade por classe
         valorMedioPorClasse = new TreeMap<>(kpastasClasse);
 
         // média das melhores efetividades
         valorMedioGlobal = valorMedioGlobalKpastas(kpastasClasse);
 
+        // tempo de execução
         long tempoFinal = System.nanoTime();
         double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
 
@@ -814,7 +815,7 @@ public class Pso
 
             iniNicho += ent.getValue();
         }
-        
+
         return nicho;
     }
 
