@@ -137,7 +137,7 @@ public class Pso
     public void carregar()
     {
         // tempo inicial de execução
-        long tempoInicial = System.nanoTime();
+        final long tempoInicial = System.nanoTime();
 
         final int numClasses = classes.size();
 
@@ -214,9 +214,9 @@ public class Pso
         valorMedioGlobal = valorMedioGlobalKpastas(kpastasClasse);
 
         // tempo de execução
-        long tempoFinal = System.nanoTime();
-        double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
-
+        final long tempoFinal = System.nanoTime();
+        final double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
+        
         System.out.println("\nTempo decorrido: " + tempoDecorrido);
     }
 
