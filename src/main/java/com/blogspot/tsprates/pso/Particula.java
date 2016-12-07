@@ -82,6 +82,13 @@ public class Particula implements Comparable<Particula>
     {
         this.posicao = new HashSet<>(posicao);
         this.strPos = join(this.posicao);
+    }
+
+    /**
+     * Avaliar fitness da partícula.
+     */
+    public void avaliar()
+    {
         this.fitness = calculadoraFitness.calcular(this);
     }
 
@@ -132,7 +139,7 @@ public class Particula implements Comparable<Particula>
     }
 
     /**
-     * Retorna fitness da partícula.
+     * Retorna fitness da partícula. É necessária a avaliação {@link #avaliar}.
      *
      * @return Array de doubles.
      */

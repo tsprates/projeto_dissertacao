@@ -90,7 +90,7 @@ public class Pso
     private final Map<String, int[]> limitesEnxame = new HashMap<>();
 
 //    private final DistanciaDeMultidao distanciaDeMultidao = new DistanciaDeMultidao();
-
+    
     /**
      * Construtor.
      *
@@ -180,7 +180,7 @@ public class Pso
                     // atualiza posição da partícula
                     atualizarPosicao(indexPart);
                 }
-
+                
                 // Busca Local Pareto
                 for (String cl : classes)
                 {
@@ -195,7 +195,7 @@ public class Pso
                     }
                 }
             }
-
+            
             mostrarTreinamento();
 
             // Fase de validação
@@ -216,7 +216,7 @@ public class Pso
         // tempo de execução
         final long tempoFinal = System.nanoTime();
         final double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
-        
+
         System.out.println("\nTempo decorrido: " + tempoDecorrido);
     }
 
@@ -426,7 +426,7 @@ public class Pso
     {
         Particula part = particulas.get(indexPart);
 
-        List<String[]> partPos = new ArrayList<>(part.posicao());
+        final List<String[]> partPos = new ArrayList<>(part.posicao());
         final int partPosSize = partPos.size();
 
         // velocidade
@@ -448,6 +448,9 @@ public class Pso
             List<Particula> gbest = repositorio.get(part.classe());
             aplicarRecomb(gbest, part, partPos, partPosSize);
         }
+
+        // avaliação da nova partícula
+        part.avaliar();
     }
 
     /**
@@ -478,6 +481,8 @@ public class Pso
             {
                 regrasVisitadas.add(where);
             }
+
+            pl.avaliar();
 
             if (FronteiraPareto.verificarDominanciaEntre(pl, p) >= 0)
             {
