@@ -26,7 +26,7 @@ public class Fitness
 
     private final String colId;
 
-    private final Map<String, List<String>> classesSaida;
+    private final Map<String, List<String>> particulasPorClasses;
 
     private List<String> resultado;
 
@@ -46,21 +46,19 @@ public class Fitness
      * @param conexao
      * @param colId
      * @param tabela
-     * @param classesSaida
+     * @param particulasPorClasses
      */
-    public Fitness(Connection conexao,
-            final String colId,
-            final String tabela,
-            final Map<String, List<String>> classesSaida)
+    public Fitness(Connection conexao, final String colId, final String tabela,
+            final Map<String, List<String>> particulasPorClasses)
     {
         this.conexao = conexao;
         this.colId = colId;
         this.tabela = tabela;
-        this.classesSaida = classesSaida;
+        this.particulasPorClasses = particulasPorClasses;
 
-        for (String saida : classesSaida.keySet())
+        for (String saida : particulasPorClasses.keySet())
         {
-            totalSize += classesSaida.get(saida).size();
+            totalSize += particulasPorClasses.get(saida).size();
         }
     }
 
@@ -183,33 +181,34 @@ public class Fitness
      */
     private double[] realizarCalculo(Particula part, boolean treinamento)
     {
-        List<String> listaVerdadeiros = new ArrayList<>(classesSaida.get(part.classe()));
+        final String classe = part.classe();
+        final List<String> verdadeiras = new ArrayList<>(particulasPorClasses.get(classe));
 
-        if (treinamento)
+        if (treinamento == true)
         {
-            listaVerdadeiros.removeAll(kpastas.get(k));
+            verdadeiras.removeAll(kpastas.get(k));
         }
         else
         {
-            listaVerdadeiros.retainAll(kpastas.get(k));
+            verdadeiras.retainAll(kpastas.get(k));
         }
 
         resultado = consultaSql(part.whereSql(), treinamento);
 
         double tp = 0.0;
-        for (String iter : resultado)
+        for (String id : resultado)
         {
-            if (listaVerdadeiros.contains(iter))
+            if (verdadeiras.contains(id))
             {
                 tp += 1.0;
             }
         }
 
         final int resultadoSize = resultado.size();
-        final int listaVerdadeirosSize = listaVerdadeiros.size();
+        final int verdadeirasSize = verdadeiras.size();
 
         double fp = resultadoSize - tp;
-        double fn = listaVerdadeirosSize - tp;
+        double fn = verdadeirasSize - tp;
         double tn = totalSize - fn - fp - tp;
 
         double sensibilidade = tp / (tp + fn);
