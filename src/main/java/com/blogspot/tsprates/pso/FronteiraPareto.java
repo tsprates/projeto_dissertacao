@@ -101,8 +101,8 @@ public class FronteiraPareto
      * @param a Partícula A.
      * @param b Partícula B.
      * @return Se o resultado igual a 1, a partícula A domina a partícula B. Se
-     * resultado igual 0, a partícula A não domina a partícula B. Se resultado
-     * igual a -1 a partícula A é dominada pela partícula B.
+     * resultado igual 0 não há relação de dominância. Se resultado igual a -1 a
+     * partícula A é dominada pela partícula B.
      */
     public static int verificarDominanciaEntre(Particula a, Particula b)
     {
