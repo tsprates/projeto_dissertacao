@@ -63,7 +63,7 @@ public class Pso
 
     private final Formatador fmt;
 
-    private final int maxIter;
+    private final int maxNumAvaliacao;
 
     private final String colClasse, colId;
 
@@ -89,8 +89,6 @@ public class Pso
 
     private final Map<String, int[]> limitesEnxame = new HashMap<>();
 
-//    private final DistanciaDeMultidao distanciaDeMultidao = new DistanciaDeMultidao();
-    
     /**
      * Construtor.
      *
@@ -113,7 +111,7 @@ public class Pso
 
         this.crossover = Double.valueOf(config.getProperty("cr"));
         this.numParts = Integer.valueOf(config.getProperty("npop"));
-        this.maxIter = Integer.valueOf(config.getProperty("maxiter"));
+        this.maxNumAvaliacao = Integer.valueOf(config.getProperty("maxiter"));
 
         this.fmt = formatador;
 
@@ -162,7 +160,9 @@ public class Pso
 
             fitness.resetNumAvaliacao();
 
-            while (fitness.numAvaliacao() < maxIter)
+            int iter = 0;
+
+            while (fitness.numAvaliacao() < maxNumAvaliacao)
             {
                 for (int indexPart = 0; indexPart < numParts; indexPart++)
                 {
@@ -180,22 +180,25 @@ public class Pso
                     // atualiza posição da partícula
                     atualizarPosicao(indexPart);
                 }
-                
-                // Busca Local Pareto
-                for (String cl : classes)
-                {
-                    final double numIt = 0.4 * numParts / numClasses;
-                    for (int it = 0; it < numIt; it++)
-                    {
-                        final int[] limites = limitesEnxame.get(cl);
-                        final int index = RandomUtils.nextInt(limites[0], limites[1]);
 
-                        Particula p = particulas.get(index);
-                        buscaLocalPareto(p);
+                // Busca Local Pareto
+                if ((iter % 10) == 0)
+                {
+                    for (String cl : classes)
+                    {
+                        final double numIt = 0.4 * numParts / numClasses;
+                        for (int it = 0; it < numIt; it++)
+                        {
+                            final int[] limites = limitesEnxame.get(cl);
+                            final int index = RandomUtils.nextInt(limites[0], limites[1]);
+
+                            Particula p = particulas.get(index);
+                            buscaLocalPareto(p);
+                        }
                     }
                 }
             }
-            
+
             mostrarTreinamento();
 
             // Fase de validação
@@ -204,6 +207,8 @@ public class Pso
 
             // seleciona as melhores efetividade
             selecionarEfetividadeValidacao(validacao, kpastasClasse);
+
+            iter++;
         }
 
         calcularValorMedio(kpastasClasse);
@@ -487,6 +492,7 @@ public class Pso
             if (FronteiraPareto.verificarDominanciaEntre(pl, p) >= 0)
             {
                 FronteiraPareto.atualizarParticulasNaoDominadas(rep, pl);
+                break;
             }
         }
     }
@@ -503,23 +509,6 @@ public class Pso
             List<String[]> partPos, final int partPosSize)
     {
         Particula partSel = Distancia.retornarParticulaMaisProxima(bestParts, part);
-//        final int bestSize = bestParts.size();
-//
-//        Particula p1 = bestParts.get(RandomUtils.nextInt(0, bestSize));
-//        Particula p2 = bestParts.get(RandomUtils.nextInt(0, bestSize));
-//
-//        distanciaDeMultidao.ranquearParticulas(bestParts);
-//
-//        Particula partSel;
-//
-//        if (p1.compareTo(p2) >= 0)
-//        {
-//            partSel = p1;
-//        }
-//        else
-//        {
-//            partSel = p2;
-//        }
         recombinar(partSel, part, partPos, partPosSize);
     }
 
