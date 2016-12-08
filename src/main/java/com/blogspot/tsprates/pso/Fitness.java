@@ -175,13 +175,13 @@ public class Fitness
     /**
      * Calcula a especificidade e acurácia da partícula.
      *
-     * @param part Partícula.
+     * @param p Partícula.
      * @param treinamento Treinamento.
      * @return Retorna a efetividade e acurácia calculada.
      */
-    private double[] realizarCalculo(Particula part, boolean treinamento)
+    private double[] realizarCalculo(Particula p, boolean treinamento)
     {
-        final String classe = part.classe();
+        final String classe = p.classe();
         final List<String> verdadeiras = new ArrayList<>(particulasPorClasses.get(classe));
 
         if (treinamento == true)
@@ -193,7 +193,7 @@ public class Fitness
             verdadeiras.retainAll(kpastas.get(k));
         }
 
-        resultado = consultaSql(part.whereSql(), treinamento);
+        resultado = consultaSql(p.whereSql(), treinamento);
 
         double tp = 0.0;
         for (String id : resultado)
