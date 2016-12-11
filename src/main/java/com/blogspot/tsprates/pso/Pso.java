@@ -182,7 +182,7 @@ public class Pso
                 }
 
                 // Busca Local Pareto
-                if ((iter % 20) == 0)
+                if ((iter % 10) == 0)
                 {
                     for (String cl : classes)
                     {
