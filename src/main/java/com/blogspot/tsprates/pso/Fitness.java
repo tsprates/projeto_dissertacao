@@ -26,7 +26,7 @@ public class Fitness
 
     private final String colId;
 
-    private final Map<String, List<String>> particulasPorClasses;
+    private final Map<String, List<String>> particulasPorClasse;
 
     private List<String> resultado;
 
@@ -54,7 +54,7 @@ public class Fitness
         this.conexao = conexao;
         this.colId = colId;
         this.tabela = tabela;
-        this.particulasPorClasses = particulasPorClasses;
+        this.particulasPorClasse = particulasPorClasses;
 
         for (String saida : particulasPorClasses.keySet())
         {
@@ -182,7 +182,7 @@ public class Fitness
     private double[] realizarCalculo(Particula p, boolean treinamento)
     {
         final String classe = p.classe();
-        final List<String> verdadeiras = new ArrayList<>(particulasPorClasses.get(classe));
+        final List<String> verdadeiras = new ArrayList<>(particulasPorClasse.get(classe));
 
         if (treinamento == true)
         {
