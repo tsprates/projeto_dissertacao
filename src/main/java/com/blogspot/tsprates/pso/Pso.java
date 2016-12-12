@@ -363,7 +363,6 @@ public class Pso
 
         for (Entry<String, List<Particula>> parts : solucoes.entrySet())
         {
-
             String classe = parts.getKey();
 
             List<Particula> listaParts = parts.getValue();
@@ -569,7 +568,7 @@ public class Pso
         List<String[]> pos = new ArrayList<>(p.posicao());
 
         final int index = RandomUtils.nextInt(0, pos.size());
-        final String[] clausula = pos.get(index);
+        final String[] termo = pos.get(index);
 
         if (0.5 > FastMath.random())
         {
@@ -577,20 +576,20 @@ public class Pso
         }
         else
         {
-            String oper = clausula[1];
-            String val = clausula[2];
+            String oper = termo[1];
+            String val = termo[2];
 
-            if (NumberUtils.isNumber(clausula[2]) && 0.5 > FastMath.random())
+            if (NumberUtils.isNumber(termo[2]) && 0.5 > FastMath.random())
             {
                 // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
-                final double valor = Double.parseDouble(clausula[2]);
+                final double valor = Double.parseDouble(termo[2]);
                 double newVal;
 
                 if (mutgauss)
                 {
                     // Proposta de Higashi et al. (2003)
                     // Mutação não uniforme
-                    final double alfa = 0.1 * (max.get(clausula[0]) - min.get(clausula[0])) + Double.MIN_VALUE;
+                    final double alfa = 0.1 * (max.get(termo[0]) - min.get(termo[0])) + Double.MIN_VALUE;
                     final double r = new NormalDistribution(0, alfa).sample();
                     newVal = valor + r;
                 }
@@ -600,11 +599,11 @@ public class Pso
                     // Mutação uniforme
                     if (0.5 > FastMath.random())
                     {
-                        newVal = valor + (max.get(clausula[0]) - valor) * FastMath.random();
+                        newVal = valor + (max.get(termo[0]) - valor) * FastMath.random();
                     }
                     else
                     {
-                        newVal = valor - (valor - min.get(clausula[0])) * FastMath.random();
+                        newVal = valor - (valor - min.get(termo[0])) * FastMath.random();
                     }
                 }
 
@@ -629,7 +628,7 @@ public class Pso
 
             pos.set(index, new String[]
             {
-                clausula[0], oper, val
+                termo[0], oper, val
             });
         }
 
