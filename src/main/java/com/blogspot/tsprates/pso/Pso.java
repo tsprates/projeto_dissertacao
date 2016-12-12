@@ -553,7 +553,7 @@ public class Pso
             }
         }
 
-        part.setPosicao(new HashSet<>(newPos));
+        part.setPosicao(newPos);
     }
 
     /**
@@ -867,26 +867,25 @@ public class Pso
     }
 
     /**
-     * Retorna um conjunto que compõe a clásula WHERE.
+     * Retorna um conjunto de condições que compõe uma cláusula SQL WHERE.
      *
-     * @return Conjunto de condições da cláusula WHERE.
+     * @return Conjunto de condições da cláusula SQL WHERE.
      */
     private Set<String> criarWhere()
     {
-        int numCols = colunas.size();
-        Set<String> listaWhere = new HashSet<>();
+        final int numCols = colunas.size();
+        final Set<String> conjWhere = new HashSet<>();
 
-        double R = RandomUtils.nextDouble(1, numCols);
-        int maxWhere = (int) FastMath.ceil(FastMath.log(2.0, R)) + 1;
-//        int maxWhere = (int) RandomUtils.nextDouble(1, numCols);
+        final double r = RandomUtils.nextDouble(1, numCols);
+        final int maxWhere = (int) FastMath.ceil(FastMath.log(2.0, r)) + 1;
 
         for (int i = 0; i < maxWhere; i++)
         {
             String cond = criarCondicao();
-            listaWhere.add(cond);
+            conjWhere.add(cond);
         }
 
-        return listaWhere;
+        return conjWhere;
     }
 
     /**
