@@ -219,7 +219,7 @@ public class Pso
 
         final long tempoFinal = System.nanoTime();
         final double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
-        System.out.printf(Locale.ROOT, "\nTempo decorrido: %.2segs\n", tempoDecorrido);
+        System.out.printf(Locale.ROOT, "\nTempo decorrido: %.2fsegs\n", tempoDecorrido);
     }
 
     /**
