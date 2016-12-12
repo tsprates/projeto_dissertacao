@@ -134,7 +134,6 @@ public class Pso
      */
     public void carregar()
     {
-        // tempo inicial de execução
         final long tempoInicial = System.nanoTime();
 
         final int numClasses = classes.size();
@@ -218,11 +217,9 @@ public class Pso
         // média das melhores efetividades
         valorMedioGlobal = valorMedioGlobalKpastas(kpastasClasse);
 
-        // tempo de execução
         final long tempoFinal = System.nanoTime();
         final double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
-
-        System.out.println("\nTempo decorrido: " + tempoDecorrido);
+        System.out.printf(Locale.ROOT, "\nTempo decorrido: %.2segs\n", tempoDecorrido);
     }
 
     /**
@@ -328,8 +325,7 @@ public class Pso
      */
     private void mostrarValidacao(Map<String, List<double[]>> validacao)
     {
-        System.out.println("\n\nFase de validação:");
-        System.out.println();
+        System.out.println("\n\nFase de validação:\n");
 
         // tabela de validação
         System.out.print(TAB_CABECALHO);
@@ -355,11 +351,11 @@ public class Pso
      */
     private void mostrarTreinamento()
     {
-        Map<String, List<Particula>> solucoes = new TreeMap<>(repositorio);
-
         System.out.println("\n\nFase de treinamento:\n");
 
         System.out.println(TAB_CABECALHO);
+
+        Map<String, List<Particula>> solucoes = new TreeMap<>(repositorio);
 
         for (Entry<String, List<Particula>> parts : solucoes.entrySet())
         {
