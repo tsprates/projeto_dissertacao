@@ -889,9 +889,9 @@ public class Pso
     }
 
     /**
-     * Cria condição da cláusula WHERE.
+     * Cria uma cláusula SQL WHERE.
      *
-     * @return String da cláusula WHERE.
+     * @return String da cláusula SQL WHERE.
      */
     private String criarCondicao()
     {
