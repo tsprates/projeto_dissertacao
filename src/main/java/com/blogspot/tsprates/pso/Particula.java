@@ -12,7 +12,7 @@ import java.util.*;
 public class Particula implements Comparable<Particula>
 {
 
-    private Set<String[]> posicao;
+    private Set<String> posicao;
 
     private String strPos;
 
@@ -24,29 +24,21 @@ public class Particula implements Comparable<Particula>
 
     private Set<Particula> pbest;
 
-    private final Comparator<String[]> comp = new Comparator<String[]>()
-    {
-        @Override
-        public int compare(String[] a, String[] b)
-        {
-            return a[0].compareTo(b[0]);
-        }
-    };
-
     /**
      * Construtor.
      *
      * @param posicao Conjunto de cláusulas WHERE que representa a posição da
      * partícula.
-     * @param classe Rótulo da partícula.
+     * @param classe Rótulo (classe) da partícula.
      * @param fitness Calculadora de fitness.
      */
-    public Particula(Set<String[]> posicao, String classe, Fitness fitness)
+    public Particula(final Set<String> posicao, final String classe,
+            Fitness fitness)
     {
-        this.posicao = new HashSet<>(posicao);
+        this.posicao = new TreeSet<>(posicao);
         this.strPos = join(posicao);
         this.classe = classe;
-        this.pbest = new HashSet<>();
+        this.pbest = new TreeSet<>();
 
         this.calculadoraFitness = fitness;
 
@@ -68,7 +60,7 @@ public class Particula implements Comparable<Particula>
      *
      * @return Lista de String WHERE de nova posição.
      */
-    public Set<String[]> posicao()
+    public Set<String> posicao()
     {
         return posicao;
     }
@@ -78,9 +70,9 @@ public class Particula implements Comparable<Particula>
      *
      * @param posicao Lista de String WHERE de nova posição.
      */
-    public void setPosicao(Collection<String[]> posicao)
+    public void setPosicao(Collection<String> posicao)
     {
-        this.posicao = new HashSet<>(posicao);
+        this.posicao = new TreeSet<>(posicao);
         this.strPos = join(this.posicao);
     }
 
@@ -123,7 +115,7 @@ public class Particula implements Comparable<Particula>
      *
      * @param classe Classe da partícula.
      */
-    public void setClasse(String classe)
+    public void setClasse(final String classe)
     {
         this.classe = classe;
     }
@@ -154,19 +146,9 @@ public class Particula implements Comparable<Particula>
      * @param where Cláusula WHERE.
      * @return String de cláusulas WHERE.
      */
-    private String join(Set<String[]> where)
+    private String join(Set<String> where)
     {
-        List<String[]> tempWhere = new ArrayList<>(where);
-        List<String> conds = new ArrayList<>();
-
-        Collections.sort(tempWhere, comp);
-
-        for (String[] iter : tempWhere)
-        {
-            conds.add(StringUtils.join(iter, " "));
-        }
-
-        return "(" + StringUtils.join(conds, ") AND (") + ")";
+        return "(" + StringUtils.join(where, ") AND (") + ")";
     }
 
     /**
@@ -185,7 +167,7 @@ public class Particula implements Comparable<Particula>
      */
     public void setPbest(List<Particula> pbest)
     {
-        this.pbest = new HashSet<>(pbest);
+        this.pbest = new TreeSet<>(pbest);
     }
 
     /**
@@ -195,7 +177,7 @@ public class Particula implements Comparable<Particula>
     public void atualizarPbest()
     {
         FronteiraPareto.atualizarParticulasNaoDominadas(pbest, this);
-        this.pbest = new HashSet<>(pbest);
+        this.pbest = new TreeSet<>(pbest);
 
         // verifica tamanho permitido do repositório
         FronteiraPareto.verificarNumParticulas(this.pbest);

@@ -192,8 +192,8 @@ public class Pso
                             final int[] limites = limitesEnxame.get(cl);
                             final int index = RandomUtils.nextInt(limites[0], limites[1]);
 
-                            Particula p = particulas.get(index);
-                            buscaLocalPareto(p);
+                            Particula part = particulas.get(index);
+                            buscaLocalPareto(part);
                         }
                     }
                 }
@@ -382,14 +382,15 @@ public class Pso
      * Monta uma linha da tabela de resultado do algoritmo.
      *
      * @param classe Nicho do enxame.
-     * @param fso Funções objetivo.
+     * @param fo Funções objetivo.
      * @param whereSql Cláusula WHERE.
      */
-    private void mostrarFmtSaida(String classe, double[] fso, String whereSql)
+    private void mostrarFmtSaida(final String classe, final double[] fo,
+            final String whereSql)
     {
-        String compl = fmt.formatar(fso[0]);
-        String efet = fmt.formatar(fso[1]);
-        String acur = fmt.formatar(fso[2]);
+        String compl = fmt.formatar(fo[0]);
+        String efet = fmt.formatar(fo[1]);
+        String acur = fmt.formatar(fo[2]);
 
         String cl; // classe
         if (classe.length() > 10)
@@ -430,7 +431,7 @@ public class Pso
     {
         Particula part = particulas.get(indexPart);
 
-        final List<String[]> partPos = new ArrayList<>(part.posicao());
+        final List<String> partPos = new ArrayList<>(part.posicao());
         final int partPosSize = partPos.size();
 
         // velocidade
@@ -505,7 +506,7 @@ public class Pso
      * @param partPosSize Tamanho do vetor posição da partícula.
      */
     private void aplicarRecomb(List<Particula> bestParts, Particula part,
-            List<String[]> partPos, final int partPosSize)
+            List<String> partPos, final int partPosSize)
     {
         Particula partSel = Distancia.retornarParticulaMaisProxima(bestParts, part);
         recombinar(partSel, part, partPos, partPosSize);
@@ -520,13 +521,12 @@ public class Pso
      * @param partPosSize Tamanho do vetor posição da partícula.
      */
     private void recombinar(Particula bestPart, Particula part,
-            List<String[]> partPos, final int partPosSize)
+            List<String> partPos, final int partPosSize)
     {
-        final List<String[]> bestPos = new ArrayList<>(bestPart.posicao());
+        final List<String> bestPos = new ArrayList<>(bestPart.posicao());
+        final int bestPosSize = bestPos.size();
 
-        List<String[]> newPos = new ArrayList<>();
-
-        int bestPosSize = bestPos.size();
+        final List<String> newPos = new ArrayList<>();
 
         int i = 0;
 
@@ -564,11 +564,10 @@ public class Pso
      */
     private void perturbar(Particula p, boolean mutgauss)
     {
+        final List<String> pos = new ArrayList<>(p.posicao());
 
-        List<String[]> pos = new ArrayList<>(p.posicao());
-
-        final int index = RandomUtils.nextInt(0, pos.size());
-        final String[] termo = pos.get(index);
+        final int indexPos = RandomUtils.nextInt(0, pos.size());
+        final String[] termo = pos.get(indexPos).split(" ");
 
         if (0.5 > FastMath.random())
         {
@@ -626,10 +625,7 @@ public class Pso
 
             }
 
-            pos.set(index, new String[]
-            {
-                termo[0], oper, val
-            });
+            pos.set(indexPos, String.format(Locale.ROOT, "%s %s %s", termo[0], oper, val));
         }
 
         p.setPosicao(pos);
@@ -829,6 +825,7 @@ public class Pso
             {
                 Particula particula = criarParticula(cl);
                 nichoParticulas.add(particula);
+
             }
 
             // seta o gbest para cada nicho
@@ -849,7 +846,7 @@ public class Pso
      */
     private Particula criarParticula(final String classe)
     {
-        Set<String[]> pos = criarWhere();
+        final Set<String> pos = criarWhere();
         return new Particula(pos, classe, fitness);
     }
 
@@ -860,7 +857,8 @@ public class Pso
      * @param classe Nicho do enxame.
      * @param particulas Lista de partículas.
      */
-    private void inicializarRepositorio(String classe, List<Particula> particulas)
+    private void inicializarRepositorio(final String classe,
+            List<Particula> particulas)
     {
         for (Particula p : particulas)
         {
@@ -873,10 +871,10 @@ public class Pso
      *
      * @return Conjunto de condições da cláusula WHERE.
      */
-    private Set<String[]> criarWhere()
+    private Set<String> criarWhere()
     {
-        final int numCols = colunas.size();
-        Set<String[]> listaWhere = new HashSet<>();
+        int numCols = colunas.size();
+        Set<String> listaWhere = new HashSet<>();
 
         double R = RandomUtils.nextDouble(1, numCols);
         int maxWhere = (int) FastMath.ceil(FastMath.log(2.0, R)) + 1;
@@ -884,7 +882,7 @@ public class Pso
 
         for (int i = 0; i < maxWhere; i++)
         {
-            String[] cond = criarCondicao();
+            String cond = criarCondicao();
             listaWhere.add(cond);
         }
 
@@ -896,7 +894,7 @@ public class Pso
      *
      * @return String da cláusula WHERE.
      */
-    private String[] criarCondicao()
+    private String criarCondicao()
     {
         final int numOper = LISTA_OPERADORES.length;
         final int numCols = colunas.size();
@@ -934,10 +932,7 @@ public class Pso
         String col = colunas.get(colIndex);
         String oper = LISTA_OPERADORES[operIndex];
 
-        return new String[]
-        {
-            col, oper, valor
-        };
+        return String.format(Locale.ROOT, "%s %s %s", col, oper, valor);
     }
 
     /**
