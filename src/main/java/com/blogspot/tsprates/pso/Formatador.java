@@ -14,13 +14,13 @@ public class Formatador
 
     private final DecimalFormat fmt;
 
-    public static final String TAB_FORMAT = "%-15s %-10s %-10s %-10s %s\n";
+    public static final String TAB_LINHA = "%-15s %-10s %-10s %-10s %s\n";
 
     public static final String TAB_CABECALHO;
 
     static
     {
-        TAB_CABECALHO = String.format(TAB_FORMAT, "Classe", "Compl.",
+        TAB_CABECALHO = String.format(TAB_LINHA, "Classe", "Compl.",
                 "Efet.", "Acur.", "Regra");
     }
 
@@ -40,12 +40,12 @@ public class Formatador
     /**
      * Formata um valor numérico, para exibição em tabela de resultados.
      *
-     * @param d Valor numérico.
+     * @param valor Valor numérico.
      * @return String formatada referente ao valor numérico.
      */
-    public String formatar(final double d)
+    public String formatar(final double valor)
     {
-        return fmt.format(d);
+        return fmt.format(valor);
     }
 
     /**
@@ -66,12 +66,12 @@ public class Formatador
      * Formata um valor numérico para uma cláusula SQL WHERE, sendo composto por
      * 3 casas decimais.
      *
-     * @param d Valor numérico.
+     * @param valor Valor numérico.
      * @return String formatada do valor numérico.
      */
-    public static String formatarValorWhere(final double d)
+    public static String formatarValorWhere(final double valor)
     {
-        return String.format(LOC, "%.3f", d);
+        return String.format(LOC, "%.3f", valor);
     }
 
     /**

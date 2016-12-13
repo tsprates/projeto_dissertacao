@@ -392,7 +392,7 @@ public class Pso
             cl = classe;
         }
 
-        System.out.printf(TAB_FORMAT, cl, compl, efet, acur, whereSql);
+        System.out.printf(TAB_LINHA, cl, compl, efet, acur, whereSql);
     }
 
     /**
