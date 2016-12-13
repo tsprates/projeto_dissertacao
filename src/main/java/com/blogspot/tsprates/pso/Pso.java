@@ -178,7 +178,7 @@ public class Pso
                 {
                     for (String cl : classes)
                     {
-                        final double numIt = 0.4 * numParts / numClasses;
+                        final double numIt = 0.3 * numParts / numClasses;
                         for (int it = 0; it < numIt; it++)
                         {
                             final int[] limites = limitesEnxame.get(cl);
