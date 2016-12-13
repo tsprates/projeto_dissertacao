@@ -9,6 +9,9 @@ import java.sql.*;
 import java.util.*;
 import java.util.Map.Entry;
 
+import static com.blogspot.tsprates.pso.Formatador.*;
+import static com.blogspot.tsprates.pso.FronteiraPareto.*;
+
 /**
  * PSO (Particles Swarm Optimization).
  *
@@ -30,16 +33,6 @@ public class Pso
         0.0, 0.22, 0.44, 0.66, 0.88,
         0.94, 1.0
     };
-
-    private static final String TAB_FORMAT = "%-15s %-10s %-10s %-10s %s\n";
-
-    private static final String TAB_CABECALHO;
-
-    static
-    {
-        TAB_CABECALHO = String.format(TAB_FORMAT, "Classe", "Compl.",
-                "Efet.", "Acur.", "Regra");
-    }
 
     private final static double TURBULENCIA = 3;
 
@@ -160,7 +153,7 @@ public class Pso
             fitness.resetNumAvaliacao();
 
             int iter = 0;
-
+            
             while (fitness.numAvaliacao() < maxNumAvaliacao)
             {
                 for (int indexPart = 0; indexPart < numParts; indexPart++)
@@ -196,6 +189,8 @@ public class Pso
                         }
                     }
                 }
+                
+                iter++;
             }
 
             mostrarTreinamento();
@@ -206,8 +201,6 @@ public class Pso
 
             // seleciona as melhores efetividade
             selecionarEfetividadeValidacao(validacao, kpastasClasse);
-
-            iter++;
         }
 
         calcularValorMedio(kpastasClasse);
@@ -218,8 +211,9 @@ public class Pso
         valorMedioGlobal = valorMedioGlobalKpastas(kpastasClasse);
 
         final long tempoFinal = System.nanoTime();
-        final double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
-        System.out.printf(Locale.ROOT, "\nTempo decorrido: %.2f segs\n", tempoDecorrido);
+        
+        System.out.printf("\nTempo decorrido: %s\n",
+                formatarTempoDecorrido(tempoInicial, tempoFinal));
     }
 
     /**
@@ -485,9 +479,9 @@ public class Pso
 
             pl.avaliar();
 
-            if (FronteiraPareto.verificarDominanciaEntre(pl, p) >= 0)
+            if (verificarDominanciaEntre(pl, p) >= 0)
             {
-                FronteiraPareto.atualizarParticulasNaoDominadas(rep, pl);
+                atualizarParticulasNaoDominadas(rep, pl);
                 break;
             }
         }
@@ -602,7 +596,7 @@ public class Pso
                     }
                 }
 
-                val = String.format(Locale.ROOT, "%.3f", newVal);
+                val = formatarValorWhere(newVal);
             }
             else
             {
@@ -621,7 +615,7 @@ public class Pso
 
             }
 
-            pos.set(indexPos, String.format(Locale.ROOT, "%s %s %s", termo[0], oper, val));
+            pos.set(indexPos, formatarCondicaoWhere(termo[0], oper, val));
         }
 
         p.setPosicao(pos);
@@ -858,7 +852,7 @@ public class Pso
     {
         for (Particula p : particulas)
         {
-            FronteiraPareto.atualizarParticulasNaoDominadas(repositorio.get(classe), p);
+            atualizarParticulasNaoDominadas(repositorio.get(classe), p);
         }
     }
 
@@ -984,14 +978,14 @@ public class Pso
         final String classe = p.classe();
         List<Particula> gbestLista = repositorio.get(classe);
 
-        FronteiraPareto.atualizarParticulasNaoDominadas(gbestLista, p);
+        atualizarParticulasNaoDominadas(gbestLista, p);
 
         List<Particula> rep = new ArrayList<>(gbestLista);
 
         repositorio.put(classe, rep);
 
         // Verifica tamanho do repositório
-        FronteiraPareto.verificarNumParticulas(rep);
+        verificarNumParticulas(rep);
     }
 
     /**
