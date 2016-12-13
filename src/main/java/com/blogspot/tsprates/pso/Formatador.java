@@ -14,17 +14,12 @@ public class Formatador
 
     private final DecimalFormat fmt;
 
+    private static final Locale LOC = Locale.ROOT;
+
     public static final String TAB_LINHA = "%-15s %-10s %-10s %-10s %s\n";
 
-    public static final String TAB_CABECALHO;
-
-    static
-    {
-        TAB_CABECALHO = String.format(TAB_LINHA, "Classe", "Compl.",
-                "Efet.", "Acur.", "Regra");
-    }
-
-    private static final Locale LOC = Locale.ROOT;
+    public static final String TAB_CABECALHO = String.format(TAB_LINHA,
+            "Classe", "Compl.", "Efet.", "Acur.", "Regra");
 
     /**
      * Construtor.
