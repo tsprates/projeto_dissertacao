@@ -152,8 +152,6 @@ public class Pso
 
             fitness.resetNumAvaliacao();
 
-            int iter = 0;
-
             while (fitness.numAvaliacao() < maxNumAvaliacao)
             {
                 for (int indexPart = 0; indexPart < numParts; indexPart++)
@@ -174,23 +172,18 @@ public class Pso
                 }
 
                 // Busca Local Pareto
-                if ((iter % 10) == 0)
+                for (String cl : classes)
                 {
-                    for (String cl : classes)
+                    final double numIt = 0.3 * numParts / numClasses;
+                    for (int it = 0; it < numIt; it++)
                     {
-                        final double numIt = 0.4 * numParts / numClasses;
-                        for (int it = 0; it < numIt; it++)
-                        {
-                            final int[] limites = limitesEnxame.get(cl);
-                            final int index = RandomUtils.nextInt(limites[0], limites[1]);
+                        final int[] limites = limitesEnxame.get(cl);
+                        final int index = RandomUtils.nextInt(limites[0], limites[1]);
 
-                            Particula part = particulas.get(index);
-                            buscaLocalPareto(part);
-                        }
+                        Particula part = particulas.get(index);
+                        buscaLocalPareto(part);
                     }
                 }
-
-                iter++;
             }
 
             mostrarTreinamento();
