@@ -153,7 +153,7 @@ public class Pso
             fitness.resetNumAvaliacao();
 
             int iter = 0;
-            
+
             while (fitness.numAvaliacao() < maxNumAvaliacao)
             {
                 for (int indexPart = 0; indexPart < numParts; indexPart++)
@@ -189,7 +189,7 @@ public class Pso
                         }
                     }
                 }
-                
+
                 iter++;
             }
 
@@ -211,7 +211,7 @@ public class Pso
         valorMedioGlobal = valorMedioGlobalKpastas(kpastasClasse);
 
         final long tempoFinal = System.nanoTime();
-        
+
         System.out.printf("\nTempo decorrido: %s\n",
                 formatarTempoDecorrido(tempoInicial, tempoFinal));
     }
