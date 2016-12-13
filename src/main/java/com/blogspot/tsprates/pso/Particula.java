@@ -68,7 +68,7 @@ public class Particula implements Comparable<Particula>
     /**
      * Seta uma nova posição da partícula.
      *
-     * @param posicao Lista de String WHERE de nova posição.
+     * @param posicao Coleção de Strings da nova posição.
      */
     public void setPosicao(Collection<String> posicao)
     {
@@ -199,10 +199,12 @@ public class Particula implements Comparable<Particula>
         {
             return true;
         }
+
         if (obj == null)
         {
             return false;
         }
+
         if (getClass() != obj.getClass())
         {
             return false;
