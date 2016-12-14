@@ -64,7 +64,7 @@ public class Formatador
      * @param valor Valor numérico.
      * @return String formatada do valor numérico.
      */
-    public static String formatarValorWhere(final double valor)
+    public static String formatarValorNumericoWhere(final double valor)
     {
         return String.format(LOC, "%.3f", valor);
     }
@@ -81,5 +81,28 @@ public class Formatador
             final String operador, final String valor)
     {
         return String.format(LOC, "%s %s %s", atributo, operador, valor);
+    }
+
+    /**
+     * Define o tamanho da string referente a classe ao ser mostrado na tabela
+     * de resultados.
+     *
+     * @param classe Nicho do enxame.
+     * @return String formatada da classe.
+     */
+    public static String formatarClasse(final String classe)
+    {
+        String cl; // classe
+
+        if (classe.length() > 10)
+        {
+            cl = classe.substring(0, 10);
+        }
+        else
+        {
+            cl = classe;
+        }
+
+        return cl;
     }
 }

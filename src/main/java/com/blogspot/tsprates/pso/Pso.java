@@ -333,7 +333,7 @@ public class Pso
             for (int i = 0, l = r.size(); i < l; i++)
             {
                 final double[] fit = r.get(i);
-                mostrarFmtSaida(cl, fit, rep.get(i).whereSql());
+                mostrarLinhaTabela(cl, fit, rep.get(i).whereSql());
             }
         }
 
@@ -362,8 +362,8 @@ public class Pso
             // tabela de treinamento
             for (Particula part : listaParts)
             {
-                double[] f = part.fitness();
-                mostrarFmtSaida(classe, f, part.whereSql());
+                final double[] fit = part.fitness();
+                mostrarLinhaTabela(classe, fit, part.whereSql());
             }
         }
     }
@@ -375,24 +375,14 @@ public class Pso
      * @param fo Funções objetivo.
      * @param whereSql Cláusula WHERE.
      */
-    private void mostrarFmtSaida(final String classe, final double[] fo,
+    private void mostrarLinhaTabela(final String classe, final double[] fo,
             final String whereSql)
     {
         String compl = fmt.formatar(fo[0]);
         String efet = fmt.formatar(fo[1]);
         String acur = fmt.formatar(fo[2]);
 
-        String cl; // classe
-        if (classe.length() > 10)
-        {
-            cl = classe.substring(0, 10);
-        }
-        else
-        {
-            cl = classe;
-        }
-
-        System.out.printf(TAB_LINHA, cl, compl, efet, acur, whereSql);
+        System.out.printf(TAB_LINHA, formatarClasse(classe), compl, efet, acur, whereSql);
     }
 
     /**
@@ -596,7 +586,7 @@ public class Pso
                     }
                 }
 
-                val = formatarValorWhere(newVal);
+                val = formatarValorNumericoWhere(newVal);
             }
             else
             {
@@ -815,7 +805,6 @@ public class Pso
             {
                 Particula particula = criarParticula(cl);
                 nichoParticulas.add(particula);
-
             }
 
             // seta o gbest para cada nicho
@@ -904,7 +893,7 @@ public class Pso
             final Double maxCol = max.get(coluna);
             final double newVal = (maxCol - minCol) * FastMath.random() + minCol;
 
-            valor = String.format(Locale.ROOT, "%.3f", newVal);
+            valor = formatarValorNumericoWhere(newVal);
         }
         else
         {
@@ -921,7 +910,7 @@ public class Pso
         String col = colunas.get(colIndex);
         String oper = LISTA_OPERADORES[operIndex];
 
-        return String.format(Locale.ROOT, "%s %s %s", col, oper, valor);
+        return formatarCondicaoWhere(col, oper, valor);
     }
 
     /**
