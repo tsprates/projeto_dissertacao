@@ -540,14 +540,14 @@ public class Pso
      * Mutação.
      *
      * @param p Partícula.
-     * @param mutgauss Mutação Gaussiana.
+     * @param mutGauss Mutação Gaussiana.
      */
-    private void perturbar(Particula p, boolean mutgauss)
+    private void perturbar(Particula p, boolean mutGauss)
     {
         final List<String> pos = new ArrayList<>(p.posicao());
 
-        final int indexPos = RandomUtils.nextInt(0, pos.size());
-        final String[] termo = pos.get(indexPos).split(" ");
+        final int index = RandomUtils.nextInt(0, pos.size());
+        final String[] termo = pos.get(index).split(" ");
 
         if (0.5 > FastMath.random())
         {
@@ -564,7 +564,7 @@ public class Pso
                 final double valor = Double.parseDouble(termo[2]);
                 double newVal;
 
-                if (mutgauss)
+                if (mutGauss)
                 {
                     // Proposta de Higashi et al. (2003)
                     // Mutação não uniforme
@@ -602,10 +602,9 @@ public class Pso
                 }
 
                 oper = LISTA_OPERADORES[indexOper];
-
             }
 
-            pos.set(indexPos, formatarCondicaoWhere(termo[0], oper, val));
+            pos.set(index, formatarCondicaoWhere(termo[0], oper, val));
         }
 
         p.setPosicao(pos);
@@ -839,9 +838,11 @@ public class Pso
     private void inicializarRepositorio(final String classe,
             List<Particula> particulas)
     {
-        for (Particula p : particulas)
+        final List<Particula> rep = repositorio.get(classe);
+
+        for (Particula part : particulas)
         {
-            atualizarParticulasNaoDominadas(repositorio.get(classe), p);
+            atualizarParticulasNaoDominadas(rep, part);
         }
     }
 
