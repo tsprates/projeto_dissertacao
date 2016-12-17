@@ -38,7 +38,7 @@ public class Formatador
      * @param valor Valor numérico.
      * @return String formatada referente ao valor numérico.
      */
-    public String formatar(final double valor)
+    public String formatar(double valor)
     {
         return fmt.format(valor);
     }
@@ -50,8 +50,8 @@ public class Formatador
      * @param tempoFinal Tempo final em nanosegundos.
      * @return
      */
-    public static String formatarTempoDecorrido(final long tempoInicial,
-            final long tempoFinal)
+    public static String formatarTempoDecorrido(long tempoInicial,
+            long tempoFinal)
     {
         final double tempoDecorrido = (tempoFinal - tempoInicial) / 1000000000.0;
         return String.format(LOC, "%.2f segs", tempoDecorrido);
@@ -64,7 +64,7 @@ public class Formatador
      * @param valor Valor numérico.
      * @return String formatada do valor numérico.
      */
-    public static String formatarValorNumericoWhere(final double valor)
+    public static String formatarValorNumericoWhere(double valor)
     {
         return String.format(LOC, "%.3f", valor);
     }
@@ -77,8 +77,8 @@ public class Formatador
      * @param valor Valor númerico ou outro atributo.
      * @return
      */
-    public static String formatarCondicaoWhere(final String atributo,
-            final String operador, final String valor)
+    public static String formatarCondicaoWhere(String atributo, String operador,
+            String valor)
     {
         return String.format(LOC, "%s %s %s", atributo, operador, valor);
     }
@@ -90,7 +90,7 @@ public class Formatador
      * @param classe Nicho do enxame.
      * @return String formatada da classe.
      */
-    public static String formatarClasse(final String classe)
+    public static String formatarClasse(String classe)
     {
         String cl; // classe
 

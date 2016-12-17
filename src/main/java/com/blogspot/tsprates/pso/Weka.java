@@ -66,7 +66,7 @@ public class Weka
      * @param K
      * @param kpastas
      */
-    public void classificar(final int K, final List<List<String>> kpastas)
+    public void classificar(int K, List<List<String>> kpastas)
     {
         // reset
         efet = null;

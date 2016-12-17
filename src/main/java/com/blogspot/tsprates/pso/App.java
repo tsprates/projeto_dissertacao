@@ -469,8 +469,8 @@ public class App
      * @throws NotStrictlyPositiveException
      * @return Resultado do KS-test.
      */
-    private static double kolmogorovSmirnov(final double mediaAlg,
-            final double desvAlg, List<Double> efetAlg)
+    private static double kolmogorovSmirnov(double mediaAlg, double desvAlg, 
+            List<Double> efetAlg)
             throws InsufficientDataException, NullArgumentException,
             NotStrictlyPositiveException
     {
@@ -659,9 +659,9 @@ public class App
      * @param listaSMO Lista de resultados do SMO.
      * @param listaRBF Lista de resultados do RBF.
      */
-    private static void salvarExecsEmCSV(final String metrica,
-            final Properties config, List<Double> listaPSO,
-            List<Double> listaJ48, List<Double> listaSMO, List<Double> listaRBF)
+    private static void salvarExecsEmCSV(String metrica, Properties config, 
+            List<Double> listaPSO, List<Double> listaJ48, List<Double> listaSMO, 
+            List<Double> listaRBF)
     {
         CSVFormat format = CSVFormat.DEFAULT.withRecordSeparator("\n");
 

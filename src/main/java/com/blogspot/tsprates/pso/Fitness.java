@@ -48,8 +48,8 @@ public class Fitness
      * @param tabela
      * @param particulasPorClasses
      */
-    public Fitness(Connection conexao, final String colId, final String tabela,
-            final Map<String, List<String>> particulasPorClasses)
+    public Fitness(Connection conexao, String colId, String tabela,
+            Map<String, List<String>> particulasPorClasses)
     {
         this.conexao = conexao;
         this.colId = colId;

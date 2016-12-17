@@ -32,8 +32,7 @@ public class Particula implements Comparable<Particula>
      * @param classe Rótulo (classe) da partícula.
      * @param fitness Calculadora de fitness.
      */
-    public Particula(final Set<String> posicao, final String classe,
-            Fitness fitness)
+    public Particula(Set<String> posicao, String classe, Fitness fitness)
     {
         this.posicao = new TreeSet<>(posicao);
         this.strPos = join(posicao);
@@ -115,7 +114,7 @@ public class Particula implements Comparable<Particula>
      *
      * @param classe Classe da partícula.
      */
-    public void setClasse(final String classe)
+    public void setClasse(String classe)
     {
         this.classe = classe;
     }

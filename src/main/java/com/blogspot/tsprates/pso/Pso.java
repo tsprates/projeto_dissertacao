@@ -90,8 +90,8 @@ public class Pso
      * @param formatador Formatador de casas decimais.
      * @param numKpastas Número de K-Pastas.
      */
-    public Pso(Connection conexao, final Properties config,
-            final Formatador formatador, final int numKpastas)
+    public Pso(Connection conexao, Properties config, Formatador formatador, 
+            int numKpastas)
     {
         this.conexao = conexao;
         this.tabela = config.getProperty("tabela");
@@ -375,8 +375,7 @@ public class Pso
      * @param fo Funções objetivo.
      * @param whereSql Cláusula WHERE.
      */
-    private void mostrarLinhaTabela(final String classe, final double[] fo,
-            final String whereSql)
+    private void mostrarLinhaTabela(String classe, double[] fo, String whereSql)
     {
         String compl = fmt.formatar(fo[0]);
         String efet = fmt.formatar(fo[1]);
@@ -486,7 +485,7 @@ public class Pso
      * @param partPosSize Tamanho do vetor posição da partícula.
      */
     private void aplicarRecomb(List<Particula> bestParts, Particula part,
-            List<String> partPos, final int partPosSize)
+            List<String> partPos, int partPosSize)
     {
         Particula partSel = Distancia.retornarParticulaMaisProxima(bestParts, part);
         recombinar(partSel, part, partPos, partPosSize);
@@ -500,8 +499,8 @@ public class Pso
      * @param partPos Posição da partícula.
      * @param partPosSize Tamanho do vetor posição da partícula.
      */
-    private void recombinar(Particula bestPart, Particula part,
-            List<String> partPos, final int partPosSize)
+    private void recombinar(Particula bestPart, Particula part, 
+            List<String> partPos, int partPosSize)
     {
         final List<String> bestPos = new ArrayList<>(bestPart.posicao());
         final int bestPosSize = bestPos.size();
@@ -822,7 +821,7 @@ public class Pso
      * @param classe Classe.
      * @return Uma nova partícula.
      */
-    private Particula criarParticula(final String classe)
+    private Particula criarParticula(String classe)
     {
         final Set<String> pos = criarWhere();
         return new Particula(pos, classe, fitness);
@@ -835,7 +834,7 @@ public class Pso
      * @param classe Nicho do enxame.
      * @param particulas Lista de partículas.
      */
-    private void inicializarRepositorio(final String classe,
+    private void inicializarRepositorio(String classe,
             List<Particula> particulas)
     {
         final List<Particula> rep = repositorio.get(classe);
