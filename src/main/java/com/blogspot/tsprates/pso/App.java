@@ -83,10 +83,10 @@ public class App
             System.out.printf("\nTabela: %s\n", config.getProperty("tabela"));
 
             // Efetividade
-            Map<String, Map<String, List<Double>>> efetCls = new HashMap<>();
+            final Map<String, Map<String, List<Double>>> efetCls = new HashMap<>();
 
             // Acurácia
-            Map<String, Map<String, List<Double>>> acurCls = new HashMap<>();
+            final Map<String, Map<String, List<Double>>> acurCls = new HashMap<>();
 
             for (int iter = 0; iter < EXECS; iter++)
             {
