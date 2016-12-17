@@ -70,15 +70,15 @@ public class App
 
             Weka weka = new Weka(config);
 
-            List<Double> efetPSO = new ArrayList<>();
-            List<Double> efetJ48 = new ArrayList<>();
-            List<Double> efetSMO = new ArrayList<>();
-            List<Double> efetRBF = new ArrayList<>();
+            final List<Double> efetPSO = new ArrayList<>();
+            final List<Double> efetJ48 = new ArrayList<>();
+            final List<Double> efetSMO = new ArrayList<>();
+            final List<Double> efetRBF = new ArrayList<>();
 
-            List<Double> acurPSO = new ArrayList<>();
-            List<Double> acurJ48 = new ArrayList<>();
-            List<Double> acurSMO = new ArrayList<>();
-            List<Double> acurRBF = new ArrayList<>();
+            final List<Double> acurPSO = new ArrayList<>();
+            final List<Double> acurJ48 = new ArrayList<>();
+            final List<Double> acurSMO = new ArrayList<>();
+            final List<Double> acurRBF = new ArrayList<>();
 
             System.out.printf("\nTabela: %s\n", config.getProperty("tabela"));
 
@@ -101,9 +101,9 @@ public class App
 
                 // Weka
                 weka.classificar(K, pso.getKPasta());
-                double[][] efetWeka = weka.efetividade();
-                double[][] acurWeka = weka.acuracia();
-                int numClasses = weka.numClasses();
+                final double[][] efetWeka = weka.efetividade();
+                final double[][] acurWeka = weka.acuracia();
+                final int numClasses = weka.numClasses();
 
                 // Valor médio global (WEKA)
                 double medEfetJ48 = 0.0;
@@ -249,10 +249,10 @@ public class App
             List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
             List<Double> efetRBF)
     {
-        List<Double> tempEfetPSO = new ArrayList<>(efetPSO);
-        List<Double> tempEfetJ48 = new ArrayList<>(efetJ48);
-        List<Double> tempEfetSMO = new ArrayList<>(efetSMO);
-        List<Double> tempEfetRBF = new ArrayList<>(efetRBF);
+        final List<Double> tempEfetPSO = new ArrayList<>(efetPSO);
+        final List<Double> tempEfetJ48 = new ArrayList<>(efetJ48);
+        final List<Double> tempEfetSMO = new ArrayList<>(efetSMO);
+        final List<Double> tempEfetRBF = new ArrayList<>(efetRBF);
 
         // Ordena efetividade
         Collections.sort(tempEfetPSO);
@@ -344,28 +344,28 @@ public class App
     {
         Map<String, SummaryStatistics> map = new HashMap<>();
 
-        SummaryStatistics statsPSO = new SummaryStatistics();
+        final SummaryStatistics statsPSO = new SummaryStatistics();
         for (int i = 0, size = listaPSO.size(); i < size; i++)
         {
             statsPSO.addValue(listaPSO.get(i));
         }
         map.put("PSO", statsPSO);
 
-        SummaryStatistics statsJ48 = new SummaryStatistics();
+        final SummaryStatistics statsJ48 = new SummaryStatistics();
         for (int i = 0, size = listaJ48.size(); i < size; i++)
         {
             statsJ48.addValue(listaJ48.get(i));
         }
         map.put("J48", statsJ48);
 
-        SummaryStatistics statsSMO = new SummaryStatistics();
+        final SummaryStatistics statsSMO = new SummaryStatistics();
         for (int i = 0, size = listaSMO.size(); i < size; i++)
         {
             statsSMO.addValue(listaSMO.get(i));
         }
         map.put("SMO", statsSMO);
 
-        SummaryStatistics statsRBF = new SummaryStatistics();
+        final SummaryStatistics statsRBF = new SummaryStatistics();
         for (int i = 0, size = listaRBF.size(); i < size; i++)
         {
             statsRBF.addValue(listaRBF.get(i));
@@ -388,15 +388,15 @@ public class App
     private static void mostrarTesteOneWayAnova(List<Double> efetPSO,
             List<Double> efetJ48, List<Double> efetSMO, List<Double> efetRBF)
     {
-        Double[] objArrPSO = efetPSO.toArray(new Double[0]);
-        Double[] objArrJ48 = efetJ48.toArray(new Double[0]);
-        Double[] objArrSMO = efetSMO.toArray(new Double[0]);
-        Double[] objArrRBF = efetRBF.toArray(new Double[0]);
+        final Double[] objArrPSO = efetPSO.toArray(new Double[0]);
+        final Double[] objArrJ48 = efetJ48.toArray(new Double[0]);
+        final Double[] objArrSMO = efetSMO.toArray(new Double[0]);
+        final Double[] objArrRBF = efetRBF.toArray(new Double[0]);
 
-        double[] arrPSO = ArrayUtils.toPrimitive(objArrPSO);
-        double[] arrJ48 = ArrayUtils.toPrimitive(objArrJ48);
-        double[] arrSMO = ArrayUtils.toPrimitive(objArrSMO);
-        double[] arrRBF = ArrayUtils.toPrimitive(objArrRBF);
+        final double[] arrPSO = ArrayUtils.toPrimitive(objArrPSO);
+        final double[] arrJ48 = ArrayUtils.toPrimitive(objArrJ48);
+        final double[] arrSMO = ArrayUtils.toPrimitive(objArrSMO);
+        final double[] arrRBF = ArrayUtils.toPrimitive(objArrRBF);
 
         List<double[]> algs = new ArrayList<>();
         algs.add(arrPSO);
@@ -444,16 +444,16 @@ public class App
         System.out.println("\n\nTeste de Normalidade (Kolmogorov-Smirnov) "
                 + " para Efetividade:\n");
 
-        double ksPSO = kolmogorovSmirnov(medPSO, desvPSO, efetPSO);
+        final double ksPSO = kolmogorovSmirnov(medPSO, desvPSO, efetPSO);
         System.out.printf("PSO : %s\n", FORMAT.formatar(ksPSO));
 
-        double ksJ48 = kolmogorovSmirnov(medJ48, desvJ48, efetJ48);
+        final double ksJ48 = kolmogorovSmirnov(medJ48, desvJ48, efetJ48);
         System.out.printf("J48 : %s\n", FORMAT.formatar(ksJ48));
 
-        double ksSMO = kolmogorovSmirnov(medSMO, desvSMO, efetSMO);
+        final double ksSMO = kolmogorovSmirnov(medSMO, desvSMO, efetSMO);
         System.out.printf("SMO : %s\n", FORMAT.formatar(ksSMO));
 
-        double ksRBF = kolmogorovSmirnov(medRBF, desvRBF, efetRBF);
+        final double ksRBF = kolmogorovSmirnov(medRBF, desvRBF, efetRBF);
         System.out.printf("RBF : %s\n", FORMAT.formatar(ksRBF));
     }
 
@@ -746,11 +746,11 @@ public class App
         {
             System.out.printf("%-10s", algo);
 
-            for (Entry<String, List<Double>> i : mapCls.get(algo).entrySet())
+            for (Entry<String, List<Double>> ent : mapCls.get(algo).entrySet())
             {
-                List<Double> val = i.getValue();
-                double[] arrVal = ArrayUtils.toPrimitive(
-                        val.toArray(new Double[0]));
+                final List<Double> val = ent.getValue();
+                final double[] arrVal = ArrayUtils.toPrimitive(val.toArray(
+                        new Double[0]));
 
                 String media = FORMAT.formatar(StatUtils.mean(arrVal));
                 String desvio = FORMAT.formatar(sd.evaluate(arrVal));
