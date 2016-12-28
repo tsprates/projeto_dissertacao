@@ -90,7 +90,7 @@ public class Pso
      * @param formatador Formatador de casas decimais.
      * @param numKpastas Número de K-Pastas.
      */
-    public Pso(Connection conexao, Properties config, Formatador formatador, 
+    public Pso(Connection conexao, Properties config, Formatador formatador,
             int numKpastas)
     {
         this.conexao = conexao;
@@ -130,6 +130,8 @@ public class Pso
         final long tempoInicial = System.nanoTime();
 
         final int numClasses = classes.size();
+
+        final int numCols = colunas.size();
 
         // validação cruzada
         kpastas = criarKpastas();
@@ -174,7 +176,7 @@ public class Pso
                 }
 
                 // Busca Local Pareto
-                if ((iter % 10) == 0)
+                if ((iter % numCols) == 0)
                 {
                     for (String cl : classes)
                     {
@@ -416,7 +418,7 @@ public class Pso
         // velocidade
         if (w > FastMath.random())
         {
-            perturbar(part, true);
+            perturbar(part, false);
         }
 
         // pbest
@@ -453,7 +455,7 @@ public class Pso
 
         for (int i = 0; i < len; i++)
         {
-            perturbar(pl, false);
+            perturbar(pl, true);
 
             final String where = pl.whereSql();
 
@@ -499,7 +501,7 @@ public class Pso
      * @param partPos Posição da partícula.
      * @param partPosSize Tamanho do vetor posição da partícula.
      */
-    private void recombinar(Particula bestPart, Particula part, 
+    private void recombinar(Particula bestPart, Particula part,
             List<String> partPos, int partPosSize)
     {
         final List<String> bestPos = new ArrayList<>(bestPart.posicao());

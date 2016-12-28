@@ -87,7 +87,7 @@ public class FronteiraPareto
 
             // se a partícula testada não é dominada e não existe na lista de 
             // partículas não dominadas
-            if ((domina == true && ehDominada == false)
+            if (domina == true && ehDominada == false
                     && !particulas.contains(particula))
             {
                 particulas.add(particula.clonar());
