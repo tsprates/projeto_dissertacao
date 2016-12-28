@@ -131,8 +131,6 @@ public class Pso
 
         final int numClasses = classes.size();
 
-        final int numCols = colunas.size();
-
         // validação cruzada
         kpastas = criarKpastas();
         fitness.setKPastas(kpastas);
@@ -176,18 +174,18 @@ public class Pso
                 }
 
                 // Busca Local Pareto
-                if ((iter % numCols) == 0)
+                if ((iter % 10) == 0)
                 {
                     for (String cl : classes)
                     {
-                        final double numIt = 0.3 * numParts / numClasses;
+                        final double numIt = 0.1 * numParts / numClasses;
                         for (int it = 0; it < numIt; it++)
                         {
                             final int[] limites = limitesEnxame.get(cl);
                             final int index = RandomUtils.nextInt(limites[0], limites[1]);
 
-                            Particula part = particulas.get(index);
-                            buscaLocalPareto(part);
+                            Particula p = particulas.get(index);
+                            buscaLocalPareto(p);
                         }
                     }
                 }
@@ -418,7 +416,7 @@ public class Pso
         // velocidade
         if (w > FastMath.random())
         {
-            perturbar(part, false);
+            perturbar(part);
         }
 
         // pbest
@@ -455,7 +453,7 @@ public class Pso
 
         for (int i = 0; i < len; i++)
         {
-            perturbar(pl, true);
+            perturbar(pl, false);
 
             final String where = pl.whereSql();
 
@@ -541,9 +539,9 @@ public class Pso
      * Mutação.
      *
      * @param p Partícula.
-     * @param mutGauss Mutação Gaussiana.
+     * @param mutUnif Mutação Uniforme.
      */
-    private void perturbar(Particula p, boolean mutGauss)
+    private void perturbar(Particula p, boolean mutUnif)
     {
         final List<String> pos = new ArrayList<>(p.posicao());
 
@@ -565,15 +563,7 @@ public class Pso
                 final double valor = Double.parseDouble(termo[2]);
                 double newVal;
 
-                if (mutGauss)
-                {
-                    // Proposta de Higashi et al. (2003)
-                    // Mutação não uniforme
-                    final double alfa = 0.1 * (max.get(termo[0]) - min.get(termo[0])) + Double.MIN_VALUE;
-                    final double r = new NormalDistribution(0, alfa).sample();
-                    newVal = valor + r;
-                }
-                else
+                if (mutUnif == true)
                 {
                     // Proposta de Michalewitz (1996)
                     // Mutação uniforme
@@ -585,6 +575,14 @@ public class Pso
                     {
                         newVal = valor - (valor - min.get(termo[0])) * FastMath.random();
                     }
+                }
+                else
+                {
+                    // Proposta de Higashi et al. (2003)
+                    // Mutação não uniforme
+                    final double alfa = 0.1 * (max.get(termo[0]) - min.get(termo[0])) + Double.MIN_VALUE;
+                    final double r = new NormalDistribution(0, alfa).sample();
+                    newVal = valor + r;
                 }
 
                 val = formatarValorNumericoWhere(newVal);
@@ -609,6 +607,16 @@ public class Pso
         }
 
         p.setPosicao(pos);
+    }
+
+    /**
+     * Mutação uniforme.
+     *
+     * @param p Partícula.
+     */
+    private void perturbar(Particula p)
+    {
+        perturbar(p, true);
     }
 
     /**
