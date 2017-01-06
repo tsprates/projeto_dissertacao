@@ -178,7 +178,7 @@ public class Pso
                 {
                     for (String cl : classes)
                     {
-                        final double numIt = 0.1 * numParts / numClasses;
+                        final double numIt = 0.3 * numParts / numClasses;
                         for (int it = 0; it < numIt; it++)
                         {
                             final int[] limites = limitesEnxame.get(cl);
@@ -768,16 +768,16 @@ public class Pso
 
         int resto = numParts % numClasses;
 
-        for (String cls : classes)
+        for (String cl : classes)
         {
             if (resto > 0)
             {
-                nicho.put(cls, numPopNicho + 1);
+                nicho.put(cl, numPopNicho + 1);
                 resto -= 1;
             }
             else
             {
-                nicho.put(cls, numPopNicho);
+                nicho.put(cl, numPopNicho);
             }
         }
 
