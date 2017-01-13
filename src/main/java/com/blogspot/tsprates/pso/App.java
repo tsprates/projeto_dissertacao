@@ -154,15 +154,15 @@ public class App
                 // Efetividade e acurácia de cada algoritmo para cada classe
                 for (String classe : pso.classes())
                 {
-                    for (int clItetr = 0; clItetr < numClasses; clItetr++)
+                    for (int cl = 0; cl < numClasses; cl++)
                     {
-                        efetCls.get(ALGOS[1]).get(classe).add(efetWeka[0][clItetr]);
-                        efetCls.get(ALGOS[2]).get(classe).add(efetWeka[1][clItetr]);
-                        efetCls.get(ALGOS[3]).get(classe).add(efetWeka[2][clItetr]);
+                        efetCls.get(ALGOS[1]).get(classe).add(efetWeka[0][cl]);
+                        efetCls.get(ALGOS[2]).get(classe).add(efetWeka[1][cl]);
+                        efetCls.get(ALGOS[3]).get(classe).add(efetWeka[2][cl]);
 
-                        acurCls.get(ALGOS[1]).get(classe).add(acurWeka[0][clItetr]);
-                        acurCls.get(ALGOS[2]).get(classe).add(acurWeka[1][clItetr]);
-                        acurCls.get(ALGOS[3]).get(classe).add(acurWeka[2][clItetr]);
+                        acurCls.get(ALGOS[1]).get(classe).add(acurWeka[0][cl]);
+                        acurCls.get(ALGOS[2]).get(classe).add(acurWeka[1][cl]);
+                        acurCls.get(ALGOS[3]).get(classe).add(acurWeka[2][cl]);
                     }
                 }
 
@@ -579,7 +579,7 @@ public class App
      */
     private static double getQ(int k, int df)
     {
-        final double[][] TAB = {
+        final double[][] T = {
             {1, 17.969, 26.976, 32.819, 37.082, 40.408, 43.119, 45.397, 47.357, 49.071},
             {2, 6.085, 8.331, 9.798, 10.881, 11.734, 12.435, 13.027, 13.539, 13.988},
             {3, 4.501, 5.910, 6.825, 7.502, 8.037, 8.478, 8.852, 9.177, 9.462},
@@ -635,18 +635,18 @@ public class App
 
         // find pertinent row in table
         int i = 0;
-        while (i < TAB.length && df > TAB[i][0])
+        while (i < T.length && df > T[i][0])
         {
             ++i;
         }
 
         // don't allow i to go past end of table
-        if (i == TAB.length)
+        if (i == T.length)
         {
             --i;
         }
 
-        return TAB[i][columnIndex];
+        return T[i][columnIndex];
     }
 
     /**
@@ -728,7 +728,7 @@ public class App
             Collection<String> classes,
             Map<String, Map<String, List<Double>>> mapCls)
     {
-        StandardDeviation sd = new StandardDeviation();
+        final StandardDeviation sd = new StandardDeviation();
 
         System.out.printf("\n\nMédia de Algoritmos por Classes (%s):\n\n",
                 legendaTabela);
