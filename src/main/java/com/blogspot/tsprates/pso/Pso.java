@@ -1045,27 +1045,27 @@ public class Pso
     /**
      * Cria um clone do mapa classe {@link #mapaClasseId} por ID aleatório.
      *
-     * @param temp
-     * @return
+     * @param map Mapa de classe por ID.
+     * @return Número total de registro do mapa.
      */
-    private int randMapaClasseId(final Map<String, List<String>> temp)
+    private int randMapaClasseId(Map<String, List<String>> map)
     {
         int total = 0;
 
         // Deep cloning
         for (String cl : classes)
         {
-            temp.put(cl, new ArrayList<String>());
+            map.put(cl, new ArrayList<String>());
 
             List<String> mapaClasseTemp = mapaClasseId.get(cl);
 
             for (int i = 0, size = mapaClasseTemp.size(); i < size; i++)
             {
-                temp.get(cl).add(mapaClasseTemp.get(i));
+                map.get(cl).add(mapaClasseTemp.get(i));
                 total++;
             }
 
-            Collections.shuffle(temp.get(cl));
+            Collections.shuffle(map.get(cl));
         }
 
         return total;
