@@ -620,7 +620,7 @@ public class Pso
     }
 
     /**
-     * Cria um mapa com o ID de cada registro da tabela com cada classe.
+     * Cria um mapa de classe por cada ID de registro da tabela.
      */
     private void carregarClassePorId()
     {
@@ -993,34 +993,18 @@ public class Pso
      */
     private List<List<String>> criarKpastas()
     {
-        List<List<String>> kpastasTemp = new ArrayList<>();
+        final List<List<String>> kpastasTemp = new ArrayList<>();
 
         for (int i = 0; i < NUM_K; i++)
         {
             kpastasTemp.add(new ArrayList<String>());
         }
 
-        int total = 0;
-        Map<String, List<String>> temp = new HashMap<>();
-
-        // Deep cloning
-        for (String cl : classes)
-        {
-            temp.put(cl, new ArrayList<String>());
-
-            List<String> mapaClasseTemp = mapaClasseId.get(cl);
-
-            for (int i = 0, size = mapaClasseTemp.size(); i < size; i++)
-            {
-                temp.get(cl).add(mapaClasseTemp.get(i));
-                total++;
-            }
-
-            Collections.shuffle(temp.get(cl));
-        }
+        final Map<String, List<String>> temp = new HashMap<>();
+        int total = randMapaClasseId(temp);
 
         int k = 0;
-        List<String> listaClasses = new ArrayList<>(classes);
+        final List<String> listaClasses = new ArrayList<>(classes);
 
         for (int i = 0; i < total;)
         {
@@ -1056,6 +1040,35 @@ public class Pso
         }
 
         return kpastasTemp;
+    }
+
+    /**
+     * Cria um clone do mapa classe {@link #mapaClasseId} por ID aleatório.
+     *
+     * @param temp
+     * @return
+     */
+    private int randMapaClasseId(final Map<String, List<String>> temp)
+    {
+        int total = 0;
+
+        // Deep cloning
+        for (String cl : classes)
+        {
+            temp.put(cl, new ArrayList<String>());
+
+            List<String> mapaClasseTemp = mapaClasseId.get(cl);
+
+            for (int i = 0, size = mapaClasseTemp.size(); i < size; i++)
+            {
+                temp.get(cl).add(mapaClasseTemp.get(i));
+                total++;
+            }
+
+            Collections.shuffle(temp.get(cl));
+        }
+
+        return total;
     }
 
     /**
