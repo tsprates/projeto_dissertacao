@@ -156,13 +156,13 @@ public class App
                 {
                     for (int cl = 0; cl < numClasses; cl++)
                     {
-                        efetCls.get(ALGOS[1]).get(classe).add(efetWeka[0][cl]);
-                        efetCls.get(ALGOS[2]).get(classe).add(efetWeka[1][cl]);
-                        efetCls.get(ALGOS[3]).get(classe).add(efetWeka[2][cl]);
+                        efetCls.get("J48").get(classe).add(efetWeka[0][cl]);
+                        efetCls.get("SMO").get(classe).add(efetWeka[1][cl]);
+                        efetCls.get("RBF").get(classe).add(efetWeka[2][cl]);
 
-                        acurCls.get(ALGOS[1]).get(classe).add(acurWeka[0][cl]);
-                        acurCls.get(ALGOS[2]).get(classe).add(acurWeka[1][cl]);
-                        acurCls.get(ALGOS[3]).get(classe).add(acurWeka[2][cl]);
+                        acurCls.get("J48").get(classe).add(acurWeka[0][cl]);
+                        acurCls.get("SMO").get(classe).add(acurWeka[1][cl]);
+                        acurCls.get("RBF").get(classe).add(acurWeka[2][cl]);
                     }
                 }
 
@@ -174,14 +174,14 @@ public class App
                     final double[] arr = item.getValue();
                     final String classe = item.getKey();
 
-                    efetCls.get(ALGOS[0]).get(classe).add(arr[0]);
-                    acurCls.get(ALGOS[0]).get(classe).add(arr[1]);
+                    efetCls.get("PSO").get(classe).add(arr[0]);
+                    acurCls.get("PSO").get(classe).add(arr[1]);
                 }
             }
 
             final Map<String, SummaryStatistics> statsEfet = criarStats(
                     efetPSO, efetJ48, efetSMO, efetRBF);
-
+            
             final Map<String, SummaryStatistics> statsAcur = criarStats(
                     acurPSO, acurJ48, acurSMO, acurRBF);
 
@@ -197,20 +197,23 @@ public class App
             mostrarTesteOneWayAnova(efetPSO, efetJ48, efetSMO, efetRBF);
             mostrarPostHocTukey(efetPSO, efetJ48, efetSMO, efetRBF);
 
-            mostrarGraficoDeEfetividadeGlobal(config, efetPSO, efetJ48, efetSMO,
+            mostrarGraficoDeEfetividadeGlobal(config, efetPSO, efetJ48, efetSMO, 
                     efetRBF);
 
             // Salvar Efetividade Global
-            salvarExecsEmCSV("efetividade", config, efetPSO, efetJ48, efetSMO,
+            salvarExecsEmCSV("efetividade", config, efetPSO, efetJ48, efetSMO, 
                     efetRBF);
 
             // Salvar Acurácia Global
-            salvarExecsEmCSV("acuracia", config, acurPSO, acurJ48, acurSMO,
+            salvarExecsEmCSV("acuracia", config, acurPSO, acurJ48, acurSMO, 
                     acurRBF);
         }
         else
         {
-            System.err.println("É necessário definir um arquivo de configuração.");
+            System.err.println("É necessário definir um arquivo de "
+                    + "configuração como parâmetro.");
+            
+            System.err.flush();
         }
     }
 
@@ -254,23 +257,24 @@ public class App
         final List<Double> tempEfetSMO = new ArrayList<>(efetSMO);
         final List<Double> tempEfetRBF = new ArrayList<>(efetRBF);
 
-        // Ordena efetividade
         Collections.sort(tempEfetPSO);
         Collections.sort(tempEfetJ48);
         Collections.sort(tempEfetSMO);
         Collections.sort(tempEfetRBF);
 
         // Gráfico Efetividade Média
-        final String tituloGrafico = StringUtils.capitalize(config.getProperty("tabela"));
+        final String tituloGrafico = StringUtils.capitalize(
+                config.getProperty("tabela"));
+        
         final String eixoX = "Execução";
         final String eixoY = "Sensibilidade x Especificidade";
 
-        Grafico g = new Grafico(tituloGrafico, eixoX, eixoY);
-        g.adicionarSerie("PSO", tempEfetPSO);
-        g.adicionarSerie("J48", tempEfetJ48);
-        g.adicionarSerie("SMO", tempEfetSMO);
-        g.adicionarSerie("RBF", tempEfetRBF);
-        g.mostra();
+        Grafico grafico = new Grafico(tituloGrafico, eixoX, eixoY);
+        grafico.adicionarSerie(ALGOS[0], tempEfetPSO);
+        grafico.adicionarSerie(ALGOS[1], tempEfetJ48);
+        grafico.adicionarSerie(ALGOS[2], tempEfetSMO);
+        grafico.adicionarSerie(ALGOS[3], tempEfetRBF);
+        grafico.mostra();
     }
 
     /**
@@ -342,30 +346,31 @@ public class App
             List<Double> listaPSO, List<Double> listaJ48,
             List<Double> listaSMO, List<Double> listaRBF)
     {
-        Map<String, SummaryStatistics> map = new HashMap<>();
-
+        final Map<String, SummaryStatistics> map = new HashMap<>();
+        
         final SummaryStatistics statsPSO = new SummaryStatistics();
+        final SummaryStatistics statsJ48 = new SummaryStatistics();
+        final SummaryStatistics statsSMO = new SummaryStatistics();
+        final SummaryStatistics statsRBF = new SummaryStatistics();
+
         for (int i = 0, size = listaPSO.size(); i < size; i++)
         {
             statsPSO.addValue(listaPSO.get(i));
         }
         map.put("PSO", statsPSO);
 
-        final SummaryStatistics statsJ48 = new SummaryStatistics();
         for (int i = 0, size = listaJ48.size(); i < size; i++)
         {
             statsJ48.addValue(listaJ48.get(i));
         }
         map.put("J48", statsJ48);
 
-        final SummaryStatistics statsSMO = new SummaryStatistics();
         for (int i = 0, size = listaSMO.size(); i < size; i++)
         {
             statsSMO.addValue(listaSMO.get(i));
         }
         map.put("SMO", statsSMO);
 
-        final SummaryStatistics statsRBF = new SummaryStatistics();
         for (int i = 0, size = listaRBF.size(); i < size; i++)
         {
             statsRBF.addValue(listaRBF.get(i));
@@ -398,13 +403,14 @@ public class App
         final double[] arrSMO = ArrayUtils.toPrimitive(objArrSMO);
         final double[] arrRBF = ArrayUtils.toPrimitive(objArrRBF);
 
-        List<double[]> algs = new ArrayList<>();
+        final List<double[]> algs = new ArrayList<>();
         algs.add(arrPSO);
         algs.add(arrJ48);
         algs.add(arrSMO);
         algs.add(arrRBF);
 
         final String pvalor = FORMAT.formatar(TestUtils.oneWayAnovaPValue(algs));
+        
         System.out.printf("\n\nTeste OneWay Anova (p-valor=0.05) : %s "
                 + "(Efetividade)\n", pvalor);
     }
@@ -441,8 +447,8 @@ public class App
         final double medRBF = RBF.getMean();
         final double desvRBF = RBF.getStandardDeviation();
 
-        System.out.println("\n\nTeste de Normalidade (Kolmogorov-Smirnov) "
-                + " para Efetividade:\n");
+        System.out.println("\n\nTeste de Normalidade (Kolmogorov-Smirnov) para"
+                + " Efetividade:\n");
 
         final double ksPSO = kolmogorovSmirnov(medPSO, desvPSO, efetPSO);
         System.out.printf("PSO : %s\n", FORMAT.formatar(ksPSO));
@@ -475,10 +481,13 @@ public class App
             NotStrictlyPositiveException
     {
         final double desvio = desvAlg + Double.MIN_VALUE;
-        final NormalDistribution normdist = new NormalDistribution(mediaAlg, desvio);
+        
+        final NormalDistribution normdist = new NormalDistribution(mediaAlg, 
+                desvio);
+        
         final Double[] arrObjEfet = efetAlg.toArray(new Double[0]);
 
-        return TestUtils.kolmogorovSmirnovTest(normdist,
+        return TestUtils.kolmogorovSmirnovTest(normdist, 
                 ArrayUtils.toPrimitive(arrObjEfet), false);
     }
 
@@ -690,7 +699,8 @@ public class App
                 EXECS,
                 dataAtual);
 
-        String caminhoArqCSV = pathExecs.toString() + File.separator + arqCSV;
+        final String caminhoArqCSV = pathExecs.toString() + File.separator + 
+                arqCSV;
 
         try (FileWriter fw = new FileWriter(caminhoArqCSV);
                 CSVPrinter printer = new CSVPrinter(fw, format))
@@ -749,6 +759,7 @@ public class App
             for (Entry<String, List<Double>> ent : mapCls.get(algo).entrySet())
             {
                 final List<Double> val = ent.getValue();
+                
                 final double[] arrVal = ArrayUtils.toPrimitive(val.toArray(
                         new Double[0]));
 
