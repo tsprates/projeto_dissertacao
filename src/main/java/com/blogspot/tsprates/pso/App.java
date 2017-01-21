@@ -274,7 +274,7 @@ public class App
         grafico.adicionarSerie(ALGOS[1], tempEfetJ48);
         grafico.adicionarSerie(ALGOS[2], tempEfetSMO);
         grafico.adicionarSerie(ALGOS[3], tempEfetRBF);
-        grafico.mostra();
+        grafico.mostrar();
     }
 
     /**

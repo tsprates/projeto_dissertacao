@@ -17,6 +17,11 @@ import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.List;
 
+/**
+ * Gráfico.
+ *
+ * @author thiago
+ */
 public class Grafico extends ApplicationFrame
 {
 
@@ -44,7 +49,7 @@ public class Grafico extends ApplicationFrame
     }
 
     /**
-     * Adiciona série.
+     * Adiciona série ao gráfico.
      *
      * @param legenda
      * @param xData
@@ -66,7 +71,7 @@ public class Grafico extends ApplicationFrame
     }
 
     /**
-     * Adiciona série.
+     * Adiciona série ao gráfico.
      *
      * @param legenda
      * @param yData
@@ -90,15 +95,13 @@ public class Grafico extends ApplicationFrame
     /**
      * Mostra gráfico resultante.
      */
-    public void mostra()
+    public void mostrar()
     {
-        JFreeChart chart = ChartFactory.createXYLineChart(titulo,
-                eixoX, eixoY, dataset,
-                PlotOrientation.VERTICAL, true, true, false);
+        JFreeChart chart = ChartFactory.createXYLineChart(titulo, eixoX, eixoY,
+                dataset, PlotOrientation.VERTICAL, true, true, false);
 
         XYPlot plot = chart.getXYPlot();
 
-//        setBackground(plot);
         setEixoY(plot);
         setLineRenderer(plot);
 
@@ -117,8 +120,8 @@ public class Grafico extends ApplicationFrame
         range.setRange(0.0, 1.0);
         range.setTickUnit(new NumberTickUnit(0.05));
 
-        DecimalFormat df = new DecimalFormat("0.00");
-        range.setNumberFormatOverride(df);
+        DecimalFormat fmt = new DecimalFormat("0.00");
+        range.setNumberFormatOverride(fmt);
     }
 
     /**
@@ -139,13 +142,6 @@ public class Grafico extends ApplicationFrame
         plot.setRenderer(renderer);
     }
 
-//    private void setBackground(XYPlot plot)
-//    {
-//        plot.setBackgroundPaint(Color.WHITE);
-//        plot.setDomainGridlinePaint(Color.GRAY);
-//        plot.setRangeGridlinePaint(Color.GRAY);
-//    }
-    
     /**
      * Criar gráfico.
      *
