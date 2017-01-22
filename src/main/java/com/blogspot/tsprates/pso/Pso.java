@@ -449,7 +449,7 @@ public class Pso
 
         Particula pl = p.clonar();
 
-        final double len = FastMath.log(colunas.size());
+        final double len = FastMath.log(colunas.size()) + 1;
 
         for (int i = 0; i < len; i++)
         {
@@ -563,7 +563,7 @@ public class Pso
                 final double valor = Double.parseDouble(termo[2]);
                 double newVal;
 
-                if (mutUnif == true)
+                if (true == mutUnif)
                 {
                     // Proposta de Michalewitz (1996)
                     // Mutação uniforme

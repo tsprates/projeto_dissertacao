@@ -139,7 +139,7 @@ public class Fitness
 
         String sql;
 
-        if (treinamento == true)
+        if (true == treinamento)
         {
             sql = "SELECT " + colId + " AS id "
                     + "FROM " + tabela + " "
@@ -184,7 +184,7 @@ public class Fitness
         final String classe = p.classe();
         final List<String> verdadeiras = new ArrayList<>(particulasPorClasse.get(classe));
 
-        if (treinamento == true)
+        if (true == treinamento)
         {
             verdadeiras.removeAll(kpastas.get(k));
         }

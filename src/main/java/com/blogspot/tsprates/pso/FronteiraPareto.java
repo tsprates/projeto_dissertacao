@@ -15,7 +15,7 @@ public class FronteiraPareto
     /**
      * Limite total de partículas não dominadas.
      */
-    private final static int LIMITE_PARTICULAS = 30;
+    private final static int LIMITE_PARTICULAS = 100;
 
     /**
      * Verifica, e remove se necessário, partículas fornecidas caso seja maior
@@ -45,8 +45,13 @@ public class FronteiraPareto
      *
      * @param particulas Lista de partícula.
      * @param particula Partícula.
+     * @return Se o resultado é igual a 1, a partícula domina alguém na lista de
+     * partículas é então incluída, removendo as partículas dominadas. Se o
+     * resultado igual a 0, não há relação de dominância e partícula entra na
+     * lista. Se resultado igual a -1 a partícula é por alguém na lista e não há
+     * alteração na lista de partículas.
      */
-    public static void atualizarParticulasNaoDominadas(
+    public static int atualizarParticulasNaoDominadas(
             Collection<Particula> particulas, Particula particula)
     {
         double[] pfit = particula.fitness();
@@ -54,6 +59,7 @@ public class FronteiraPareto
         if (particulas.isEmpty())
         {
             particulas.add(particula.clonar());
+            return 1;
         }
         else
         {
@@ -79,7 +85,8 @@ public class FronteiraPareto
                 }
 
                 // se a partícula testada é dominada pela partícula atual
-                if (ehDominada == false && testarDominanciaEntre(pfitIter, pfit))
+                if (false == ehDominada
+                        && testarDominanciaEntre(pfitIter, pfit))
                 {
                     ehDominada = true;
                 }
@@ -87,10 +94,20 @@ public class FronteiraPareto
 
             // se a partícula testada não é dominada e não existe na lista de 
             // partículas não dominadas
-            if (domina == true && ehDominada == false
+            if (true == domina && false == ehDominada
                     && !particulas.contains(particula))
             {
                 particulas.add(particula.clonar());
+                return 1;
+            }
+
+            if (true == ehDominada)
+            {
+                return -1;
+            }
+            else
+            {
+                return 0;
             }
         }
     }
@@ -100,9 +117,9 @@ public class FronteiraPareto
      *
      * @param a Partícula A.
      * @param b Partícula B.
-     * @return Se o resultado igual a 1, a partícula A domina a partícula B. Se
-     * resultado igual 0 não há relação de dominância. Se resultado igual a -1 a
-     * partícula A é dominada pela partícula B.
+     * @return Se o resultado for igual a 1, a partícula A domina a partícula B.
+     * Se resultado igual 0 não há relação de dominância. Por fim, se resultado
+     * igual a -1, a partícula A é dominada pela partícula B.
      */
     public static int verificarDominanciaEntre(Particula a, Particula b)
     {
