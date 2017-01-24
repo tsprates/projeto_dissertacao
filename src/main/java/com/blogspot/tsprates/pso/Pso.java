@@ -432,9 +432,9 @@ public class Pso
         for (String cl : classes)
         {
             // busca local em 10% das partículas de cada nicho
-            final double numIt = 0.1 * numParts / classes.size();
+            final double len = 0.1 * numParts / classes.size();
 
-            for (int it = 0; it < numIt; it++)
+            for (int i = 0; i < len; i++)
             {
                 final int[] limites = limitesEnxame.get(cl);
                 final int index = RandomUtils.nextInt(limites[0], limites[1]);
