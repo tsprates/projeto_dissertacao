@@ -129,8 +129,6 @@ public class Pso
     {
         final long tempoInicial = System.nanoTime();
 
-        final int numClasses = classes.size();
-
         // validação cruzada
         kpastas = criarKpastas();
         fitness.setKPastas(kpastas);
@@ -173,21 +171,10 @@ public class Pso
                     atualizarPosicao(indexPart);
                 }
 
-                // Busca Local Pareto
+                // Busca Local a cada 10 iterações
                 if ((iter % 10) == 0)
                 {
-                    for (String cl : classes)
-                    {
-                        final double numIt = 0.1 * numParts / numClasses;
-                        for (int it = 0; it < numIt; it++)
-                        {
-                            final int[] limites = limitesEnxame.get(cl);
-                            final int index = RandomUtils.nextInt(limites[0], limites[1]);
-
-                            Particula p = particulas.get(index);
-                            buscaLocalPareto(p);
-                        }
-                    }
+                    buscaLocal();
                 }
 
                 iter++;
@@ -423,18 +410,37 @@ public class Pso
         if (c1 > FastMath.random())
         {
             List<Particula> pbest = new ArrayList<>(part.getPbest());
-            aplicarRecomb(pbest, part, partPos, partPosSize);
+            recombinar(pbest, part, partPos, partPosSize);
         }
 
         // gbest
         if (c2 > FastMath.random())
         {
             List<Particula> gbest = repositorio.get(part.classe());
-            aplicarRecomb(gbest, part, partPos, partPosSize);
+            recombinar(gbest, part, partPos, partPosSize);
         }
 
         // avaliação da nova partícula
         part.avaliar();
+    }
+
+    /**
+     * Busca Local.
+     */
+    private void buscaLocal()
+    {
+        for (String cl : classes)
+        {
+            final double numIt = 0.1 * numParts / classes.size();
+            for (int it = 0; it < numIt; it++)
+            {
+                final int[] limites = limitesEnxame.get(cl);
+                final int index = RandomUtils.nextInt(limites[0], limites[1]);
+
+                Particula p = particulas.get(index);
+                buscaLocalPareto(p);
+            }
+        }
     }
 
     /**
@@ -477,31 +483,17 @@ public class Pso
     }
 
     /**
-     * Aplicar operação de recombinação (crossover).
+     * Operador de crossover.
      *
      * @param bestParts Gbest ou Pbest.
      * @param part Partícula.
      * @param partPos Posição da partícula.
      * @param partPosSize Tamanho do vetor posição da partícula.
      */
-    private void aplicarRecomb(List<Particula> bestParts, Particula part,
+    private void recombinar(List<Particula> bestParts, Particula part,
             List<String> partPos, int partPosSize)
     {
-        Particula partSel = Distancia.retornarParticulaMaisProxima(bestParts, part);
-        recombinar(partSel, part, partPos, partPosSize);
-    }
-
-    /**
-     * Operador de crossover.
-     *
-     * @param bestPart Gbest ou Pbest.
-     * @param part Partícula.
-     * @param partPos Posição da partícula.
-     * @param partPosSize Tamanho do vetor posição da partícula.
-     */
-    private void recombinar(Particula bestPart, Particula part,
-            List<String> partPos, int partPosSize)
-    {
+        Particula bestPart = Distancia.retornarParticulaMaisProxima(bestParts, part);
         final List<String> bestPos = new ArrayList<>(bestPart.posicao());
         final int bestPosSize = bestPos.size();
 
