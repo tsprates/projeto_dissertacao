@@ -171,7 +171,7 @@ public class Pso
                     atualizarPosicao(indexPart);
                 }
 
-                // Busca Local a cada 10 iterações
+                // busca local a cada 10 iterações
                 if ((iter % 10) == 0)
                 {
                     buscaLocal();
@@ -431,7 +431,9 @@ public class Pso
     {
         for (String cl : classes)
         {
+            // busca local em 10% das partículas de cada nicho
             final double numIt = 0.1 * numParts / classes.size();
+
             for (int it = 0; it < numIt; it++)
             {
                 final int[] limites = limitesEnxame.get(cl);
@@ -494,6 +496,7 @@ public class Pso
             List<String> partPos, int partPosSize)
     {
         Particula bestPart = Distancia.retornarParticulaMaisProxima(bestParts, part);
+
         final List<String> bestPos = new ArrayList<>(bestPart.posicao());
         final int bestPosSize = bestPos.size();
 
