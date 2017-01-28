@@ -5,10 +5,10 @@ SMO.function_exponent=2.0
 RBF.clusters=3
 RBF.min_std_dev_clusters=0.1
 
-saida=classificacao
-id=cod
+saida=class_
+id=id
 npop=90
-tabela=heart_class
+tabela=iris
 maxiter=25000
 w=0.9
 c1=0.7
