@@ -52,10 +52,9 @@ public class DBUtils
 
         try (Connection con = DriverManager.getConnection(url, user, password))
         {
-            PreparedStatement[] ps = new PreparedStatement[3];
+            PreparedStatement[] ps = new PreparedStatement[2];
             ps[0] = con.prepareStatement("ALTER TABLE " + tabela + " ADD COLUMN id SERIAL;");
-            ps[1] = con.prepareStatement("UPDATE " + tabela + " SET id = nextval(pg_get_serial_sequence('" + tabela + "', 'id'));");
-            ps[2] = con.prepareStatement("ALTER TABLE " + tabela + " ADD PRIMARY KEY (id);");
+            ps[1] = con.prepareStatement("ALTER TABLE " + tabela + " ADD PRIMARY KEY (id);");
 
             for (PreparedStatement p : ps)
             {
