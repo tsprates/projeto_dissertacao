@@ -210,9 +210,7 @@ public class App
         }
         else
         {
-            System.err.println("É necessário definir um arquivo de "
-                    + "configuração como parâmetro.");
-            
+            System.err.println("Arquivo de configuração não encontrado.");
             System.err.flush();
         }
     }
