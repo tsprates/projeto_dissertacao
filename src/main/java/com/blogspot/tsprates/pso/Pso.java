@@ -54,7 +54,7 @@ public class Pso
 
     private List<List<String>> kpastas;
 
-    private final Formatador fmt;
+    private final Formatador format;
 
     private final int maxNumAvaliacao;
 
@@ -106,7 +106,7 @@ public class Pso
         this.numParts = Integer.valueOf(config.getProperty("npop"));
         this.maxNumAvaliacao = Integer.valueOf(config.getProperty("maxiter"));
 
-        this.fmt = formatador;
+        this.format = formatador;
 
         this.NUM_K = numKpastas;
 
@@ -364,11 +364,12 @@ public class Pso
      */
     private void mostrarLinhaTabela(String classe, double[] fo, String whereSql)
     {
-        String compl = fmt.formatar(fo[0]);
-        String efet = fmt.formatar(fo[1]);
-        String acur = fmt.formatar(fo[2]);
+        String compl = format.formatar(fo[0]);
+        String efet = format.formatar(fo[1]);
+        String acur = format.formatar(fo[2]);
 
-        System.out.printf(TAB_LINHA, formatarClasse(classe), compl, efet, acur, whereSql);
+        System.out.printf(TAB_LINHA, formatarClasse(classe), compl, 
+                efet, acur, whereSql);
     }
 
     /**
@@ -996,10 +997,11 @@ public class Pso
         }
 
         final Map<String, List<String>> temp = new HashMap<>();
-        int total = randMapaClasseId(temp);
+        final int total = randMapaClasseId(temp);
+
+        final List<String> listaClasses = new ArrayList<>(classes);
 
         int k = 0;
-        final List<String> listaClasses = new ArrayList<>(classes);
 
         for (int i = 0; i < total;)
         {
@@ -1038,7 +1040,8 @@ public class Pso
     }
 
     /**
-     * Cria um clone do mapa classe {@link #mapaClasseId} por ID aleatório.
+     * Cria um clone com elementos aleatórios do mapa classe
+     * {@link #mapaClasseId}.
      *
      * @param map Mapa de classe por ID.
      * @return Número total de registro do mapa.
