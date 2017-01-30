@@ -368,7 +368,7 @@ public class Pso
         String efet = format.formatar(fo[1]);
         String acur = format.formatar(fo[2]);
 
-        System.out.printf(TAB_LINHA, formatarClasse(classe), compl, 
+        System.out.printf(TAB_LINHA, formatarClasse(classe), compl,
                 efet, acur, whereSql);
     }
 
