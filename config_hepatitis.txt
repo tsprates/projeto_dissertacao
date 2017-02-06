@@ -1,5 +1,5 @@
-J48.confidence_factor=0.025
-SMO.complexity_parameter_c=1.0
+J48.confidence_factor=0.25
+SMO.complexity_parameter_c=2.0
 SMO.kernel_function=weka.classifiers.functions.supportVector.PolyKernel
 SMO.function_exponent=2.0
 RBF.clusters=3
