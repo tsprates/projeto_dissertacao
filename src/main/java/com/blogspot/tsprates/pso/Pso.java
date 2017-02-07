@@ -432,13 +432,14 @@ public class Pso
     {
         for (String cl : classes)
         {
+            final int[] limites = limitesEnxame.get(cl);
+
             // busca local em 10% das partículas de cada nicho
             final double len = 0.1 * numParts / classes.size();
 
             for (int i = 0; i < len; i++)
             {
-                final int[] limites = limitesEnxame.get(cl);
-                final int index = RandomUtils.nextInt(limites[0], limites[1]);
+                final int index = limites[0] + i;
 
                 Particula p = particulas.get(index);
                 buscaLocalPareto(p);
