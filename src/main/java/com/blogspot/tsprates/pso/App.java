@@ -143,33 +143,32 @@ public class App
                         efetCls.put(algo, new HashMap<String, List<Double>>());
                         acurCls.put(algo, new HashMap<String, List<Double>>());
 
-                        for (String classe : pso.classes())
+                        for (String cl : pso.classes())
                         {
-                            efetCls.get(algo).put(classe, new ArrayList<Double>());
-                            acurCls.get(algo).put(classe, new ArrayList<Double>());
+                            efetCls.get(algo).put(cl, new ArrayList<Double>());
+                            acurCls.get(algo).put(cl, new ArrayList<Double>());
                         }
                     }
                 }
 
                 // Efetividade e acurácia de cada algoritmo para cada classe
-                for (String classe : pso.classes())
+                List<String> cls = new ArrayList<>(pso.classes());
+                for (int i = 0; i < cls.size(); i++)
                 {
-                    for (int cl = 0; cl < numClasses; cl++)
-                    {
-                        efetCls.get("J48").get(classe).add(efetWeka[0][cl]);
-                        efetCls.get("SMO").get(classe).add(efetWeka[1][cl]);
-                        efetCls.get("RBF").get(classe).add(efetWeka[2][cl]);
+                    String cl = cls.get(i);
 
-                        acurCls.get("J48").get(classe).add(acurWeka[0][cl]);
-                        acurCls.get("SMO").get(classe).add(acurWeka[1][cl]);
-                        acurCls.get("RBF").get(classe).add(acurWeka[2][cl]);
-                    }
+                    efetCls.get("J48").get(cl).add(efetWeka[0][i]);
+                    efetCls.get("SMO").get(cl).add(efetWeka[1][i]);
+                    efetCls.get("RBF").get(cl).add(efetWeka[2][i]);
+
+                    acurCls.get("J48").get(cl).add(acurWeka[0][i]);
+                    acurCls.get("SMO").get(cl).add(acurWeka[1][i]);
+                    acurCls.get("RBF").get(cl).add(acurWeka[2][i]);
                 }
 
-                final Map<String, double[]> resultadoPorClasses = pso
-                        .valorMedioPorClasses();
+                final Map<String, double[]> resultClasses = pso.valorMedioPorClasses();
 
-                for (Entry<String, double[]> item : resultadoPorClasses.entrySet())
+                for (Entry<String, double[]> item : resultClasses.entrySet())
                 {
                     final double[] arr = item.getValue();
                     final String classe = item.getKey();
