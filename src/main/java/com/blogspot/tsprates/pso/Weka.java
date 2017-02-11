@@ -1,6 +1,5 @@
 package com.blogspot.tsprates.pso;
 
-import java.util.Arrays;
 import org.apache.commons.lang3.StringUtils;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.RBFNetwork;
