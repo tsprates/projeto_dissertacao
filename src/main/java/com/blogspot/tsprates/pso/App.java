@@ -40,7 +40,7 @@ public class App
     // Algoritmos analisados
     private final static String[] ALGOS =
     {
-        "PSO", "J48", "SMO", "RBF"
+        "MOPSO", "J48", "SMO", "RBF"
     };
 
     // K-fold
@@ -173,8 +173,8 @@ public class App
                     final double[] arr = item.getValue();
                     final String classe = item.getKey();
 
-                    efetCls.get("PSO").get(classe).add(arr[0]);
-                    acurCls.get("PSO").get(classe).add(arr[1]);
+                    efetCls.get("MOPSO").get(classe).add(arr[0]);
+                    acurCls.get("MOPSO").get(classe).add(arr[1]);
                 }
             }
 
@@ -290,17 +290,17 @@ public class App
 
         final String lineFmt = "%-10s %-10s %-10s %-10s %-10s\n";
 
-        final SummaryStatistics efetPSO = mapEfetStats.get("PSO");
+        final SummaryStatistics efetPSO = mapEfetStats.get("MOPSO");
         final SummaryStatistics efetJ48 = mapEfetStats.get("J48");
         final SummaryStatistics efetSMO = mapEfetStats.get("SMO");
         final SummaryStatistics efetRBF = mapEfetStats.get("RBF");
 
-        final SummaryStatistics acurPSO = mapAcurStats.get("PSO");
+        final SummaryStatistics acurPSO = mapAcurStats.get("MOPSO");
         final SummaryStatistics acurJ48 = mapAcurStats.get("J48");
         final SummaryStatistics acurSMO = mapAcurStats.get("SMO");
         final SummaryStatistics acurRBF = mapAcurStats.get("RBF");
 
-        System.out.printf(lineFmt, "PSO",
+        System.out.printf(lineFmt, "MOPSO",
                 FORMAT.formatar(efetPSO.getMean()),
                 FORMAT.formatar(efetPSO.getStandardDeviation()),
                 FORMAT.formatar(acurPSO.getMean()),
@@ -354,7 +354,7 @@ public class App
         {
             statsPSO.addValue(listaPSO.get(i));
         }
-        map.put("PSO", statsPSO);
+        map.put("MOPSO", statsPSO);
 
         for (int i = 0, size = listaJ48.size(); i < size; i++)
         {
@@ -427,22 +427,22 @@ public class App
             List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
             List<Double> efetRBF)
     {
-        final SummaryStatistics PSO = mapStats.get("PSO");
-        final SummaryStatistics J48 = mapStats.get("J48");
-        final SummaryStatistics SMO = mapStats.get("SMO");
-        final SummaryStatistics RBF = mapStats.get("RBF");
+        final SummaryStatistics statsPSO = mapStats.get("MOPSO");
+        final SummaryStatistics statsJ48 = mapStats.get("J48");
+        final SummaryStatistics statsSMO = mapStats.get("SMO");
+        final SummaryStatistics statsRBF = mapStats.get("RBF");
 
-        final double medPSO = PSO.getMean();
-        final double desvPSO = PSO.getStandardDeviation();
+        final double medPSO = statsPSO.getMean();
+        final double desvPSO = statsPSO.getStandardDeviation();
 
-        final double medJ48 = J48.getMean();
-        final double desvJ48 = J48.getStandardDeviation();
+        final double medJ48 = statsJ48.getMean();
+        final double desvJ48 = statsJ48.getStandardDeviation();
 
-        final double medSMO = SMO.getMean();
-        final double desvSMO = SMO.getStandardDeviation();
+        final double medSMO = statsSMO.getMean();
+        final double desvSMO = statsSMO.getStandardDeviation();
 
-        final double medRBF = RBF.getMean();
-        final double desvRBF = RBF.getStandardDeviation();
+        final double medRBF = statsRBF.getMean();
+        final double desvRBF = statsRBF.getStandardDeviation();
 
         System.out.println("\n\nTeste de Normalidade (Kolmogorov-Smirnov) para"
                 + " Efetividade:\n");
@@ -477,10 +477,10 @@ public class App
             throws InsufficientDataException, NullArgumentException,
             NotStrictlyPositiveException
     {
-        final double desvio = desvAlg + Double.MIN_VALUE;
+        final double desv = desvAlg + Double.MIN_VALUE;
         
         final NormalDistribution normdist = new NormalDistribution(mediaAlg, 
-                desvio);
+                desv);
         
         final Double[] arrObjEfet = efetAlg.toArray(new Double[0]);
 
