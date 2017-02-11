@@ -1,5 +1,6 @@
 package com.blogspot.tsprates.pso;
 
+import java.util.Arrays;
 import org.apache.commons.lang3.StringUtils;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.RBFNetwork;
@@ -161,7 +162,6 @@ public class Weka
                     acur[0][j] += (evalJ48.numTruePositives(j) + evalJ48.numTrueNegatives(j)) / (evalJ48.numTruePositives(j) + evalJ48.numTrueNegatives(j) + evalJ48.numFalsePositives(j) + evalJ48.numFalseNegatives(j));
                     acur[1][j] += (evalSMO.numTruePositives(j) + evalSMO.numTrueNegatives(j)) / (evalSMO.numTruePositives(j) + evalSMO.numTrueNegatives(j) + evalSMO.numFalsePositives(j) + evalSMO.numFalseNegatives(j));
                     acur[2][j] += (evalRBF.numTruePositives(j) + evalRBF.numTrueNegatives(j)) / (evalRBF.numTruePositives(j) + evalRBF.numTrueNegatives(j) + evalRBF.numFalsePositives(j) + evalRBF.numFalseNegatives(j));
-
                 }
             }
 
@@ -194,11 +194,12 @@ public class Weka
     {
         int colIdIndex = instance.attribute(colId).index() + 1;
 
-        Remove remAtr = new Remove();
-        remAtr.setOptions(Utils.splitOptions("-R " + colIdIndex));
-        remAtr.setInputFormat(instance);
+        Remove rem = new Remove();
+        rem.setOptions(Utils.splitOptions("-R " + colIdIndex));
+        rem.setInvertSelection(false);
+        rem.setInputFormat(instance);
 
-        return Filter.useFilter(instance, remAtr);
+        return Filter.useFilter(instance, rem);
     }
 
     /**
