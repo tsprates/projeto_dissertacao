@@ -448,7 +448,7 @@ public class App
                 + " Efetividade:\n");
 
         final double ksPSO = kolmogorovSmirnov(medPSO, desvPSO, efetPSO);
-        System.out.printf("PSO : %s\n", FORMAT.formatar(ksPSO));
+        System.out.printf("MOPSO : %s\n", FORMAT.formatar(ksPSO));
 
         final double ksJ48 = kolmogorovSmirnov(medJ48, desvJ48, efetJ48);
         System.out.printf("J48 : %s\n", FORMAT.formatar(ksJ48));
