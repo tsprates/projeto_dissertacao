@@ -354,24 +354,28 @@ public class App
         {
             statsPSO.addValue(listaPSO.get(i));
         }
+        
         map.put("MOPSO", statsPSO);
 
         for (int i = 0, size = listaJ48.size(); i < size; i++)
         {
             statsJ48.addValue(listaJ48.get(i));
         }
+        
         map.put("J48", statsJ48);
 
         for (int i = 0, size = listaSMO.size(); i < size; i++)
         {
             statsSMO.addValue(listaSMO.get(i));
         }
+        
         map.put("SMO", statsSMO);
 
         for (int i = 0, size = listaRBF.size(); i < size; i++)
         {
             statsRBF.addValue(listaRBF.get(i));
         }
+        
         map.put("RBF", statsRBF);
 
         return map;
@@ -451,13 +455,13 @@ public class App
         System.out.printf("MOPSO : %s\n", FORMAT.formatar(ksPSO));
 
         final double ksJ48 = kolmogorovSmirnov(medJ48, desvJ48, efetJ48);
-        System.out.printf("J48 : %s\n", FORMAT.formatar(ksJ48));
+        System.out.printf("  J48 : %s\n", FORMAT.formatar(ksJ48));
 
         final double ksSMO = kolmogorovSmirnov(medSMO, desvSMO, efetSMO);
-        System.out.printf("SMO : %s\n", FORMAT.formatar(ksSMO));
+        System.out.printf("  SMO : %s\n", FORMAT.formatar(ksSMO));
 
         final double ksRBF = kolmogorovSmirnov(medRBF, desvRBF, efetRBF);
-        System.out.printf("RBF : %s\n", FORMAT.formatar(ksRBF));
+        System.out.printf("  RBF : %s\n", FORMAT.formatar(ksRBF));
     }
 
     /**
