@@ -35,7 +35,7 @@ public class App
 {
 
     // Número total de execuções
-    private final static int EXECS = 30;
+    private final static int EXECS = 50;
 
     // Algoritmos analisados
     private final static String[] ALGOS =
