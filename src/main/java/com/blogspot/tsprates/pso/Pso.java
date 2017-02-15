@@ -520,13 +520,10 @@ public class Pso
             i++;
         }
 
-        if (partPosSize > bestPosSize)
+        while (i < partPosSize)
         {
-            while (i < partPosSize)
-            {
-                newPos.add(partPos.get(RandomUtils.nextInt(0, partPosSize)));
-                i++;
-            }
+            newPos.add(partPos.get(RandomUtils.nextInt(0, partPosSize)));
+            i++;
         }
 
         part.setPosicao(newPos);
