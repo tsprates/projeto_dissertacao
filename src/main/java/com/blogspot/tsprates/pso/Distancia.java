@@ -5,34 +5,34 @@ import org.apache.commons.math3.ml.distance.EuclideanDistance;
 import java.util.List;
 
 /**
- * Calculadora de Distância.
+ * Calcula Distância.
  *
  * @author thiago
  */
 public class Distancia
 {
 
-    private static EuclideanDistance dist = new EuclideanDistance();
+    private static final EuclideanDistance DIST = new EuclideanDistance();
 
     /**
-     * Retorna a partícula mais próxima dentre a lista de partícula
-     * por meio da distância Euclidiana.
+     * Retorna a partícula mais próxima por meio do cálculo da distância
+     * Euclidiana no espaço de objetivos.
      *
-     * @param parts Lista de partículas.
+     * @param parts Lista de partículas não dominadas.
      * @param p Partícula.
-     * @return
+     * @return A partícula mais próxima.
      */
     public static Particula retornarParticulaMaisProxima(List<Particula> parts,
             Particula p)
     {
         Particula particulaProxima = parts.get(0);
 
-        double distancia = dist.compute(particulaProxima.fitness(),
+        double distancia = DIST.compute(particulaProxima.fitness(),
                 p.fitness());
 
         for (int i = 0, size = parts.size(); i < size; i++)
         {
-            double d = dist.compute(parts.get(i).fitness(),
+            double d = DIST.compute(parts.get(i).fitness(),
                     particulaProxima.fitness());
 
             if (d > distancia)
