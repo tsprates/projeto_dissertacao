@@ -28,7 +28,7 @@ public class Fitness
 
     private final Map<String, List<String>> particulasPorClasse;
 
-    private List<String> resultado;
+    private List<String> resultadoConsulta;
 
     private int totalSize = 0;
 
@@ -139,7 +139,7 @@ public class Fitness
 
         String sql;
 
-        if (true == treinamento)
+        if (treinamento)
         {
             sql = "SELECT " + colId + " AS id "
                     + "FROM " + tabela + " "
@@ -184,19 +184,27 @@ public class Fitness
         final String classe = p.classe();
         final List<String> verdadeiras = new ArrayList<>(particulasPorClasse.get(classe));
 
-        if (true == treinamento)
+        final List<String> kpastaAtual = kpastas.get(k);
+        int total;
+
+        if (treinamento)
         {
-            verdadeiras.removeAll(kpastas.get(k));
+            verdadeiras.removeAll(kpastaAtual);
+            total = totalSize - kpastaAtual.size();
         }
         else
         {
-            verdadeiras.retainAll(kpastas.get(k));
+            verdadeiras.retainAll(kpastaAtual);
+            total = kpastaAtual.size();
         }
 
-        resultado = consultaSql(p.whereSql(), treinamento);
+        resultadoConsulta = consultaSql(p.whereSql(), treinamento);
+
+        final int resultadoConsultaSize = resultadoConsulta.size();
+        final int verdadeirasSize = verdadeiras.size();
 
         double tp = 0.0;
-        for (String id : resultado)
+        for (String id : resultadoConsulta)
         {
             if (verdadeiras.contains(id))
             {
@@ -204,12 +212,9 @@ public class Fitness
             }
         }
 
-        final int resultadoSize = resultado.size();
-        final int verdadeirasSize = verdadeiras.size();
-
-        double fp = resultadoSize - tp;
+        double fp = resultadoConsultaSize - tp;
         double fn = verdadeirasSize - tp;
-        double tn = totalSize - fn - fp - tp;
+        double tn = total - fn - fp - tp;
 
         double sensibilidade = tp / (tp + fn);
         double especificidade = tn / (tn + fp);
