@@ -85,23 +85,23 @@ public class FronteiraPareto
                 }
 
                 // se a partícula testada é dominada pela partícula atual
-                if (false == ehDominada
+                if (ehDominada == false
                         && testarDominanciaEntre(pfitIter, pfit))
                 {
                     ehDominada = true;
                 }
             }
 
-            // se a partícula testada não é dominada e não existe na lista de 
+            // se a partícula testada não é dominada e se não existe na lista de 
             // partículas não dominadas
-            if (true == domina && false == ehDominada
+            if (domina && ehDominada == false
                     && !particulas.contains(particula))
             {
                 particulas.add(particula.clonar());
                 return 1;
             }
 
-            if (true == ehDominada)
+            if (ehDominada)
             {
                 return -1;
             }
