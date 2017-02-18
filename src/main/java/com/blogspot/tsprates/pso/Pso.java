@@ -48,8 +48,6 @@ public class Pso
 
     private final double w, c1, c2;
 
-    private final double crossover;
-
     private final Fitness fitness;
 
     private List<List<String>> kpastas;
@@ -80,8 +78,6 @@ public class Pso
 
     private final List<String> regrasVisitadas = new ArrayList<>();
 
-    private final Map<String, int[]> limitesEnxame = new HashMap<>();
-
     /**
      * Construtor.
      *
@@ -102,7 +98,6 @@ public class Pso
         this.c1 = Double.valueOf(config.getProperty("c1"));
         this.c2 = Double.valueOf(config.getProperty("c2"));
 
-        this.crossover = Double.valueOf(config.getProperty("cr"));
         this.numParts = Integer.valueOf(config.getProperty("npop"));
         this.maxNumAvaliacao = Integer.valueOf(config.getProperty("maxiter"));
 
@@ -402,20 +397,20 @@ public class Pso
         final int partPosSize = partPos.size();
 
         // velocidade
-        if (w > FastMath.random())
+        if (FastMath.random() < w)
         {
             perturbar(part);
         }
 
         // pbest
-        if (c1 > FastMath.random())
+        if (FastMath.random() < c1)
         {
             List<Particula> pbest = new ArrayList<>(part.getPbest());
             recombinar(pbest, part, partPos, partPosSize);
         }
 
         // gbest
-        if (c2 > FastMath.random())
+        if (FastMath.random() < c2)
         {
             List<Particula> gbest = repositorio.get(part.classe());
             recombinar(gbest, part, partPos, partPosSize);
@@ -432,16 +427,16 @@ public class Pso
     {
         for (String cl : classes)
         {
-            final int[] limites = limitesEnxame.get(cl);
+//            final int[] limites = limitesEnxame.get(cl);
+
+            final List<Particula> rep = repositorio.get(cl);
 
             // busca local em 10% das partículas de cada nicho
             final double len = 0.1 * numParts / classes.size();
 
             for (int i = 0; i < len; i++)
             {
-                final int index = limites[0] + i;
-
-                Particula p = particulas.get(index);
+                Particula p = rep.get(rep.size() - 1);
                 buscaLocalPareto(p);
             }
         }
@@ -508,7 +503,7 @@ public class Pso
 
         while (i < bestPosSize)
         {
-            if (crossover > FastMath.random())
+            if (FastMath.random() < 0.5)
             {
                 newPos.add(bestPos.get(RandomUtils.nextInt(0, bestPosSize)));
             }
@@ -542,7 +537,7 @@ public class Pso
         final int index = RandomUtils.nextInt(0, pos.size());
         final String[] termo = pos.get(index).split(" ");
 
-        if (0.5 > FastMath.random())
+        if (FastMath.random() < 0.5)
         {
             pos.add(criarCondicao());
         }
@@ -551,17 +546,17 @@ public class Pso
             String oper = termo[1];
             String val = termo[2];
 
-            if (NumberUtils.isNumber(termo[2]) && 0.5 > FastMath.random())
+            if (NumberUtils.isNumber(termo[2]) && FastMath.random() < 0.5)
             {
                 // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
                 final double valor = Double.parseDouble(termo[2]);
                 double newVal;
 
-                if (true == mutUnif)
+                if (mutUnif)
                 {
                     // Proposta de Michalewitz (1996)
                     // Mutação uniforme
-                    if (0.5 > FastMath.random())
+                    if (FastMath.random() < 0.5)
                     {
                         newVal = valor + (max.get(termo[0]) - valor) * FastMath.random();
                     }
@@ -773,18 +768,6 @@ public class Pso
             {
                 nicho.put(cl, numPopNicho);
             }
-        }
-
-        int iniNicho = 0;
-
-        for (Entry<String, Integer> ent : nicho.entrySet())
-        {
-            limitesEnxame.put(ent.getKey(), new int[]
-            {
-                iniNicho, iniNicho + ent.getValue()
-            });
-
-            iniNicho += ent.getValue();
         }
 
         return nicho;
