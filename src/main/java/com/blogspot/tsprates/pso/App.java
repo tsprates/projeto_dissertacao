@@ -40,7 +40,7 @@ public class App
     // Algoritmos analisados
     private final static String[] ALGOS =
     {
-        "MOPSO", "J48", "SMO", "RBF"
+        "mDPSO", "J48", "SMO", "RBF"
     };
 
     // K-fold
@@ -173,8 +173,8 @@ public class App
                     final double[] arr = item.getValue();
                     final String classe = item.getKey();
 
-                    efetCls.get("MOPSO").get(classe).add(arr[0]);
-                    acurCls.get("MOPSO").get(classe).add(arr[1]);
+                    efetCls.get("mDPSO").get(classe).add(arr[0]);
+                    acurCls.get("mDPSO").get(classe).add(arr[1]);
                 }
             }
 
@@ -290,17 +290,17 @@ public class App
 
         final String lineFmt = "%-10s %-10s %-10s %-10s %-10s\n";
 
-        final SummaryStatistics efetPSO = mapEfetStats.get("MOPSO");
+        final SummaryStatistics efetPSO = mapEfetStats.get("mDPSO");
         final SummaryStatistics efetJ48 = mapEfetStats.get("J48");
         final SummaryStatistics efetSMO = mapEfetStats.get("SMO");
         final SummaryStatistics efetRBF = mapEfetStats.get("RBF");
 
-        final SummaryStatistics acurPSO = mapAcurStats.get("MOPSO");
+        final SummaryStatistics acurPSO = mapAcurStats.get("mDPSO");
         final SummaryStatistics acurJ48 = mapAcurStats.get("J48");
         final SummaryStatistics acurSMO = mapAcurStats.get("SMO");
         final SummaryStatistics acurRBF = mapAcurStats.get("RBF");
 
-        System.out.printf(lineFmt, "MOPSO",
+        System.out.printf(lineFmt, "mDPSO",
                 FORMAT.formatar(efetPSO.getMean()),
                 FORMAT.formatar(efetPSO.getStandardDeviation()),
                 FORMAT.formatar(acurPSO.getMean()),
@@ -355,7 +355,7 @@ public class App
             statsPSO.addValue(listaPSO.get(i));
         }
         
-        map.put("MOPSO", statsPSO);
+        map.put("mDPSO", statsPSO);
 
         for (int i = 0, size = listaJ48.size(); i < size; i++)
         {
@@ -431,7 +431,7 @@ public class App
             List<Double> efetPSO, List<Double> efetJ48, List<Double> efetSMO,
             List<Double> efetRBF)
     {
-        final SummaryStatistics statsPSO = mapStats.get("MOPSO");
+        final SummaryStatistics statsPSO = mapStats.get("mDPSO");
         final SummaryStatistics statsJ48 = mapStats.get("J48");
         final SummaryStatistics statsSMO = mapStats.get("SMO");
         final SummaryStatistics statsRBF = mapStats.get("RBF");
@@ -452,7 +452,7 @@ public class App
                 + " Efetividade:\n");
 
         final double ksPSO = kolmogorovSmirnov(medPSO, desvPSO, efetPSO);
-        System.out.printf("MOPSO : %s\n", FORMAT.formatar(ksPSO));
+        System.out.printf("mDPSO : %s\n", FORMAT.formatar(ksPSO));
 
         final double ksJ48 = kolmogorovSmirnov(medJ48, desvJ48, efetJ48);
         System.out.printf("  J48 : %s\n", FORMAT.formatar(ksJ48));
