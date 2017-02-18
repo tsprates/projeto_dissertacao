@@ -145,8 +145,6 @@ public class Pso
 
             fitness.resetNumAvaliacao();
 
-            int iter = 0;
-
             while (fitness.numAvaliacao() < maxNumAvaliacao)
             {
                 for (int indexPart = 0; indexPart < numParts; indexPart++)
@@ -166,13 +164,7 @@ public class Pso
                     atualizarPosicao(indexPart);
                 }
 
-                // busca local a cada 10 iterações
-                if ((iter % 10) == 0)
-                {
-                    buscaLocal();
-                }
-
-                iter++;
+                buscaLocal();
             }
 
             mostrarTreinamento();
