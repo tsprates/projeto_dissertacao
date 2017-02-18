@@ -7,9 +7,9 @@ RBF.min_std_dev_clusters=0.1
 
 saida=outcome
 id=id
-npop=90
+npop=100
 tabela=unbalanced
-maxiter=30000
+maxiter=25000
 w=0.9
 c1=0.8
 c2=0.8
