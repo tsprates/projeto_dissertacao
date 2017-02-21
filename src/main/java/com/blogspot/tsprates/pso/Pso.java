@@ -164,7 +164,10 @@ public class Pso
                     atualizarPosicao(indexPart);
                 }
 
-                buscaLocal();
+                if (FastMath.random() < (fitness.numAvaliacao() / maxNumAvaliacao))
+                {
+                    buscaLocal();
+                }
             }
 
             mostrarTreinamento();
@@ -419,18 +422,9 @@ public class Pso
     {
         for (String cl : classes)
         {
-//            final int[] limites = limitesEnxame.get(cl);
-
             final List<Particula> rep = repositorio.get(cl);
-
-            // busca local em 10% das partículas de cada nicho
-            final double len = 0.1 * numParts / classes.size();
-
-            for (int i = 0; i < len; i++)
-            {
-                Particula p = rep.get(rep.size() - 1);
-                buscaLocalPareto(p);
-            }
+            final Particula p = rep.get(rep.size() - 1);
+            buscaLocalPareto(p);
         }
     }
 
@@ -444,13 +438,12 @@ public class Pso
         final String cl = p.classe();
         final List<Particula> rep = repositorio.get(cl);
 
-        Particula pl = p.clonar();
+        final Particula pl = p.clonar();
 
         final double len = FastMath.log(colunas.size()) + 1;
-
         for (int i = 0; i < len; i++)
         {
-            perturbar(pl, false);
+            perturbar(pl, true);
 
             final String where = pl.whereSql();
 
