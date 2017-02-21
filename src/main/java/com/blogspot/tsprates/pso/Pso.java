@@ -441,9 +441,10 @@ public class Pso
         final Particula pl = p.clonar();
 
         final double len = FastMath.log(colunas.size()) + 1;
+        
         for (int i = 0; i < len; i++)
         {
-            perturbar(pl, true);
+            perturbar(pl, false);
 
             final String where = pl.whereSql();
 
