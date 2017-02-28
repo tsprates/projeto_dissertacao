@@ -70,7 +70,8 @@ public class FronteiraPareto
 
             while (iter.hasNext())
             {
-                double[] pfitIter = iter.next().fitness();
+                final Particula next = iter.next();
+                final double[] pfitIter = next.fitness();
 
                 // se a partícula testada domina a partícula atual
                 if (testarDominanciaEntre(pfit, pfitIter))
