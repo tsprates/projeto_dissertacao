@@ -209,8 +209,9 @@ public class Particula implements Comparable<Particula>
             return false;
         }
 
-        Particula other = (Particula) obj;
-        return Arrays.equals(fitness, other.fitness);
+        final Particula outra = (Particula) obj;
+        return fitness[0] == outra.fitness[0]
+                && fitness[1] == outra.fitness[1];
     }
 
     @Override
