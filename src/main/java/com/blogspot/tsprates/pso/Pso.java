@@ -164,10 +164,7 @@ public class Pso
                     atualizarPosicao(indexPart);
                 }
 
-                if (FastMath.random() < (fitness.numAvaliacao() / maxNumAvaliacao))
-                {
-                    buscaLocal();
-                }
+                buscaLocal();
             }
 
             mostrarTreinamento();
@@ -219,7 +216,7 @@ public class Pso
     private double[] valorMedioGlobalKpastas(
             Map<String, double[]> kpastasClasse)
     {
-        double[] total = new double[2];
+        final double[] total = new double[2];
 
         for (double d[] : kpastasClasse.values())
         {
@@ -243,7 +240,7 @@ public class Pso
      */
     private Map<String, double[]> criarValorMedioKpastas()
     {
-        Map<String, double[]> kpastasClasse = new HashMap<>();
+        final Map<String, double[]> kpastasClasse = new HashMap<>();
 
         for (String cl : classes)
         {
@@ -265,10 +262,10 @@ public class Pso
     {
         for (Entry<String, List<double[]>> entrada : validacao.entrySet())
         {
-            String cl = entrada.getKey();
-            List<double[]> fits = entrada.getValue();
+            final String cl = entrada.getKey();
+            final List<double[]> fits = entrada.getValue();
 
-            double[] f = fits.get(0);
+            final double[] f = fits.get(0);
 
             double maiorEfet = f[1];
             double acur = f[2];
@@ -331,7 +328,6 @@ public class Pso
         for (Entry<String, List<Particula>> parts : solucoes.entrySet())
         {
             String classe = parts.getKey();
-
             List<Particula> listaParts = parts.getValue();
 
             Collections.sort(listaParts);
@@ -386,7 +382,7 @@ public class Pso
      */
     private void atualizarPosicao(int indexPart)
     {
-        Particula part = particulas.get(indexPart);
+        final Particula part = particulas.get(indexPart);
 
         final List<String> partPos = new ArrayList<>(part.posicao());
         final int partPosSize = partPos.size();
@@ -400,14 +396,14 @@ public class Pso
         // pbest
         if (FastMath.random() < c1)
         {
-            List<Particula> pbest = new ArrayList<>(part.getPbest());
+            final List<Particula> pbest = new ArrayList<>(part.getPbest());
             recombinar(pbest, part, partPos, partPosSize);
         }
 
         // gbest
         if (FastMath.random() < c2)
         {
-            List<Particula> gbest = repositorio.get(part.classe());
+            final List<Particula> gbest = repositorio.get(part.classe());
             recombinar(gbest, part, partPos, partPosSize);
         }
 
@@ -423,8 +419,12 @@ public class Pso
         for (String cl : classes)
         {
             final List<Particula> rep = repositorio.get(cl);
-            final Particula p = rep.get(rep.size() - 1);
-            buscaLocalPareto(p);
+
+            for (int i = 0; i < rep.size(); i++)
+            {
+                final Particula p = rep.get(i);
+                buscaLocalPareto(p);
+            }
         }
     }
 
@@ -478,7 +478,7 @@ public class Pso
     private void recombinar(List<Particula> bestParts, Particula part,
             List<String> partPos, int partPosSize)
     {
-        Particula bestPart = Distancia.retornarParticulaMaisProxima(bestParts, part);
+        final Particula bestPart = Distancia.retornarParticulaMaisProxima(bestParts, part);
 
         final List<String> bestPos = new ArrayList<>(bestPart.posicao());
         final int bestPosSize = bestPos.size();
@@ -766,11 +766,11 @@ public class Pso
      */
     private List<Particula> criarEnxameInicial()
     {
-        List<Particula> newParts = new ArrayList<>();
+        final List<Particula> newParts = new ArrayList<>();
 
         for (String cl : enxameNicho.keySet())
         {
-            List<Particula> nichoParticulas = new ArrayList<>();
+            final List<Particula> nichoParticulas = new ArrayList<>();
 
             for (int i = 0, len = enxameNicho.get(cl); i < len; i++)
             {
@@ -781,7 +781,6 @@ public class Pso
             // seta o gbest para cada nicho
             inicializarRepositorio(cl, nichoParticulas);
 
-            // adiciona novas particulas com o novo nicho
             newParts.addAll(nichoParticulas);
         }
 
@@ -938,12 +937,11 @@ public class Pso
     private void atualizarRepositorio(Particula p)
     {
         final String classe = p.classe();
-        List<Particula> gbestLista = repositorio.get(classe);
+        final List<Particula> gbestLista = repositorio.get(classe);
 
         atualizarParticulasNaoDominadas(gbestLista, p);
 
-        List<Particula> rep = new ArrayList<>(gbestLista);
-
+        final List<Particula> rep = new ArrayList<>(gbestLista);
         repositorio.put(classe, rep);
 
         // Verifica tamanho do repositório
