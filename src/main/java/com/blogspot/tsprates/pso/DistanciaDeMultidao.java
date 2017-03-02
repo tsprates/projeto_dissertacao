@@ -4,7 +4,7 @@ import org.apache.commons.math3.util.Precision;
 import java.util.*;
 
 /**
- * Operador da distância de multidão. Baseado no NSGA-II.
+ * Distância de multidão. Baseado no NSGA-II.
  *
  * @author thiago
  */
@@ -21,51 +21,51 @@ public class DistanciaDeMultidao implements Comparator<Particula>
      */
     public DistanciaDeMultidao ranquearParticulas(Collection<Particula> particulas)
     {
-        List<Particula> tempParts = new ArrayList<>(particulas);
-        final int numParts = tempParts.size();
+        final List<Particula> tmpParts = new ArrayList<>(particulas);
+        final int numParts = tmpParts.size();
 
-        Collections.sort(tempParts);
+        Collections.sort(tmpParts);
 
         ranking.clear();
 
         for (int i = 0; i < numParts; i++)
         {
-            ranking.put(tempParts.get(i), 0.0);
+            ranking.put(tmpParts.get(i), 0.0);
         }
 
         if (numParts == 1)
         {
-            ranking.put(tempParts.get(0), Double.MAX_VALUE);
+            ranking.put(tmpParts.get(0), Double.MAX_VALUE);
         }
 
         if (numParts == 2)
         {
-            ranking.put(tempParts.get(numParts - 1), Double.MAX_VALUE);
+            ranking.put(tmpParts.get(numParts - 1), Double.MAX_VALUE);
         }
 
         if (numParts > 2)
         {
 
-            double[] objMax = tempParts.get(0).fitness();
-            double[] objMin = tempParts.get(numParts - 1).fitness();
+            final double[] primeiro = tmpParts.get(0).fitness();
+            final double[] ultimo = tmpParts.get(numParts - 1).fitness();
 
             for (int k = 1, len = numParts - 1; k < len; k++)
             {
-                double[] a = tempParts.get(k + 1).fitness();
-                double[] b = tempParts.get(k - 1).fitness();
+                final double[] a = tmpParts.get(k + 1).fitness();
+                final double[] b = tmpParts.get(k - 1).fitness();
 
-                Particula particula = tempParts.get(k);
+                final Particula particula = tmpParts.get(k);
 
                 double d = 0.0;
                 for (int i = 0; i < 2; i++)
                 {
-                    d += (a[i] - b[i])
-                            / (objMax[i] - objMin[i] + Double.MIN_VALUE);
+                    d += (a[i] - b[i]) / (ultimo[i] - primeiro[i]);
                 }
 
                 ranking.put(particula, d);
             }
         }
+
         return this;
     }
 
