@@ -29,7 +29,7 @@ public class Particula implements Comparable<Particula>
      *
      * @param posicao Conjunto de cláusulas WHERE que representa a posição da
      * partícula.
-     * @param classe Rótulo (classe) da partícula.
+     * @param classe Rótulo (nicho) da partícula.
      * @param fitness Calculadora de fitness.
      */
     public Particula(Set<String> posicao, String classe, Fitness fitness)
@@ -140,7 +140,7 @@ public class Particula implements Comparable<Particula>
     }
 
     /**
-     * Retorna string de cláusulas WHERE.
+     * Retorna cláusula WHERE.
      *
      * @param where Cláusula WHERE.
      * @return String de cláusulas WHERE.
@@ -151,6 +151,7 @@ public class Particula implements Comparable<Particula>
     }
 
     /**
+     * Retorna pbest.
      *
      * @return
      */
@@ -178,7 +179,7 @@ public class Particula implements Comparable<Particula>
         FronteiraPareto.atualizarParticulasNaoDominadas(pbest, this);
         this.pbest = new TreeSet<>(pbest);
 
-        // verifica tamanho permitido do repositório
+        // verifica o tamanho permitido do repositório
         FronteiraPareto.verificarNumParticulas(this.pbest);
     }
 
