@@ -109,7 +109,7 @@ public class Weka
                 rbf.setOptions(Utils.splitOptions(optsRBF));
                 rbf.buildClassifier(trainData);
 
-                // Validação
+                // Teste
                 final String sqlTest = "SELECT * "
                         + "FROM " + tabela + " "
                         + "WHERE " + colId + " IN (" + ids + ")"
@@ -129,7 +129,6 @@ public class Weka
                 // Remove atributo id
                 Instances testData = removerColId(test);
 
-                // Validação
                 Evaluation evalJ48 = new Evaluation(trainData);
                 evalJ48.evaluateModel(j48, testData);
 

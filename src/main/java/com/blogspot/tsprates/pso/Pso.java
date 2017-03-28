@@ -141,7 +141,7 @@ public class Pso
             regrasVisitadas.clear();
 
             System.out.printf("\nPartição: %d \n", i + 1);
-            System.out.printf("\nValidação: %s \n", kpastas.get(i));
+            System.out.printf("\nTeste: %s \n", kpastas.get(i));
 
             fitness.resetNumAvaliacao();
 
@@ -169,12 +169,12 @@ public class Pso
 
             mostrarTreinamento();
 
-            // Fase de validação
-            Map<String, List<double[]>> validacao = fitness.validar(repositorio);
-            mostrarValidacao(validacao);
+            // Fase de teste
+            Map<String, List<double[]>> teste = fitness.testar(repositorio);
+            mostrarTeste(teste);
 
             // seleciona as melhores efetividade
-            selecionarEfetividadeValidacao(validacao, kpastasClasse);
+            selecionarEfetividade(teste, kpastasClasse);
         }
 
         calcularValorMedio(kpastasClasse);
@@ -253,14 +253,14 @@ public class Pso
     /**
      * Seleciona a melhor efetividade para cada classe dos resultados.
      *
-     * @param validacao Fitness por classe.
+     * @param teste Fitness por classe.
      * @param kpastasClasse Mapa K-Pastas para cada classe.
      */
-    private void selecionarEfetividadeValidacao(
-            Map<String, List<double[]>> validacao,
+    private void selecionarEfetividade(
+            Map<String, List<double[]>> teste,
             Map<String, double[]> kpastasClasse)
     {
-        for (Entry<String, List<double[]>> entrada : validacao.entrySet())
+        for (Entry<String, List<double[]>> entrada : teste.entrySet())
         {
             final String cl = entrada.getKey();
             final List<double[]> fits = entrada.getValue();
@@ -287,21 +287,21 @@ public class Pso
     }
 
     /**
-     * Mostra validação.
+     * Mostra avaliação (teste).
      *
-     * @param validacao Lista de fitness encontrados por classe.
+     * @param teste Lista de fitness encontrados por classe.
      */
-    private void mostrarValidacao(Map<String, List<double[]>> validacao)
+    private void mostrarTeste(Map<String, List<double[]>> teste)
     {
-        System.out.println("\n\nFase de validação:\n");
+        System.out.println("\n\nFase de teste:\n");
 
-        // tabela de validação
+        // tabela de teste
         System.out.print(TAB_CABECALHO);
         System.out.println();
 
         for (String cl : classes)
         {
-            List<double[]> r = validacao.get(cl);
+            List<double[]> r = teste.get(cl);
             List<Particula> rep = repositorio.get(cl);
 
             for (int i = 0, l = r.size(); i < l; i++)

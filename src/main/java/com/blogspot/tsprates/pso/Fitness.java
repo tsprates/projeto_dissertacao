@@ -108,7 +108,8 @@ public class Fitness
      * Calcula fitness.
      *
      * @param part Partícula.
-     * @param treinamento Treinamento ou validação.
+     * @param treinamento Se verdadeiro então fase de treinamento senão fase de
+     * teste.
      * @return Array contendo a complexidade WHERE, efetividade e acurácia.
      */
     public double[] calcular(Particula part, boolean treinamento)
@@ -258,12 +259,12 @@ public class Fitness
     }
 
     /**
-     * Fase de validação.
+     * Fase de teste.
      *
      * @param repositorio Partículas não dominadas, divididas por classes.
      * @return Mapa de fitness das partículas.
      */
-    public Map<String, List<double[]>> validar(
+    public Map<String, List<double[]>> testar(
             Map<String, List<Particula>> repositorio)
     {
         Map<String, List<double[]>> mapFit = new TreeMap<>();
