@@ -553,8 +553,8 @@ public class Pso
                 }
                 else
                 {
-                    // Proposta de Higashi et al. (2003)
-                    // Mutação não uniforme
+                    // Proposta de Andrews (2006)
+                    // Mutação gaussiana
                     final double alfa = 0.1 * (max.get(termo[0]) - min.get(termo[0])) + Double.MIN_VALUE;
                     final double r = new NormalDistribution(0, alfa).sample();
                     newVal = valor + r;
