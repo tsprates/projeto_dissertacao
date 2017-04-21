@@ -74,6 +74,12 @@
             <artifactId>commons-csv</artifactId>
             <version>1.4</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/net.sourceforge.jdistlib/jdistlib -->
+        <dependency>
+            <groupId>net.sourceforge.jdistlib</groupId>
+            <artifactId>jdistlib</artifactId>
+            <version>0.4.5</version>
+        </dependency>
         <!-- http://mvnrepository.com/artifact/org.jfree/jfreechart -->
         <dependency>
             <groupId>org.jfree</groupId>

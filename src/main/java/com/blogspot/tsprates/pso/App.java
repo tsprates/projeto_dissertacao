@@ -1,5 +1,6 @@
 package com.blogspot.tsprates.pso;
 
+import net.sourceforge.jdistlib.disttest.DistributionTest;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.ArrayUtils;
@@ -82,10 +83,7 @@ public class App
 
             System.out.printf("\nTabela: %s\n", config.getProperty("tabela"));
 
-            // Efetividade
             final Map<String, Map<String, List<Double>>> efetCls = new HashMap<>();
-
-            // Acurácia
             final Map<String, Map<String, List<Double>>> acurCls = new HashMap<>();
 
             for (int iter = 0; iter < EXECS; iter++)
@@ -94,18 +92,18 @@ public class App
 
                 pso.carregar();
 
-                // Valor médio global da efetividade e acurácia
+                // valor médio global da efetividade e acurácia
                 final double[] resultado = pso.valorMedioGlobal();
                 efetPSO.add(resultado[0]);
                 acurPSO.add(resultado[1]);
 
-                // Weka
+                // weka
                 weka.classificar(K, pso.getKPasta());
                 final double[][] efetWeka = weka.efetividade();
                 final double[][] acurWeka = weka.acuracia();
                 final int numClasses = weka.numClasses();
 
-                // Valor médio global (WEKA)
+                // valor médio global (weka)
                 double medEfetJ48 = 0.0;
                 double medEfetSMO = 0.0;
                 double medEfetRBF = 0.0;
@@ -125,17 +123,17 @@ public class App
                     medAcurRBF += acurWeka[2][i];
                 }
 
-                // Efetividade
+                // efetividade global
                 efetJ48.add(medEfetJ48 / numClasses);
                 efetSMO.add(medEfetSMO / numClasses);
                 efetRBF.add(medEfetRBF / numClasses);
 
-                // Acurácia
+                // acurácia global
                 acurJ48.add(medAcurJ48 / numClasses);
                 acurSMO.add(medAcurSMO / numClasses);
                 acurRBF.add(medAcurRBF / numClasses);
 
-                // Cria mapa de algoritmos para cada média de classe
+                // média de cada algoritmo para cada classe
                 if (iter == 0)
                 {
                     for (String algo : ALGOS)
@@ -151,7 +149,7 @@ public class App
                     }
                 }
 
-                // Efetividade e acurácia de cada algoritmo para cada classe
+                // efetividade e acurácia de cada algoritmo em cada classe
                 List<String> cls = new ArrayList<>(pso.classes());
                 for (int i = 0; i < cls.size(); i++)
                 {
@@ -178,34 +176,31 @@ public class App
                 }
             }
 
-            final Map<String, SummaryStatistics> statsEfet = criarStats(
-                    efetPSO, efetJ48, efetSMO, efetRBF);
+            final Map<String, SummaryStatistics> statsEfet = criarStats(efetPSO, 
+                    efetJ48, efetSMO, efetRBF);
             
-            final Map<String, SummaryStatistics> statsAcur = criarStats(
-                    acurPSO, acurJ48, acurSMO, acurRBF);
+            final Map<String, SummaryStatistics> statsAcur = criarStats(acurPSO, 
+                    acurJ48, acurSMO, acurRBF);
 
-            // Mostra desempenho médio
+            // desempenho médio
             mostrarValorMedioExec(statsEfet, statsAcur);
             mostrarEfetividadePorClasses("Efetividade", pso.classes(), efetCls);
             mostrarEfetividadePorClasses("Acurácia", pso.classes(), acurCls);
 
-            // Testes estatísticos
-            mostrarTesteDeNormalidade(statsEfet, efetPSO, efetJ48, efetSMO,
-                    efetRBF);
-
+            // testes estatísticos
+            mostrarTesteDeNormalidade(statsEfet, efetPSO, efetJ48, efetSMO, efetRBF);
+            mostrarBartlettTeste(efetPSO, efetJ48, efetSMO, efetRBF);
             mostrarTesteOneWayAnova(efetPSO, efetJ48, efetSMO, efetRBF);
             mostrarPostHocTukey(efetPSO, efetJ48, efetSMO, efetRBF);
 
-            mostrarGraficoDeEfetividadeGlobal(config, efetPSO, efetJ48, efetSMO, 
-                    efetRBF);
+            // gráfico
+            mostrarGraficoDeEfetividadeGlobal(config, efetPSO, efetJ48, efetSMO, efetRBF);
 
-            // Salvar Efetividade Global
-            salvarExecsEmCSV("efetividade", config, efetPSO, efetJ48, efetSMO, 
-                    efetRBF);
-
-            // Salvar Acurácia Global
-            salvarExecsEmCSV("acuracia", config, acurPSO, acurJ48, acurSMO, 
-                    acurRBF);
+            // salvar efetividade global
+            salvarExecsEmCSV("efetividade", config, efetPSO, efetJ48, efetSMO, efetRBF);
+            
+            // salvar acurácia global
+            salvarExecsEmCSV("acuracia", config, acurPSO, acurJ48, acurSMO, acurRBF);
         }
         else
         {
@@ -259,7 +254,6 @@ public class App
         Collections.sort(tempEfetSMO);
         Collections.sort(tempEfetRBF);
 
-        // Gráfico Efetividade Média
         final String tituloGrafico = StringUtils.capitalize(
                 config.getProperty("tabela"));
         
@@ -412,8 +406,8 @@ public class App
 
         final String pvalor = FORMAT.formatar(TestUtils.oneWayAnovaPValue(algs));
         
-        System.out.printf("\n\nTeste OneWay Anova (p-valor=0.05) : %s "
-                + "(Efetividade)\n", pvalor);
+        System.out.printf("\n\nTeste OneWay Anova (p-valor=0.05) "
+                + "Efetividade : %s \n", pvalor);
     }
 
     /**
@@ -448,8 +442,8 @@ public class App
         final double medRBF = statsRBF.getMean();
         final double desvRBF = statsRBF.getStandardDeviation();
 
-        System.out.println("\n\nTeste de Normalidade (Kolmogorov-Smirnov) para"
-                + " Efetividade:\n");
+        System.out.println("\n\nTeste de Normalidade (Kolmogorov-Smirnov) "
+                + "Efetividade:\n");
 
         final double ksPSO = kolmogorovSmirnov(medPSO, desvPSO, efetPSO);
         System.out.printf("mDPSO : %s\n", FORMAT.formatar(ksPSO));
@@ -481,15 +475,59 @@ public class App
             throws InsufficientDataException, NullArgumentException,
             NotStrictlyPositiveException
     {
-        final double desv = desvAlg + Double.MIN_VALUE;
+        final double desvio = desvAlg + Double.MIN_VALUE;
         
         final NormalDistribution normdist = new NormalDistribution(mediaAlg, 
-                desv);
+                desvio);
         
         final Double[] arrObjEfet = efetAlg.toArray(new Double[0]);
 
         return TestUtils.kolmogorovSmirnovTest(normdist, 
                 ArrayUtils.toPrimitive(arrObjEfet), false);
+    }
+    
+    /**
+     * Teste Bartlett.
+     *
+     * @link https://en.wikipedia.org/wiki/Bartlett%27s_test
+     *
+     * @param efetPSO Efetividade obtida durante execuções pelo PSO.
+     * @param efetJ48 Efetividade obtida durante execuções pelo J48.
+     * @param efetSMO Efetividade obtida durante execuções pelo SMO.
+     * @param efetRBF Efetividade obtida durante execuções pelo RBF.
+     */
+    private static void mostrarBartlettTeste(List<Double> efetPSO, 
+            List<Double> efetJ48, List<Double> efetSMO, List<Double> efetRBF)
+    {
+        final Double[] objArrPSO = efetPSO.toArray(new Double[0]);
+        final Double[] objArrJ48 = efetJ48.toArray(new Double[0]);
+        final Double[] objArrSMO = efetSMO.toArray(new Double[0]);
+        final Double[] objArrRBF = efetRBF.toArray(new Double[0]);
+
+        final double[] arrPSO = ArrayUtils.toPrimitive(objArrPSO);
+        final double[] arrJ48 = ArrayUtils.toPrimitive(objArrJ48);
+        final double[] arrSMO = ArrayUtils.toPrimitive(objArrSMO);
+        final double[] arrRBF = ArrayUtils.toPrimitive(objArrRBF);
+        
+        final double[] x = new double[4 * EXECS];
+        final int[] group = new int[4 * EXECS];
+        final int ex = EXECS;
+        
+        System.arraycopy(arrPSO, 0, x, 0, ex);
+        System.arraycopy(arrJ48, 0, x, ex, ex);
+        System.arraycopy(arrSMO, 0, x, ex * 2, ex);
+        System.arraycopy(arrRBF, 0, x, ex * 3, ex);
+
+        Arrays.fill(group, 0, ex, 1);
+        Arrays.fill(group, ex, ex * 2, 2);
+        Arrays.fill(group, ex * 2, ex * 3, 3);
+        Arrays.fill(group, ex * 4, ex * 4, 4);
+        
+        final double[] result = DistributionTest.bartlett_test(x, group);
+        final String pvalor = FORMAT.formatar(result[1]);
+        
+        System.out.printf("\n\nTeste Bartlett (p-valor=0.05) Efetividade :"
+                + " %s \n", pvalor);
     }
 
     /**
@@ -506,7 +544,7 @@ public class App
         int k = 4;
         int n = EXECS;
 
-        System.out.println("\n\nTeste Post-Hoc Tukey (Efetividade):\n");
+        System.out.println("\n\nTeste Post-Hoc Tukey - Efetividade:\n");
 
         double[] groupTotals = new double[k];
         for (int i = 0; i < n; ++i)
@@ -589,7 +627,7 @@ public class App
      */
     private static double getQ(int k, int df)
     {
-        final double[][] T = {
+        final double[][] TAB = {
             {1, 17.969, 26.976, 32.819, 37.082, 40.408, 43.119, 45.397, 47.357, 49.071},
             {2, 6.085, 8.331, 9.798, 10.881, 11.734, 12.435, 13.027, 13.539, 13.988},
             {3, 4.501, 5.910, 6.825, 7.502, 8.037, 8.478, 8.852, 9.177, 9.462},
@@ -645,18 +683,18 @@ public class App
 
         // find pertinent row in table
         int i = 0;
-        while (i < T.length && df > T[i][0])
+        while (i < TAB.length && df > TAB[i][0])
         {
             ++i;
         }
 
         // don't allow i to go past end of table
-        if (i == T.length)
+        if (i == TAB.length)
         {
             --i;
         }
 
-        return T[i][columnIndex];
+        return TAB[i][columnIndex];
     }
 
     /**
@@ -729,7 +767,7 @@ public class App
     }
 
     /**
-     * Mostra a tabela de desempenho de cada algoritmo por classe.
+     * Mostra a tabela de efetividade de cada algoritmo por classe.
      *
      * @param legendaTabela Legenda tabela (Tipo métrica).
      * @param classes Classes.
