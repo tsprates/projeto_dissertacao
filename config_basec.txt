@@ -1,14 +1,15 @@
-J48.confidence_factor=0.25
-SMO.complexity_parameter_c=2.0
+J48.confidence_factor=0.025
+SMO.complexity_parameter_c=4.0
 SMO.kernel_function=weka.classifiers.functions.supportVector.PolyKernel
-SMO.function_exponent=2.0
+SMO.function_exponent=1.0
 RBF.clusters=3
 RBF.min_std_dev_clusters=0.1
 
-saida=class_
-id=id
+saida=categoria
+id=cod
 npop=90
-tabela=iris
+# base 2
+tabela=cepel_dados_nor_bal2
 maxiter=30000
 w=0.9
 c1=0.8
