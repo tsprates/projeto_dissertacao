@@ -7,9 +7,9 @@ RBF.min_std_dev_clusters=0.1
 
 saida=classe
 id=cod
-npop=100
+npop=90
 tabela=hepatitis
-maxiter=25000
+maxiter=30000
 w=0.9
 c1=0.8
 c2=0.8
