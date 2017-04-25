@@ -1,8 +1,8 @@
 J48.confidence_factor=0.25
-SMO.complexity_parameter_c=3.0
+SMO.complexity_parameter_c=4.0
 SMO.kernel_function=weka.classifiers.functions.supportVector.PolyKernel
-SMO.function_exponent=3.0
-RBF.clusters=2
+SMO.function_exponent=1.0
+RBF.clusters=4
 RBF.min_std_dev_clusters=0.01
 
 saida=categoria
