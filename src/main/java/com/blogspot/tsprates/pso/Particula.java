@@ -46,8 +46,9 @@ public class Particula implements Comparable<Particula>
     }
 
     /**
+     * Construtor.
      *
-     * @param p
+     * @param p Partícula.
      */
     public Particula(Particula p)
     {
