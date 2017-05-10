@@ -512,7 +512,7 @@ public class Pso
     }
 
     /**
-     * Mutação.
+     * Perturbação da partícula.
      *
      * @param p Partícula.
      * @param mutUnif Mutação Uniforme.
@@ -607,7 +607,7 @@ public class Pso
     }
 
     /**
-     * Mutação do Operador (Roleta dos operadores).
+     * Mutação do Operador (Roleta).
      *
      * @see #LISTA_OPERADORES
      * @return Retorna um operador da tabela de operadores.
@@ -629,7 +629,7 @@ public class Pso
     }
 
     /**
-     * Mutação uniforme.
+     * Perturbação da partícula (mutação uniforme).
      *
      * @param p Partícula.
      */
