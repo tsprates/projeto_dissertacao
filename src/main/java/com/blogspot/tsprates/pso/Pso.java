@@ -3,6 +3,7 @@ package com.blogspot.tsprates.pso;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
 import org.apache.commons.math3.util.FastMath;
 
 import java.sql.*;
@@ -520,68 +521,111 @@ public class Pso
     {
         final List<String> pos = new ArrayList<>(p.posicao());
 
-        final int index = RandomUtils.nextInt(0, pos.size());
-        final String[] termo = pos.get(index).split(" ");
-
         if (FastMath.random() < 0.5)
         {
             pos.add(criarCondicao());
         }
         else
         {
+            final int index = RandomUtils.nextInt(0, pos.size());
+            final String[] termo = pos.get(index).split(" ");
+
             String oper = termo[1];
             String val = termo[2];
 
+            // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
             if (NumberUtils.isNumber(termo[2]) && FastMath.random() < 0.5)
             {
-                // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
-                final double valor = Double.parseDouble(termo[2]);
-                double newVal;
+                final double newVal;
 
                 if (mutUnif)
                 {
-                    // Proposta de Michalewitz (1996)
-                    // Mutação uniforme
-                    if (FastMath.random() < 0.5)
-                    {
-                        newVal = valor + (max.get(termo[0]) - valor) * FastMath.random();
-                    }
-                    else
-                    {
-                        newVal = valor - (valor - min.get(termo[0])) * FastMath.random();
-                    }
+                    newVal = mutUniforme(termo);
                 }
                 else
                 {
-                    // Proposta de Andrews (2006)
-                    // Mutação gaussiana
-                    final double alfa = 0.1 * (max.get(termo[0]) - min.get(termo[0])) + Double.MIN_VALUE;
-                    final double r = new NormalDistribution(0, alfa).sample();
-                    newVal = valor + r;
+                    newVal = mutGaussiana(termo);
                 }
 
                 val = formatarValorNumericoWhere(newVal);
             }
             else
             {
-                final double r = FastMath.random();
-                int indexOper = 0;
-
-                for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
-                {
-                    if (PROB_OPERADORES[k - 1] >= r && PROB_OPERADORES[k] < r)
-                    {
-                        indexOper = k - 1;
-                    }
-                }
-
-                oper = LISTA_OPERADORES[indexOper];
+                oper = mutOperador();
             }
 
             pos.set(index, formatarCondicaoWhere(termo[0], oper, val));
         }
 
         p.setPosicao(pos);
+    }
+
+    /**
+     * Mutação Gaussiana.
+     *
+     * @param termo
+     * @return
+     */
+    private double mutGaussiana(String[] termo)
+    {
+        final double valor = Double.parseDouble(termo[2]);
+
+        try
+        {
+            // Proposta de Andrews (2006)
+            // Mutação gaussiana
+            final double alfa = 0.1 * (max.get(termo[0]) - min.get(termo[0])) + Double.MIN_VALUE;
+            final double r = new NormalDistribution(0, alfa).sample();
+            return valor + r;
+        }
+        catch (NotStrictlyPositiveException ex)
+        {
+            throw new RuntimeException("Erro ao gerar distribuição gaussiana.", ex);
+        }
+    }
+
+    /**
+     * Mutação Uniforme.
+     *
+     * @param termo
+     * @return
+     */
+    private double mutUniforme(String[] termo)
+    {
+        final double valor = Double.parseDouble(termo[2]);
+
+        // Proposta de Michalewitz (1996)
+        // Mutação uniforme
+        if (FastMath.random() < 0.5)
+        {
+            return valor + (max.get(termo[0]) - valor) * FastMath.random();
+        }
+        else
+        {
+            return valor - (valor - min.get(termo[0])) * FastMath.random();
+        }
+    }
+
+    /**
+     * Mutação do Operador (Roleta dos operadores).
+     *
+     * @see #LISTA_OPERADORES
+     * @return Retorna um operador da tabela de operadores.
+     */
+    private String mutOperador()
+    {
+        final double r = FastMath.random();
+        int indexOper = 0;
+
+        for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
+        {
+            if (PROB_OPERADORES[k - 1] >= r && PROB_OPERADORES[k] < r)
+            {
+                indexOper = k - 1;
+            }
+        }
+
+        return LISTA_OPERADORES[indexOper];
     }
 
     /**
