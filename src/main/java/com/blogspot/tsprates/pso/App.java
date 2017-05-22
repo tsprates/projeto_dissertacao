@@ -711,12 +711,13 @@ public class App
             List<Double> listaPSO, List<Double> listaJ48, List<Double> listaSMO, 
             List<Double> listaRBF)
     {
-        CSVFormat format = CSVFormat.DEFAULT.withRecordSeparator("\n");
+        final CSVFormat format = CSVFormat.DEFAULT.withRecordSeparator("\n");
 
         final DateFormat datefmt = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
         final String dataAtual = datefmt.format(new Date());
 
         final Path pathExecs = Paths.get("execs");
+
         if (!Files.exists(pathExecs))
         {
             try
@@ -730,7 +731,7 @@ public class App
             }
         }
 
-        String arqCSV = String.format("%s_%s_%s_%s_%s_%s.csv",
+        final String arqCSV = String.format("%s_%s_%s_%s_%s_%s.csv",
                 metrica,
                 config.getProperty("tabela"),
                 config.getProperty("npop"),
@@ -738,8 +739,8 @@ public class App
                 EXECS,
                 dataAtual);
 
-        final String caminhoArqCSV = pathExecs.toString() + File.separator + 
-                arqCSV;
+        final String caminhoArqCSV = pathExecs.toString() + File.separator 
+                + arqCSV;
 
         try (FileWriter fw = new FileWriter(caminhoArqCSV);
                 CSVPrinter printer = new CSVPrinter(fw, format))

@@ -28,8 +28,6 @@ public class Fitness
 
     private final Map<String, List<String>> particulasPorClasse;
 
-    private List<String> resultadoConsulta;
-
     private int totalSize = 0;
 
     private long numAvaliacao = 0;
@@ -43,10 +41,10 @@ public class Fitness
     /**
      * Construtor.
      *
-     * @param conexao
-     * @param colId
-     * @param tabela
-     * @param particulasPorClasses
+     * @param conexao Conexão DB.
+     * @param colId Campo ID.
+     * @param tabela Nome da tabela no banco de dados.
+     * @param particulasPorClasses Lista de partículas organizado por classes.
      */
     public Fitness(Connection conexao, String colId, String tabela,
             Map<String, List<String>> particulasPorClasses)
@@ -183,38 +181,38 @@ public class Fitness
     private double[] realizarCalculo(Particula p, boolean treinamento)
     {
         final String classe = p.classe();
-        final List<String> verdadeiras = new ArrayList<>(particulasPorClasse.get(classe));
+        final List<String> verdadeiros = new ArrayList<>(particulasPorClasse.get(classe));
 
         final List<String> kpastaAtual = kpastas.get(k);
         int total;
 
         if (treinamento)
         {
-            verdadeiras.removeAll(kpastaAtual);
+            verdadeiros.removeAll(kpastaAtual);
             total = totalSize - kpastaAtual.size();
         }
         else
         {
-            verdadeiras.retainAll(kpastaAtual);
+            verdadeiros.retainAll(kpastaAtual);
             total = kpastaAtual.size();
         }
 
-        resultadoConsulta = consultaSql(p.whereSql(), treinamento);
+        final List<String> consultaSql = consultaSql(p.whereSql(), treinamento);
+        final int consultaSqlSize = consultaSql.size();
 
-        final int resultadoConsultaSize = resultadoConsulta.size();
-        final int verdadeirasSize = verdadeiras.size();
+        final int verdadeirosSize = verdadeiros.size();
 
         double tp = 0.0;
-        for (String id : resultadoConsulta)
+        for (String id : consultaSql)
         {
-            if (verdadeiras.contains(id))
+            if (verdadeiros.contains(id))
             {
                 tp += 1.0;
             }
         }
 
-        double fp = resultadoConsultaSize - tp;
-        double fn = verdadeirasSize - tp;
+        double fp = consultaSqlSize - tp;
+        double fn = verdadeirosSize - tp;
         double tn = total - fn - fp - tp;
 
         double sensibilidade = tp / (tp + fn);

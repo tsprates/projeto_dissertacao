@@ -154,7 +154,7 @@ public class Particula implements Comparable<Particula>
     /**
      * Retorna pbest.
      *
-     * @return
+     * @return Partícula pbest.
      */
     public Collection<Particula> getPbest()
     {
@@ -164,7 +164,7 @@ public class Particula implements Comparable<Particula>
     /**
      * Seta pbest.
      *
-     * @param pbest
+     * @param pbest Partícula pbest.
      */
     public void setPbest(List<Particula> pbest)
     {
@@ -172,7 +172,7 @@ public class Particula implements Comparable<Particula>
     }
 
     /**
-     * Atualiza pbest (memória da partícula).
+     * Atualiza pbest (memória ou história da partícula).
      *
      */
     public void atualizarPbest()

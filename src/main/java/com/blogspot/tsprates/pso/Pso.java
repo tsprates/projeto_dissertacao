@@ -324,7 +324,7 @@ public class Pso
 
         System.out.println(TAB_CABECALHO);
 
-        Map<String, List<Particula>> solucoes = new TreeMap<>(repositorio);
+        final Map<String, List<Particula>> solucoes = new TreeMap<>(repositorio);
 
         for (Entry<String, List<Particula>> parts : solucoes.entrySet())
         {
@@ -648,7 +648,7 @@ public class Pso
             mapaClasseId.put(cl, new ArrayList<String>());
         }
 
-        String sql = "SELECT " + colClasse + ", " + colId + " AS col_id "
+        final String sql = "SELECT " + colClasse + ", " + colId + " AS col_id "
                 + "FROM " + tabela;
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
@@ -677,9 +677,9 @@ public class Pso
      */
     private void carregarColunasTabela()
     {
-        ResultSetMetaData metadata;
+        final ResultSetMetaData metadata;
 
-        String sql = "SELECT * "
+        final String sql = "SELECT * "
                 + "FROM " + tabela + " "
                 + "LIMIT 1";
 
@@ -715,7 +715,7 @@ public class Pso
      */
     private void carregarClasses()
     {
-        String sql = "SELECT DISTINCT " + colClasse + " "
+        final String sql = "SELECT DISTINCT " + colClasse + " "
                 + "FROM " + tabela + " "
                 + "ORDER BY " + colClasse + " ASC";
 
@@ -740,15 +740,18 @@ public class Pso
     private void carregarMaxMinColunasTabela()
     {
         // faixa de valores de cada coluna
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
 
         for (String entrada : colunas)
         {
-            sb.append(", ").append("max(").append(entrada).append(")")
-                    .append(", ").append("min(").append(entrada).append(")");
+            sb.append(", ")
+                    .append("max(").append(entrada).append(")")
+                    .append(", ")
+                    .append("min(").append(entrada).append(")");
         }
 
-        String sql = "SELECT " + sb.toString().substring(1) + " FROM " + tabela;
+        final String sql = "SELECT " + sb.toString().substring(1)
+                + " FROM " + tabela;
 
         try (PreparedStatement ps = conexao.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery())
@@ -884,7 +887,7 @@ public class Pso
     }
 
     /**
-     * Cria uma cláusula SQL WHERE.
+     * Cria uma cláusula SQL WHERE, ou seja, a posição da partícula.
      *
      * @return String da cláusula SQL WHERE.
      */
@@ -1005,14 +1008,15 @@ public class Pso
             kpastasTemp.add(new ArrayList<String>());
         }
 
+        // Embaralha registros
         final Map<String, List<String>> temp = new HashMap<>();
-        final int total = randMapaClasseId(temp);
+        final int tempSize = randMapaClasseId(temp);
 
         final List<String> listaClasses = new ArrayList<>(classes);
 
         int k = 0;
 
-        for (int i = 0; i < total;)
+        for (int i = 0; i < tempSize;)
         {
             for (int j = 0, size = listaClasses.size(); j < size;)
             {
@@ -1050,7 +1054,7 @@ public class Pso
 
     /**
      * Cria um clone com elementos aleatórios do mapa classe
-     * {@link #mapaClasseId}.
+     * {@link #mapaClasseId} e retorna o número total de elementos.
      *
      * @param map Mapa de classe por ID.
      * @return Número total de registro do mapa.

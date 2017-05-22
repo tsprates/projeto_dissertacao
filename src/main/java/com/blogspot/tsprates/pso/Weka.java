@@ -190,7 +190,7 @@ public class Weka
      */
     private Instances removerColId(Instances instance) throws Exception
     {
-        int colIdIndex = instance.attribute(colId).index() + 1;
+        final int colIdIndex = instance.attribute(colId).index() + 1;
 
         Remove rem = new Remove();
         rem.setOptions(Utils.splitOptions("-R " + colIdIndex));
