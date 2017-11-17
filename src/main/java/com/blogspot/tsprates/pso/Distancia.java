@@ -9,10 +9,9 @@ import java.util.List;
  *
  * @author thiago
  */
-public class Distancia
-{
+public class Distancia {
 
-    private static final EuclideanDistance DIST = new EuclideanDistance();
+    private static final EuclideanDistance DIST_EUCL = new EuclideanDistance();
 
     /**
      * Retorna a partícula mais próxima por meio do cálculo da distância
@@ -23,19 +22,19 @@ public class Distancia
      * @return A partícula mais próxima.
      */
     public static Particula retornarParticulaMaisProxima(List<Particula> parts,
-            Particula p)
+            Particula p) 
     {
         Particula particulaProxima = parts.get(0);
 
-        double distancia = DIST.compute(particulaProxima.fitness(),
+        double distancia = DIST_EUCL.compute(particulaProxima.fitness(),
                 p.fitness());
 
-        for (int i = 0, size = parts.size(); i < size; i++)
+        for (int i = 1, size = parts.size(); i < size; i++) 
         {
-            double d = DIST.compute(parts.get(i).fitness(),
-                    particulaProxima.fitness());
+            double d = DIST_EUCL.compute(parts.get(i).fitness(),
+                    p.fitness());
 
-            if (d > distancia)
+            if (d < distancia) 
             {
                 particulaProxima = parts.get(i);
                 distancia = d;
