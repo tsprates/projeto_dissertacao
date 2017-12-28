@@ -1,7 +1,5 @@
 package com.blogspot.tsprates.pso;
 
-import org.apache.commons.lang3.RandomUtils;
-
 import java.util.*;
 
 /**
@@ -22,9 +20,11 @@ public class FronteiraPareto
      * que o limite definido.
      *
      * @see FronteiraPareto#LIMITE_PARTICULAS
+     * @param random Gerador de números aleatórios.
      * @param particulas Lista de partículas.
      */
-    public static void verificarNumParticulas(Collection<Particula> particulas)
+    public static void verificarNumParticulas(Random random,
+            Collection<Particula> particulas)
     {
         List<Particula> parts = new ArrayList<>(particulas);
 
@@ -34,8 +34,8 @@ public class FronteiraPareto
         {
             while (LIMITE_PARTICULAS < parts.size())
             {
-                int index = parts.size() - 1;
-                parts.remove(RandomUtils.nextInt(1, index));
+                final int index = (int) Math.floor(random.nextDouble() * parts.size());
+                parts.remove(index);
             }
         }
     }

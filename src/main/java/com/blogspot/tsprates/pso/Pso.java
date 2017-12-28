@@ -1,8 +1,6 @@
 package com.blogspot.tsprates.pso;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
 import org.apache.commons.math3.util.FastMath;
 
@@ -38,6 +36,8 @@ public class Pso
     private final static double TURBULENCIA = 3;
 
     private final int NUM_K;
+
+    private final Random random;
 
     private final String tabela;
 
@@ -84,11 +84,12 @@ public class Pso
      *
      * @param conexao Conexão com banco de dados.
      * @param config Configurações.
+     * @param r Gerador de números aleatórios.
      * @param formatador Formatador de casas decimais.
      * @param numKpastas Número de K-Pastas.
      */
-    public Pso(Connection conexao, Properties config, Formatador formatador,
-            int numKpastas)
+    public Pso(Connection conexao, Properties config, Random r,
+            Formatador formatador, int numKpastas)
     {
         this.conexao = conexao;
         this.tabela = config.getProperty("tabela");
@@ -105,6 +106,8 @@ public class Pso
         this.format = formatador;
 
         this.NUM_K = numKpastas;
+
+        this.random = r;
 
         carregarColunasTabela();
         carregarClasses();
@@ -389,20 +392,20 @@ public class Pso
         final int partPosSize = partPos.size();
 
         // velocidade
-        if (FastMath.random() < w)
+        if (random.nextDouble() < w)
         {
             perturbar(part);
         }
 
         // pbest
-        if (FastMath.random() < c1)
+        if (random.nextDouble() < c1)
         {
             final List<Particula> pbest = new ArrayList<>(part.getPbest());
             recombinar(pbest, part, partPos, partPosSize);
         }
 
         // gbest
-        if (FastMath.random() < c2)
+        if (random.nextDouble() < c2)
         {
             final List<Particula> gbest = repositorio.get(part.classe());
             recombinar(gbest, part, partPos, partPosSize);
@@ -490,13 +493,15 @@ public class Pso
 
         while (i < bestPosSize)
         {
-            if (FastMath.random() < 0.5)
+            if (random.nextDouble() < 0.5)
             {
-                newPos.add(bestPos.get(RandomUtils.nextInt(0, bestPosSize)));
+                final int indexBest = (int) Math.floor(bestPosSize * random.nextDouble());
+                newPos.add(bestPos.get(indexBest));
             }
             else
             {
-                newPos.add(partPos.get(RandomUtils.nextInt(0, partPosSize)));
+                final int indexPart = (int) Math.floor(partPosSize * random.nextDouble());
+                newPos.add(partPos.get(indexPart));
             }
 
             i++;
@@ -504,7 +509,8 @@ public class Pso
 
         while (i < partPosSize)
         {
-            newPos.add(partPos.get(RandomUtils.nextInt(0, partPosSize)));
+            final int partSize = (int) Math.floor(partPosSize * random.nextDouble());
+            newPos.add(partPos.get(partSize));
             i++;
         }
 
@@ -521,20 +527,20 @@ public class Pso
     {
         final List<String> pos = new ArrayList<>(p.posicao());
 
-        if (FastMath.random() < 0.5)
+        if (random.nextDouble() < 0.5)
         {
             pos.add(criarCondicao());
         }
         else
         {
-            final int index = RandomUtils.nextInt(0, pos.size());
+            final int index = (int) Math.floor(pos.size() * random.nextDouble());
             final String[] termo = pos.get(index).split(" ");
 
             String oper = termo[1];
             String val = termo[2];
 
             // Artigo: Empirical Study of Particle Swarm Optimization Mutation Operators
-            if (NumberUtils.isNumber(termo[2]) && FastMath.random() < 0.5)
+            if (NumberUtils.isNumber(termo[2]) && random.nextDouble() < 0.5)
             {
                 final double newVal;
 
@@ -575,7 +581,7 @@ public class Pso
             // Proposta de Andrews (2006)
             // Mutação gaussiana
             final double alfa = 0.1 * (max.get(termo[0]) - min.get(termo[0])) + Double.MIN_VALUE;
-            final double r = new NormalDistribution(0, alfa).sample();
+            final double r = random.nextGaussian() * alfa;
             return valor + r;
         }
         catch (NotStrictlyPositiveException ex)
@@ -596,13 +602,13 @@ public class Pso
 
         // Proposta de Michalewitz (1996)
         // Mutação uniforme
-        if (FastMath.random() < 0.5)
+        if (random.nextDouble() < 0.5)
         {
-            return valor + (max.get(termo[0]) - valor) * FastMath.random();
+            return valor + (max.get(termo[0]) - valor) * random.nextDouble();
         }
         else
         {
-            return valor - (valor - min.get(termo[0])) * FastMath.random();
+            return valor - (valor - min.get(termo[0])) * random.nextDouble();
         }
     }
 
@@ -614,7 +620,7 @@ public class Pso
      */
     private String mutOperador()
     {
-        final double r = FastMath.random();
+        final double r = random.nextDouble();
         int indexOper = 0;
 
         for (int k = 1, len = LISTA_OPERADORES.length; k < len; k++)
@@ -843,7 +849,7 @@ public class Pso
     private Particula criarParticula(String classe)
     {
         final Set<String> pos = criarWhere();
-        return new Particula(pos, classe, fitness);
+        return new Particula(pos, classe, fitness, random);
     }
 
     /**
@@ -874,7 +880,7 @@ public class Pso
         final int numCols = colunas.size();
         final Set<String> conjWhere = new HashSet<>();
 
-        final double r = RandomUtils.nextDouble(1, numCols);
+        final double r = (int) Math.floor(numCols * random.nextDouble()) + 1;
         final int maxWhere = (int) FastMath.ceil(FastMath.log(2.0, r)) + 1;
 
         for (int i = 0; i < maxWhere; i++)
@@ -896,21 +902,20 @@ public class Pso
         final int numOper = LISTA_OPERADORES.length;
         final int numCols = colunas.size();
 
-        final int colIndex = RandomUtils.nextInt(0, numCols);
-        final int operIndex = RandomUtils.nextInt(0, numOper);
+        final int colIndex = (int) Math.floor(numCols * random.nextDouble());
+        final int operIndex = (int) Math.floor(numOper * random.nextDouble());
 
         final double prob = 0.9;
 
         String valor;
 
-        // verifica se a condição será 
-        // outro atributo ou valor numérico
-        if (prob > FastMath.random())
+        // verifica se a condição será outro atributo ou valor numérico
+        if (random.nextDouble() < prob)
         {
             final String coluna = colunas.get(colIndex);
             final Double minCol = min.get(coluna);
             final Double maxCol = max.get(coluna);
-            final double newVal = (maxCol - minCol) * FastMath.random() + minCol;
+            final double newVal = (maxCol - minCol) * random.nextDouble() + minCol;
 
             valor = formatarValorNumericoWhere(newVal);
         }
@@ -919,7 +924,7 @@ public class Pso
             int index;
             do
             {
-                index = RandomUtils.nextInt(0, numCols);
+                index = (int) Math.floor(numCols * random.nextDouble());
             }
             while (index == colIndex); // diferentes colunas
 
@@ -992,7 +997,7 @@ public class Pso
         repositorio.put(classe, rep);
 
         // Verifica tamanho do repositório
-        verificarNumParticulas(rep);
+        verificarNumParticulas(random, rep);
     }
 
     /**
@@ -1076,7 +1081,7 @@ public class Pso
                 total++;
             }
 
-            Collections.shuffle(map.get(cl));
+            Collections.shuffle(map.get(cl), random);
         }
 
         return total;

@@ -49,6 +49,9 @@ public class App
 
     // Formata casas decimais
     private final static Formatador FORMAT = new Formatador();
+    
+    // Gerador de números de aleatórios
+    private final static Random RANDOM = new Random(1L);
 
     /**
      * Main.
@@ -67,7 +70,7 @@ public class App
             Connection db = new DB().conectar();
             Properties config = carregarArquivoDeConfig(args[0]);
 
-            Pso pso = new Pso(db, config, FORMAT, K);
+            Pso pso = new Pso(db, config, RANDOM, FORMAT, K);
 
             Weka weka = new Weka(config);
 
@@ -477,8 +480,7 @@ public class App
     {
         final double desvio = desvAlg + Double.MIN_VALUE;
         
-        final NormalDistribution normdist = new NormalDistribution(mediaAlg, 
-                desvio);
+        final NormalDistribution normdist = new NormalDistribution(mediaAlg, desvio);
         
         final Double[] arrObjEfet = efetAlg.toArray(new Double[0]);
 

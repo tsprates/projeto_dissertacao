@@ -4,6 +4,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
+import static com.blogspot.tsprates.pso.FronteiraPareto.*;
+
 /**
  * Classe Partícula.
  *
@@ -24,6 +26,8 @@ public class Particula implements Comparable<Particula>
 
     private Set<Particula> pbest;
 
+    private final Random random;
+
     /**
      * Construtor.
      *
@@ -31,13 +35,16 @@ public class Particula implements Comparable<Particula>
      * partícula.
      * @param classe Rótulo (nicho) da partícula.
      * @param fitness Calculadora de fitness.
+     * @param random Gerador de números aleatórios.
      */
-    public Particula(Set<String> posicao, String classe, Fitness fitness)
+    public Particula(Set<String> posicao, String classe, Fitness fitness,
+            Random random)
     {
         this.posicao = new TreeSet<>(posicao);
         this.strPos = join(posicao);
         this.classe = classe;
         this.pbest = new TreeSet<>();
+        this.random = random;
 
         this.calculadoraFitness = fitness;
 
@@ -52,7 +59,7 @@ public class Particula implements Comparable<Particula>
      */
     public Particula(Particula p)
     {
-        this(p.posicao, p.classe, p.calculadoraFitness);
+        this(p.posicao, p.classe, p.calculadoraFitness, p.random);
     }
 
     /**
@@ -177,11 +184,10 @@ public class Particula implements Comparable<Particula>
      */
     public void atualizarPbest()
     {
-        FronteiraPareto.atualizarParticulasNaoDominadas(pbest, this);
+        atualizarParticulasNaoDominadas(pbest, this);
         this.pbest = new TreeSet<>(pbest);
 
-        // verifica o tamanho permitido do repositório
-        FronteiraPareto.verificarNumParticulas(this.pbest);
+        verificarNumParticulas(random, this.pbest);
     }
 
     @Override
@@ -253,6 +259,6 @@ public class Particula implements Comparable<Particula>
      */
     public Particula clonar()
     {
-        return new Particula(posicao, classe, calculadoraFitness);
+        return new Particula(posicao, classe, calculadoraFitness, random);
     }
 }
