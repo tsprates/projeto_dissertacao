@@ -34,7 +34,7 @@ public class Weka
 
     private double[][] efet = null; // efetividade
 
-    private double[][] acur = null; // efetividade
+    private double[][] acur = null; // acurácia
 
     /**
      * Construtor.
