@@ -50,7 +50,7 @@ public class App
     // Formata casas decimais
     private final static Formatador FORMAT = new Formatador();
     
-    // Gerador de números de aleatórios
+    // Gerador de números aleatórios
     private final static Random RANDOM = new Random(1L);
 
     /**
