@@ -216,7 +216,7 @@ public class App
      * Carrega arquivo de configurações.
      *
      * @param arquivo Arquivo de configurações.
-     * @return Retorna um objeto Properties contendas as configurações dos
+     * @return Retorna um objeto Properties contendo as configurações dos
      * algoritmos.
      */
     private static Properties carregarArquivoDeConfig(String arquivo)
