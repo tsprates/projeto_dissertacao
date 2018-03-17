@@ -63,7 +63,7 @@ public class DBUtils
         }
         catch (SQLException ex)
         {
-            throw new RuntimeException("Erro ao coluna ID para arquivo arff importado.", ex);
+            throw new RuntimeException("Erro ao adicionar coluna ID para arquivo arff importado.", ex);
         }
 
         System.out.println("Arquivo arff importado com sucesso.");
