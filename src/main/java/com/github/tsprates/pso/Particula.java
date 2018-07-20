@@ -1,18 +1,24 @@
-package com.blogspot.tsprates.pso;
+package com.github.tsprates.pso;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
-import static com.blogspot.tsprates.pso.FronteiraPareto.*;
+import static com.github.tsprates.pso.FronteiraPareto.atualizarParticulasNaoDominadas;
+import static com.github.tsprates.pso.FronteiraPareto.verificarNumParticulas;
 
 /**
  * Classe Partícula.
  *
  * @author thiago
  */
-public class Particula implements Comparable<Particula>
+public class Particula
+                implements Comparable<Particula>
 {
+
+    private final Fitness calculadoraFitness;
+
+    private final Random random;
 
     private Set<String> posicao;
 
@@ -22,26 +28,20 @@ public class Particula implements Comparable<Particula>
 
     private double[] fitness;
 
-    private final Fitness calculadoraFitness;
-
     private Set<Particula> pbest;
-
-    private final Random random;
 
     /**
      * Construtor.
      *
-     * @param posicao Conjunto de cláusulas WHERE que representa a posição da
-     * partícula.
-     * @param classe Rótulo (nicho) da partícula.
+     * @param posicao Conjunto de cláusulas WHERE que representa a posição da partícula.
+     * @param classe  Rótulo (nicho) da partícula.
      * @param fitness Calculadora de fitness.
-     * @param random Gerador de números aleatórios.
+     * @param random  Gerador de números aleatórios.
      */
-    public Particula(Set<String> posicao, String classe, Fitness fitness,
-            Random random)
+    public Particula( Set<String> posicao, String classe, Fitness fitness, Random random )
     {
-        this.posicao = new TreeSet<>(posicao);
-        this.strPos = join(posicao);
+        this.posicao = new TreeSet<>( posicao );
+        this.strPos = join( posicao );
         this.classe = classe;
         this.pbest = new TreeSet<>();
         this.random = random;
@@ -49,7 +49,7 @@ public class Particula implements Comparable<Particula>
         this.calculadoraFitness = fitness;
 
         final Particula that = this;
-        this.fitness = calculadoraFitness.calcular(that);
+        this.fitness = calculadoraFitness.calcular( that );
     }
 
     /**
@@ -57,9 +57,9 @@ public class Particula implements Comparable<Particula>
      *
      * @param p Partícula.
      */
-    public Particula(Particula p)
+    public Particula( Particula p )
     {
-        this(p.posicao, p.classe, p.calculadoraFitness, p.random);
+        this( p.posicao, p.classe, p.calculadoraFitness, p.random );
     }
 
     /**
@@ -77,10 +77,10 @@ public class Particula implements Comparable<Particula>
      *
      * @param posicao Coleção de Strings da nova posição.
      */
-    public void setPosicao(Collection<String> posicao)
+    public void setPosicao( Collection<String> posicao )
     {
-        this.posicao = new TreeSet<>(posicao);
-        this.strPos = join(this.posicao);
+        this.posicao = new TreeSet<>( posicao );
+        this.strPos = join( this.posicao );
     }
 
     /**
@@ -88,7 +88,7 @@ public class Particula implements Comparable<Particula>
      */
     public void avaliar()
     {
-        this.fitness = calculadoraFitness.calcular(this);
+        this.fitness = calculadoraFitness.calcular( this );
     }
 
     /**
@@ -122,7 +122,7 @@ public class Particula implements Comparable<Particula>
      *
      * @param classe Classe da partícula.
      */
-    public void setClasse(String classe)
+    public void setClasse( String classe )
     {
         this.classe = classe;
     }
@@ -153,9 +153,9 @@ public class Particula implements Comparable<Particula>
      * @param where Cláusula WHERE.
      * @return String de cláusulas WHERE.
      */
-    private String join(Set<String> where)
+    private String join( Set<String> where )
     {
-        return "(" + StringUtils.join(where, ") AND (") + ")";
+        return "(" + StringUtils.join( where, ") AND (" ) + ")";
     }
 
     /**
@@ -173,21 +173,20 @@ public class Particula implements Comparable<Particula>
      *
      * @param pbest Partícula pbest.
      */
-    public void setPbest(List<Particula> pbest)
+    public void setPbest( List<Particula> pbest )
     {
-        this.pbest = new TreeSet<>(pbest);
+        this.pbest = new TreeSet<>( pbest );
     }
 
     /**
      * Atualiza pbest (memória ou história da partícula).
-     *
      */
     public void atualizarPbest()
     {
-        atualizarParticulasNaoDominadas(pbest, this);
-        this.pbest = new TreeSet<>(pbest);
+        atualizarParticulasNaoDominadas( pbest, this );
+        this.pbest = new TreeSet<>( pbest );
 
-        verificarNumParticulas(random, this.pbest);
+        verificarNumParticulas( random, this.pbest );
     }
 
     @Override
@@ -195,45 +194,44 @@ public class Particula implements Comparable<Particula>
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Arrays.hashCode(fitness);
+        result = prime * result + Arrays.hashCode( fitness );
         return result;
     }
 
     @Override
-    public boolean equals(Object obj)
+    public boolean equals( Object obj )
     {
-        if (this == obj)
+        if ( this == obj )
         {
             return true;
         }
 
-        if (obj == null)
+        if ( obj == null )
         {
             return false;
         }
 
-        if (getClass() != obj.getClass())
+        if ( getClass() != obj.getClass() )
         {
             return false;
         }
 
         final Particula outra = (Particula) obj;
-        return fitness[0] == outra.fitness[0]
-                && fitness[1] == outra.fitness[1];
+        return fitness[0] == outra.fitness[0] && fitness[1] == outra.fitness[1];
     }
 
     @Override
-    public int compareTo(Particula part)
+    public int compareTo( Particula part )
     {
         double[] pfit = part.fitness();
 
-        if (fitness[1] == pfit[1])
+        if ( fitness[1] == pfit[1] )
         {
-            if (fitness[0] == pfit[0])
+            if ( fitness[0] == pfit[0] )
             {
                 return 0;
             }
-            else if (fitness[0] < pfit[0])
+            else if ( fitness[0] < pfit[0] )
             {
                 return -1;
             }
@@ -242,7 +240,7 @@ public class Particula implements Comparable<Particula>
                 return 1;
             }
         }
-        else if (fitness[1] < pfit[1])
+        else if ( fitness[1] < pfit[1] )
         {
             return -1;
         }
@@ -259,6 +257,6 @@ public class Particula implements Comparable<Particula>
      */
     public Particula clonar()
     {
-        return new Particula(posicao, classe, calculadoraFitness, random);
+        return new Particula( posicao, classe, calculadoraFitness, random );
     }
 }

@@ -1,4 +1,4 @@
-package com.blogspot.tsprates.pso;
+package com.github.tsprates.pso;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,22 +41,21 @@ public class Fitness
     /**
      * Construtor.
      *
-     * @param conexao Conexão DB.
-     * @param colId Campo ID.
-     * @param tabela Nome da tabela no banco de dados.
+     * @param conexao              Conexão DB.
+     * @param colId                Campo ID.
+     * @param tabela               Nome da tabela no banco de dados.
      * @param particulasPorClasses Lista de partículas organizado por classes.
      */
-    public Fitness(Connection conexao, String colId, String tabela,
-            Map<String, List<String>> particulasPorClasses)
+    public Fitness( Connection conexao, String colId, String tabela, Map<String, List<String>> particulasPorClasses )
     {
         this.conexao = conexao;
         this.colId = colId;
         this.tabela = tabela;
         this.particulasPorClasse = particulasPorClasses;
 
-        for (String saida : particulasPorClasses.keySet())
+        for ( String saida : particulasPorClasses.keySet() )
         {
-            totalSize += particulasPorClasses.get(saida).size();
+            totalSize += particulasPorClasses.get( saida ).size();
         }
     }
 
@@ -65,10 +64,10 @@ public class Fitness
      *
      * @param k
      */
-    public void setK(int k)
+    public void setK( int k )
     {
         this.k = k;
-        notId = StringUtils.join(kpastas.get(k), ", ");
+        notId = StringUtils.join( kpastas.get( k ), ", " );
     }
 
     /**
@@ -76,7 +75,7 @@ public class Fitness
      *
      * @param kpastas
      */
-    public void setKPastas(List<List<String>> kpastas)
+    public void setKPastas( List<List<String>> kpastas )
     {
         this.kpastas = kpastas;
     }
@@ -87,12 +86,12 @@ public class Fitness
      * @param part Partícula.
      * @return Array contendo a complexidade, efetividade e acurácia.
      */
-    public double[] calcular(Particula part)
+    public double[] calcular( Particula part )
     {
         // atualiza o número de avaliação
         numAvaliacao += 1;
 
-        final double[] r = realizarCalculo(part, true);
+        final double[] r = realizarCalculo( part, true );
 
         final double[] arr = new double[3];
         arr[0] = 1.0 / part.numWhere();
@@ -105,17 +104,16 @@ public class Fitness
     /**
      * Calcula fitness.
      *
-     * @param part Partícula.
-     * @param treinamento Se verdadeiro então fase de treinamento senão fase de
-     * teste.
+     * @param part        Partícula.
+     * @param treinamento Se verdadeiro então fase de treinamento senão fase de teste.
      * @return Array contendo a complexidade WHERE, efetividade e acurácia.
      */
-    public double[] calcular(Particula part, boolean treinamento)
+    public double[] calcular( Particula part, boolean treinamento )
     {
         // atualiza o número de avaliação
         numAvaliacao += 1;
 
-        final double[] r = realizarCalculo(part, treinamento);
+        final double[] r = realizarCalculo( part, treinamento );
 
         final double[] arr = new double[3];
         arr[0] = 1.0 / part.numWhere();
@@ -128,84 +126,78 @@ public class Fitness
     /**
      * Avalia determinada partícula pela cláusula SQL WHERE.
      *
-     * @param where String de uma cláusula WHERE.
+     * @param where       String de uma cláusula WHERE.
      * @param treinamento Treinamento.
      * @return Retorna lista de String correspondente a uma cláusula WHERE.
      */
-    private List<String> consultaSql(String where, boolean treinamento)
+    private List<String> consultaSql( String where, boolean treinamento )
     {
         List<String> result = new ArrayList<>();
 
         String sql;
 
-        if (treinamento)
+        if ( treinamento )
         {
-            sql = "SELECT " + colId + " AS id "
-                    + "FROM " + tabela + " "
-                    + "WHERE " + colId + " NOT IN (" + notId + ") "
-                    + "AND " + where;
+            sql = "SELECT " + colId + " AS id " + "FROM " + tabela + " " + "WHERE " + colId + " NOT IN (" + notId + ") "
+                            + "AND " + where;
         }
         else
         {
-            sql = "SELECT " + colId + " AS id "
-                    + "FROM " + tabela + " "
-                    + "WHERE " + colId + " IN (" + notId + ") "
-                    + "AND " + where;
+            sql = "SELECT " + colId + " AS id " + "FROM " + tabela + " " + "WHERE " + colId + " IN (" + notId + ") "
+                            + "AND " + where;
         }
 
-        try (PreparedStatement ps = conexao.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery())
+        try ( PreparedStatement ps = conexao.prepareStatement( sql ); ResultSet rs = ps.executeQuery() )
         {
 
-            while (rs.next())
+            while ( rs.next() )
             {
-                result.add(rs.getString("id"));
+                result.add( rs.getString( "id" ) );
             }
 
             return result;
         }
-        catch (SQLException e)
+        catch ( SQLException e )
         {
-            throw new RuntimeException(
-                    "Erro ao recupera as classes no banco de dados.", e);
+            throw new RuntimeException( "Erro ao recupera as classes no banco de dados.", e );
         }
     }
 
     /**
      * Calcula a especificidade e acurácia da partícula.
      *
-     * @param p Partícula.
+     * @param p           Partícula.
      * @param treinamento Treinamento.
      * @return Retorna a efetividade e acurácia calculada.
      */
-    private double[] realizarCalculo(Particula p, boolean treinamento)
+    private double[] realizarCalculo( Particula p, boolean treinamento )
     {
         final String classe = p.classe();
-        final List<String> verdadeiros = new ArrayList<>(particulasPorClasse.get(classe));
+        final List<String> verdadeiros = new ArrayList<>( particulasPorClasse.get( classe ) );
 
-        final List<String> kpastaAtual = kpastas.get(k);
+        final List<String> kpastaAtual = kpastas.get( k );
         int total;
 
-        if (treinamento)
+        if ( treinamento )
         {
-            verdadeiros.removeAll(kpastaAtual);
+            verdadeiros.removeAll( kpastaAtual );
             total = totalSize - kpastaAtual.size();
         }
         else
         {
-            verdadeiros.retainAll(kpastaAtual);
+            verdadeiros.retainAll( kpastaAtual );
             total = kpastaAtual.size();
         }
 
-        final List<String> consultaSql = consultaSql(p.whereSql(), treinamento);
+        final List<String> consultaSql = consultaSql( p.whereSql(), treinamento );
         final int consultaSqlSize = consultaSql.size();
 
         final int verdadeirosSize = verdadeiros.size();
 
         double tp = 0.0;
-        for (String id : consultaSql)
+        for ( String id : consultaSql )
         {
-            if (verdadeiros.contains(id))
+            if ( verdadeiros.contains( id ) )
             {
                 tp += 1.0;
             }
@@ -215,16 +207,13 @@ public class Fitness
         double fn = verdadeirosSize - tp;
         double tn = total - fn - fp - tp;
 
-        double sensibilidade = tp / (tp + fn);
-        double especificidade = tn / (tn + fp);
-        double acuracia = (tp + tn) / (tp + tn + fp + fn);
+        double sensibilidade = tp / ( tp + fn );
+        double especificidade = tn / ( tn + fp );
+        double acuracia = ( tp + tn ) / ( tp + tn + fp + fn );
 
         double efetividade = especificidade * sensibilidade;
 
-        return new double[]
-        {
-            efetividade, acuracia
-        };
+        return new double[] { efetividade, acuracia };
     }
 
     /**
@@ -242,14 +231,13 @@ public class Fitness
      *
      * @param num Número de avaliações.
      */
-    public void setNumAvaliacao(int num)
+    public void setNumAvaliacao( int num )
     {
         this.numAvaliacao = num;
     }
 
     /**
      * Reseta o número de avaliação do fitness.
-     *
      */
     public void resetNumAvaliacao()
     {
@@ -262,22 +250,21 @@ public class Fitness
      * @param repositorio Partículas não dominadas, divididas por classes.
      * @return Mapa de fitness das partículas.
      */
-    public Map<String, List<double[]>> testar(
-            Map<String, List<Particula>> repositorio)
+    public Map<String, List<double[]>> testar( Map<String, List<Particula>> repositorio )
     {
         Map<String, List<double[]>> mapFit = new TreeMap<>();
 
-        for (Entry<String, List<Particula>> classePart : repositorio.entrySet())
+        for ( Entry<String, List<Particula>> classePart : repositorio.entrySet() )
         {
             String saida = classePart.getKey();
 
-            mapFit.put(saida, new ArrayList<double[]>());
+            mapFit.put( saida, new ArrayList<double[]>() );
 
             List<Particula> parts = classePart.getValue();
-            for (Particula part : parts)
+            for ( Particula part : parts )
             {
-                double[] arr = calcular(part, false);
-                mapFit.get(saida).add(arr);
+                double[] arr = calcular( part, false );
+                mapFit.get( saida ).add( arr );
             }
         }
 

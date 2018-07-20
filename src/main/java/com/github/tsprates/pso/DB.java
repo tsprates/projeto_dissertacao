@@ -1,4 +1,4 @@
-package com.blogspot.tsprates.pso;
+package com.github.tsprates.pso;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,7 +8,6 @@ import java.sql.SQLException;
  * Banco de dados.
  *
  * @author thiago
- *
  */
 public class DB
 {
@@ -37,12 +36,11 @@ public class DB
     {
         try
         {
-            return DriverManager.getConnection("jdbc:postgresql://localhost/"
-                    + DBNAME, USERNAME, PASSWORD);
+            return DriverManager.getConnection( "jdbc:postgresql://localhost/" + DBNAME, USERNAME, PASSWORD );
         }
-        catch (SQLException e)
+        catch ( SQLException e )
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException( e );
         }
     }
 

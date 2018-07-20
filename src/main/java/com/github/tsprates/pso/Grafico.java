@@ -1,4 +1,4 @@
-package com.blogspot.tsprates.pso;
+package com.github.tsprates.pso;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -22,7 +22,8 @@ import java.util.List;
  *
  * @author thiago
  */
-public class Grafico extends ApplicationFrame
+public class Grafico
+                extends ApplicationFrame
 {
 
     private static final long serialVersionUID = 1L;
@@ -40,9 +41,9 @@ public class Grafico extends ApplicationFrame
      * @param tituloX
      * @param tituloY
      */
-    public Grafico(String titulo, String tituloX, String tituloY)
+    public Grafico( String titulo, String tituloX, String tituloY )
     {
-        super(titulo);
+        super( titulo );
         this.titulo = titulo;
         this.eixoX = tituloX;
         this.eixoY = tituloY;
@@ -56,17 +57,16 @@ public class Grafico extends ApplicationFrame
      * @param yData
      * @return
      */
-    public Grafico adicionarSerie(String legenda, List<? extends Number> xData,
-            List<? extends Number> yData)
+    public Grafico adicionarSerie( String legenda, List<? extends Number> xData, List<? extends Number> yData )
     {
-        final XYSeries serie = new XYSeries(legenda);
+        final XYSeries serie = new XYSeries( legenda );
 
-        for (int i = 0, len = xData.size(); i < len; i++)
+        for ( int i = 0, len = xData.size(); i < len; i++ )
         {
-            serie.add(xData.get(i), yData.get(i));
+            serie.add( xData.get( i ), yData.get( i ) );
         }
 
-        dataset.addSeries(serie);
+        dataset.addSeries( serie );
         return this;
     }
 
@@ -77,16 +77,16 @@ public class Grafico extends ApplicationFrame
      * @param yData
      * @return
      */
-    public Grafico adicionarSerie(String legenda, List<? extends Number> yData)
+    public Grafico adicionarSerie( String legenda, List<? extends Number> yData )
     {
-        final XYSeries serie = new XYSeries(legenda);
+        final XYSeries serie = new XYSeries( legenda );
 
-        for (int i = 0, len = yData.size(); i < len; i++)
+        for ( int i = 0, len = yData.size(); i < len; i++ )
         {
-            serie.add((double) i + 1, yData.get(i).doubleValue());
+            serie.add( (double) i + 1, yData.get( i ).doubleValue() );
         }
 
-        dataset.addSeries(serie);
+        dataset.addSeries( serie );
         numSeries++;
 
         return this;
@@ -97,16 +97,16 @@ public class Grafico extends ApplicationFrame
      */
     public void mostrar()
     {
-        JFreeChart chart = ChartFactory.createXYLineChart(titulo, eixoX, eixoY,
-                dataset, PlotOrientation.VERTICAL, true, true, false);
+        JFreeChart chart = ChartFactory.createXYLineChart( titulo, eixoX, eixoY, dataset, PlotOrientation.VERTICAL,
+                                                           true, true, false );
 
         XYPlot plot = chart.getXYPlot();
 
-        setEixoY(plot);
-        setLineRenderer(plot);
+        setEixoY( plot );
+        setLineRenderer( plot );
 
-        chart.setAntiAlias(true);
-        criarGrafico(chart);
+        chart.setAntiAlias( true );
+        criarGrafico( chart );
     }
 
     /**
@@ -114,14 +114,14 @@ public class Grafico extends ApplicationFrame
      *
      * @param plot
      */
-    private void setEixoY(XYPlot plot)
+    private void setEixoY( XYPlot plot )
     {
         NumberAxis range = (NumberAxis) plot.getRangeAxis();
-        range.setRange(0.0, 1.0);
-        range.setTickUnit(new NumberTickUnit(0.05));
+        range.setRange( 0.0, 1.0 );
+        range.setTickUnit( new NumberTickUnit( 0.05 ) );
 
-        DecimalFormat fmt = new DecimalFormat("0.00");
-        range.setNumberFormatOverride(fmt);
+        DecimalFormat fmt = new DecimalFormat( "0.00" );
+        range.setNumberFormatOverride( fmt );
     }
 
     /**
@@ -129,17 +129,17 @@ public class Grafico extends ApplicationFrame
      *
      * @param plot
      */
-    private void setLineRenderer(XYPlot plot)
+    private void setLineRenderer( XYPlot plot )
     {
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 
-        for (int i = 0; i < numSeries; i++)
+        for ( int i = 0; i < numSeries; i++ )
         {
-            renderer.setSeriesLinesVisible(i, true);
-            renderer.setSeriesShapesVisible(i, true);
+            renderer.setSeriesLinesVisible( i, true );
+            renderer.setSeriesShapesVisible( i, true );
         }
 
-        plot.setRenderer(renderer);
+        plot.setRenderer( renderer );
     }
 
     /**
@@ -147,13 +147,13 @@ public class Grafico extends ApplicationFrame
      *
      * @param chart
      */
-    private void criarGrafico(JFreeChart chart)
+    private void criarGrafico( JFreeChart chart )
     {
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(800, 600));
-        setContentPane(chartPanel);
+        ChartPanel chartPanel = new ChartPanel( chart );
+        chartPanel.setPreferredSize( new Dimension( 800, 600 ) );
+        setContentPane( chartPanel );
         pack();
-        RefineryUtilities.centerFrameOnScreen(this);
-        setVisible(true);
+        RefineryUtilities.centerFrameOnScreen( this );
+        setVisible( true );
     }
 }
