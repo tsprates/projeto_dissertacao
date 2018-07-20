@@ -327,30 +327,30 @@ public class App
         final SummaryStatistics statsSMO = new SummaryStatistics();
         final SummaryStatistics statsRBF = new SummaryStatistics();
 
-        for ( int i = 0, size = listaPSO.size(); i < size; i++ )
+        for ( Double aDouble : listaPSO )
         {
-            statsPSO.addValue( listaPSO.get( i ) );
+            statsPSO.addValue( aDouble );
         }
 
         map.put( "mDPSO", statsPSO );
 
-        for ( int i = 0, size = listaJ48.size(); i < size; i++ )
+        for ( Double aDouble : listaJ48 )
         {
-            statsJ48.addValue( listaJ48.get( i ) );
+            statsJ48.addValue( aDouble );
         }
 
         map.put( "J48", statsJ48 );
 
-        for ( int i = 0, size = listaSMO.size(); i < size; i++ )
+        for ( Double aDouble : listaSMO )
         {
-            statsSMO.addValue( listaSMO.get( i ) );
+            statsSMO.addValue( aDouble );
         }
 
         map.put( "SMO", statsSMO );
 
-        for ( int i = 0, size = listaRBF.size(); i < size; i++ )
+        for ( Double aDouble : listaRBF )
         {
-            statsRBF.addValue( listaRBF.get( i ) );
+            statsRBF.addValue( aDouble );
         }
 
         map.put( "RBF", statsRBF );
