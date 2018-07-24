@@ -275,7 +275,7 @@ public class Pso
     }
 
     /**
-     * Mostra avaliação (teste).
+     * Mostra tabela de avaliação (teste).
      *
      * @param teste Lista de fitness encontrados por classe.
      */
@@ -283,7 +283,6 @@ public class Pso
     {
         System.out.println( "\n\nFase de teste:\n" );
 
-        // tabela de teste
         System.out.print( TAB_CABECALHO );
         System.out.println();
 
@@ -303,7 +302,7 @@ public class Pso
     }
 
     /**
-     * Mostra tabela de classes.
+     * Mostra tabela de resultados do treinamento.
      */
     private void mostrarTreinamento()
     {
@@ -320,7 +319,6 @@ public class Pso
 
             Collections.sort( listaParts );
 
-            // tabela de treinamento
             for ( Particula part : listaParts )
             {
                 final double[] fit = part.fitness();
@@ -627,7 +625,7 @@ public class Pso
     }
 
     /**
-     * Cria um mapa de classe por cada ID de registro da tabela.
+     * Cria um mapa de classe por cada ID de registro da base de dados.
      */
     private void carregarClassePorId()
     {
@@ -668,8 +666,7 @@ public class Pso
 
         int numCol;
 
-        try ( PreparedStatement ps = conexao.prepareStatement( sql );
-              ResultSet rs = ps.executeQuery() )
+        try ( PreparedStatement ps = conexao.prepareStatement( sql ); ResultSet rs = ps.executeQuery() )
         {
             metadata = rs.getMetaData();
             numCol = metadata.getColumnCount();
@@ -678,6 +675,8 @@ public class Pso
             {
                 String coluna = metadata.getColumnName( i + 1 );
 
+                // retorna os atributos da base de dados
+                // sem o ID e a respectiva classe
                 if ( !colClasse.equalsIgnoreCase( coluna ) && !colId.equalsIgnoreCase( coluna ) )
                 {
                     colunas.add( coluna );
@@ -691,7 +690,7 @@ public class Pso
     }
 
     /**
-     * Recupera as classes da tabela.
+     * Retorna as respectivas classes da base de dados.
      */
     private void carregarClasses()
     {
@@ -713,7 +712,7 @@ public class Pso
     }
 
     /**
-     * Recupera os máximos e mínimos das colunas.
+     * Recupera os máximos e mínimos das colunas na base de dados.
      */
     private void carregarMaxMinColunasTabela()
     {
