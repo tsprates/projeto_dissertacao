@@ -49,8 +49,6 @@ public class Pso
 
     private final List<String> colunas = new ArrayList<>();
 
-    private final Map<String, Integer> tipoColunas = new HashMap<>();
-
     private final Map<String, Double> max = new HashMap<>();
 
     private final Map<String, Double> min = new HashMap<>();
@@ -107,7 +105,7 @@ public class Pso
 
         this.enxameNicho = dividirNichoEnxame();
 
-        criarRepositorio();
+        criarRepositorioGbest();
 
         this.fitness = new Fitness( conexao, colId, tabela, mapaClasseId );
     }
@@ -131,7 +129,7 @@ public class Pso
 
             particulas = criarEnxameInicial();
 
-            resetRepositorio();
+            resetRepositorioGbest();
 
             regrasVisitadas.clear();
 
@@ -147,7 +145,7 @@ public class Pso
                     Particula particula = particulas.get( indexPart );
 
                     // gbest
-                    atualizarRepositorio( particula );
+                    atualizarRepositorioGbest( particula );
 
                     // pbest
                     particula.atualizarPbest();
@@ -670,7 +668,8 @@ public class Pso
 
         int numCol;
 
-        try ( PreparedStatement ps = conexao.prepareStatement( sql ); ResultSet rs = ps.executeQuery() )
+        try ( PreparedStatement ps = conexao.prepareStatement( sql );
+              ResultSet rs = ps.executeQuery() )
         {
             metadata = rs.getMetaData();
             numCol = metadata.getColumnCount();
@@ -678,12 +677,10 @@ public class Pso
             for ( int i = 0; i < numCol; i++ )
             {
                 String coluna = metadata.getColumnName( i + 1 );
-                int tipoColuna = metadata.getColumnType( i + 1 );
 
                 if ( !colClasse.equalsIgnoreCase( coluna ) && !colId.equalsIgnoreCase( coluna ) )
                 {
                     colunas.add( coluna );
-                    tipoColunas.put( coluna, tipoColuna );
                 }
             }
         }
@@ -905,16 +902,6 @@ public class Pso
     }
 
     /**
-     * Retorna a população (enxame) de partículas.
-     *
-     * @return Lista de partículas.
-     */
-    public List<Particula> getEnxame()
-    {
-        return particulas;
-    }
-
-    /**
      * Retorna as classes do enxame.
      *
      * @return Classes ou nichos do enxame.
@@ -927,7 +914,7 @@ public class Pso
     /**
      * Cria GBest.
      */
-    private void criarRepositorio()
+    private void criarRepositorioGbest()
     {
         // Lista não dominados (gbest)
         for ( String cl : classes )
@@ -939,7 +926,7 @@ public class Pso
     /**
      * Reset GBest.
      */
-    private void resetRepositorio()
+    private void resetRepositorioGbest()
     {
         // Lista não dominados (gbest)
         for ( String cl : classes )
@@ -953,7 +940,7 @@ public class Pso
      *
      * @param p Partícula.
      */
-    private void atualizarRepositorio( Particula p )
+    private void atualizarRepositorioGbest( Particula p )
     {
         final String classe = p.classe();
         final List<Particula> gbestLista = repositorio.get( classe );
@@ -963,7 +950,7 @@ public class Pso
         final List<Particula> rep = new ArrayList<>( gbestLista );
         repositorio.put( classe, rep );
 
-        // Verifica tamanho do repositório
+        // Verifica o número de soluções não dominadas no repositório gbest
         verificarNumParticulas( random, rep );
     }
 
