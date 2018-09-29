@@ -224,7 +224,7 @@ public class App
         }
         catch ( IOException e )
         {
-            throw new RuntimeException( "Arquivo de configurações não " + "encontrado.", e );
+            throw new RuntimeException( "Arquivo de configurações não encontrado.", e );
         }
     }
 
@@ -387,7 +387,7 @@ public class App
         algs.add( arrRBF );
 
         final String pvalor = FORMAT.formatar( TestUtils.oneWayAnovaPValue( algs ) );
-        System.out.printf( "\n\nTeste OneWay Anova (p-valor=0.05) " + "Efetividade : %s \n", pvalor );
+        System.out.printf( "\n\nTeste OneWay Anova (p-valor=0.05) Efetividade : %s \n", pvalor );
     }
 
     /**
@@ -419,7 +419,7 @@ public class App
         final double medRBF = statsRBF.getMean();
         final double desvRBF = statsRBF.getStandardDeviation();
 
-        System.out.println( "\n\nTeste de Normalidade (Kolmogorov-Smirnov) " + "Efetividade:\n" );
+        System.out.println( "\n\nTeste de Normalidade (Kolmogorov-Smirnov) Efetividade:\n" );
 
         final double ksPSO = kolmogorovSmirnov( medPSO, desvPSO, efetPSO );
         System.out.printf( "mDPSO : %s\n", FORMAT.formatar( ksPSO ) );
@@ -496,7 +496,7 @@ public class App
         final double[] result = DistributionTest.bartlett_test( x, group );
         final String pvalor = FORMAT.formatar( result[1] );
 
-        System.out.printf( "\n\nTeste Bartlett (p-valor=0.05) Efetividade :" + " %s \n", pvalor );
+        System.out.printf( "\n\nTeste Bartlett (p-valor=0.05) Efetividade : %s \n", pvalor );
     }
 
     /**
