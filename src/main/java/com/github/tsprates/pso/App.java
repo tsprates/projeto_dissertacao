@@ -686,7 +686,7 @@ public class App
             }
             catch ( IOException ex )
             {
-                throw new RuntimeException( "Não foi possível criar o diretório " + "para salvar o CSV.", ex );
+                throw new RuntimeException( "Não foi possível criar o diretório para salvar o CSV.", ex );
             }
         }
 
