@@ -651,7 +651,7 @@ public class Pso
         }
         catch ( SQLException e )
         {
-            throw new RuntimeException( "Erro ao mapear nome das colunas que " + "correspondem as saídas.", e );
+            throw new RuntimeException( "Erro ao mapear nome das colunas que correspondem as saídas.", e );
         }
     }
 
